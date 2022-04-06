@@ -1,0 +1,33 @@
+
+
+
+GELECEK PLANLARI {
+
+    TMathConstants.EPSILON değeri her yerde kullanılmadı, precision arttırılmalı ve tüm framework'e yeniden bir göz atılmalı
+
+    TFunction
+        - derivative fonksiyonunda unwrapping yapmalıyız
+        - toString() metodu belki bundan sonra yeniden yazılmalı olacak
+        - çoğu amnfunc sınıfının constructor'ları kötü yazıldı daha düzgün kod yazılmalı
+        - TPolynomial için empty constructor yazılacak, tüm yapısı yeniden daha iyi bir şekilde
+            yazılabilir çoğu fonksiyon da eski zaten TArrays filan kullanılmamış
+
+    FastMat3, FastMat4 (TMat3, TMat4)  sınıflarını yaz  =>  Mutable olabilir ya da immutable olması
+        daha iyi ise kendi TMatrix sınıfımı yeniden yazabilirim ve yalnızca TMat3, TMat4, InfMatrix olur
+        ya da InfMatrix yerine doğrudan double[][] için bir utility sınıfı hazırlarım ve TMat3 ve TMat4
+        de kendi array'lerini ona gönderir işlem yapmaları gerektiğinde aşırı karmaşık ayrıca doğrudan
+        arr ref de kullanabilirim (kendi sınıfım olan)
+
+}
+
+
+telek-vstat{
+    dot plots?
+    stem and leaf plots?
+    - frequency dist. table visualization
+    line plots?
+    - histograms
+    - boxplots
+    - istatistik dersinde gördüğüm her tür grafiğe bakabilirim hepsini not almamıştım sanırım
+}
+

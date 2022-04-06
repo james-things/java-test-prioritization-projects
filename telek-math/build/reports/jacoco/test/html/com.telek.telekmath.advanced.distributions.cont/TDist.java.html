@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TDist.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.distributions.cont</a> &gt; <span class="el_source">TDist.java</span></div><h1>TDist.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.distributions.cont;
+
+
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.utils.TelekMathException.*;
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekmath.core.constants.TMathConstants;
+
+
+/**
+ * Student's T Distribution
+ */
+public class TDist {
+
+
+    /* No constructor */
+    private TDist(){}
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+
+    /**
+     * @param v degrees of freedom
+     * @param x any value
+     * @return probability density function (PDF) result
+     */
+    public static double density(double v, double x){
+<span class="fc" id="L32">        final double nPlus1Over2 = (v + 1d) / 2d;</span>
+<span class="fc" id="L33">        return TMath.exp(TMath.logGamma(nPlus1Over2) - 0.5d * (TMath.log(TMathConstants.PI) + TMath.log(v))</span>
+<span class="fc" id="L34">                - TMath.logGamma(v / 2d) - nPlus1Over2 * TMath.log(1d + x * x / v));</span>
+    }
+
+
+
+    /**
+     * Returns P(X &lt;= x) &lt;br&gt;
+     * @param v degrees of freedom
+     * @param x any value
+     * @return cumulative density function (CDF) result
+     */
+    public static double cumulativeProbability(double v, double x){
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (x == 0d)</span>
+<span class="nc" id="L47">            return 0.5d;</span>
+
+<span class="fc" id="L49">        double t = TMath.regularizedBeta(v / (v + (x * x)), 0.5d * v, 0.5d);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        return (x &lt; 0.0d) ? 0.5d * t : 1.0d - 0.5d * t;</span>
+    }
+
+
+
+
+    /**
+     * Left tailed inverse cumulative density function (ICDF). &lt;br&gt;
+     * Returns the variable &quot;val&quot; for this equation:  p = P(X &lt;= val)
+     * @param v degrees of freedom
+     * @param p any value in range [0,1]
+     * @return inverse cumulative density function (ICDF | quantile) result
+     */
+    public static double invCumLeftTailed(double v, double p) {
+<span class="pc bpc" id="L64" title="2 of 4 branches missed.">        if(p &lt; 0d || p &gt; 1d) throw new NotInRangeException(TRange.ZERO_TO_ONE, p);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if(v &lt; 1d) throw new InvalidValueException(&quot;degreesOfFreedom (v)&quot;, v);</span>
+
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if(p == 0d) return Double.NEGATIVE_INFINITY;</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if(p == 1d) return Double.POSITIVE_INFINITY;</span>
+
+<span class="fc" id="L70">        double ret = iribfForTDist(0.5d * v, 0.5d, 2d * Math.min(p, 1d - p));</span>
+<span class="fc" id="L71">        ret = Math.sqrt(v * (1d - ret) / ret);</span>
+
+<span class="fc" id="L73">        return Math.copySign(ret, p - 0.5d);</span>
+    }
+
+
+
+
+
+    /**
+     * Right tailed inverse cumulative density function. (ICDF)&lt;br&gt;
+     * Returns the variable &quot;val&quot; for this equation:  p = P(X &gt;= val)
+     * @param v degrees of freedom
+     * @param p any value in range [0,1]
+     * @return inverse cumulative density function (ICDF) result
+     */
+    public static double invCumRightTailed(double v, double p){
+<span class="fc" id="L88">        return invCumLeftTailed(v, 1d - p);</span>
+    }
+
+
+
+
+    ///////////////
+    /*  HELPERS  */
+    ///////////////
+
+
+    /*
+        Writing this function gave me cancer so im glad that it works hehe
+        For more information: https://core.ac.uk/download/pdf/82140723.pdf
+        inverse regularized incomplete beta function
+     */
+    private static double iribfForTDist(double alpha, double beta, double probability) {
+<span class="fc" id="L105">        final double EPSILON = 1E-18;</span>
+
+<span class="fc" id="L107">        double t = TMath.exp(alpha * TMath.log(alpha / (alpha + beta))) / alpha;</span>
+<span class="fc" id="L108">        double u = TMath.exp(beta * TMath.log(beta / (alpha + beta))) / beta;</span>
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        double ret = probability &lt; t / (t + u) ?</span>
+<span class="fc" id="L111">                TMath.pow(alpha * (t + u) * probability, 1d / alpha) :</span>
+<span class="fc" id="L112">                1d - TMath.pow(beta * (t + u) * (1d - probability), 1d / beta);</span>
+
+<span class="fc" id="L114">        double logBeta = TMath.logBeta(alpha, beta);</span>
+
+        double error;
+<span class="fc" id="L117">        double alphaMOne = alpha - 1d;</span>
+<span class="fc" id="L118">        double betaMOne = beta - 1d;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (int j = 0; j &lt; 10; j++) {</span>
+<span class="pc bpc" id="L120" title="1 of 4 branches missed.">            if (ret == 0d || ret == 1d) return ret;</span>
+<span class="fc" id="L121">            error = TMath.regularizedBeta(ret, alpha, beta) - probability;</span>
+<span class="fc" id="L122">            t = TMath.exp(alphaMOne * TMath.log(ret) + betaMOne * TMath.log(1d - ret) - logBeta);</span>
+<span class="fc" id="L123">            u = error / t;</span>
+<span class="fc" id="L124">            ret -= (t = u / (1d - 0.5d * Math.min(1d, u * (alphaMOne / ret - betaMOne / (1d - ret)))));</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">            if (ret &lt;= 0d) ret = 0.5d * (ret + t);</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">            if (ret &gt;= 1d) ret = 0.5d * (ret + t + 1d);</span>
+<span class="pc bpc" id="L127" title="1 of 4 branches missed.">            if (TMath.abs(t) &lt; EPSILON * ret &amp;&amp; j &gt; 0) break;</span>
+        }
+<span class="fc" id="L129">        return ret;</span>
+    }
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

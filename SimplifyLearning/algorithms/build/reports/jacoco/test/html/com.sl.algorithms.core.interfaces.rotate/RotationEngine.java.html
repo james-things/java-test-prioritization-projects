@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RotationEngine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.interfaces.rotate</a> &gt; <span class="el_source">RotationEngine.java</span></div><h1>RotationEngine.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.interfaces.rotate;
+
+import com.sl.algorithms.core.interfaces.base.BaseInterface;
+import com.sl.algorithms.core.list.ListNode;
+import java.util.Arrays;
+
+public interface RotationEngine&lt;T extends Comparable&gt; extends BaseInterface&lt;T&gt; {
+
+  T[] rotate(T[] objects, int k, boolean clockwise);
+
+  ListNode&lt;T&gt; rotate(ListNode&lt;T&gt; head, int k, boolean clockwise);
+
+  default boolean isRotation(T[] A, T[] B) {
+<span class="fc" id="L14">    checkArray(A);</span>
+<span class="fc" id="L15">    checkArray(B);</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">    if (Arrays.equals(A, B)) {</span>
+<span class="fc" id="L17">      return true;</span>
+    }
+<span class="fc" id="L19">    int nA = A.length, nB = B.length;</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">    if (nA != nB) {</span>
+<span class="fc" id="L21">      return false;</span>
+    }
+<span class="fc" id="L23">    T common = A[0];</span>
+<span class="fc" id="L24">    int index = -1;</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    for (int i = 0; i &lt; nB; i++) {</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">      if (common.equals(B[i])) {</span>
+<span class="fc" id="L27">        index = i;</span>
+<span class="fc" id="L28">        break;</span>
+      }
+    }
+<span class="fc bfc" id="L31" title="All 2 branches covered.">    if (index == -1) {</span>
+<span class="fc" id="L32">      return false;</span>
+    }
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    for (int j = 0; j &lt; nA; j++) {</span>
+<span class="fc" id="L35">      T a = A[j];</span>
+<span class="fc" id="L36">      T b = B[(j + index) % nA];</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">      if (!a.equals(b)) {</span>
+<span class="fc" id="L38">        return false;</span>
+      }
+    }
+<span class="fc" id="L41">    return true;</span>
+  }
+
+  default boolean isRotation(ListNode&lt;T&gt; A, ListNode&lt;T&gt; B) {
+<span class="fc" id="L45">    checkList(A);</span>
+<span class="fc" id="L46">    checkList(B);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (A.equals(B)) {</span>
+<span class="fc" id="L48">      return true;</span>
+    }
+<span class="fc" id="L50">    int nA = A.size(), nB = B.size();</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">    if (nA != nB) {</span>
+<span class="fc" id="L52">      return false;</span>
+    }
+<span class="fc" id="L54">    ListNode&lt;T&gt; a = A, b = B;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">    while (b != null) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">      if (b.compareTo(a) == 0) {</span>
+<span class="fc" id="L57">        break;</span>
+      }
+<span class="fc" id="L59">      b = b.next;</span>
+    }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (b == null) {</span>
+<span class="fc" id="L62">      return false;</span>
+    }
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    while (a != null) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">      if (a.compareTo(b) != 0) {</span>
+<span class="fc" id="L66">        return false;</span>
+      }
+<span class="fc" id="L68">      a = a.next;</span>
+<span class="fc" id="L69">      b = b.next;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">      if (b == null) {</span>
+<span class="fc" id="L71">        b = B;</span>
+      }
+    }
+<span class="fc" id="L74">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

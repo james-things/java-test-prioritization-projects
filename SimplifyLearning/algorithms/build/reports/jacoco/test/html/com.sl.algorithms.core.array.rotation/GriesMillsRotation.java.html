@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GriesMillsRotation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.array.rotation</a> &gt; <span class="el_source">GriesMillsRotation.java</span></div><h1>GriesMillsRotation.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.array.rotation;
+
+import static com.sl.algorithms.core.utils.ArrayOps.swapInBlocks;
+
+import com.sl.algorithms.core.interfaces.rotate.RotationEngine;
+import com.sl.algorithms.core.list.ListNode;
+
+/**
+ * &lt;br&gt;&lt;a href=&quot;http://www.drdobbs.com/parallel/benchmarking-block-swapping-algorithms/232900395?pgno=2&quot;&gt;Gries-Mills
+ * Block-Swap Algorithm&lt;/a&gt;&lt;br&gt;
+ */
+<span class="fc" id="L12">public class GriesMillsRotation&lt;T extends Comparable&gt; implements RotationEngine&lt;T&gt; {</span>
+
+  // O(n) time and O(1) space
+  @Override
+  public T[] rotate(T[] objects, int k, boolean clockwise) {
+<span class="fc" id="L17">    checkArray(objects);</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">    if (clockwise) {</span>
+<span class="fc" id="L19">      throw new IllegalArgumentException(OPERATION_NOT_SUPPORTED_YET);</span>
+    } else {
+<span class="fc" id="L21">      return rotateLeftBlockSwap(objects, k);</span>
+    }
+  }
+
+  private T[] rotateLeftBlockSwap(T[] a, int k) {
+<span class="fc" id="L26">    int n = a.length;</span>
+<span class="fc" id="L27">    k = k % n;</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    if (k == 0) {</span>
+<span class="fc" id="L29">      return a;</span>
+    }
+<span class="fc" id="L31">    int i = k, j = n - k;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    while (i != j) {</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">      if (i &lt; j) {</span>
+<span class="fc" id="L34">        swapInBlocks(a, k - i, k + j - i, i);</span>
+<span class="fc" id="L35">        j -= i;</span>
+      } else {
+<span class="fc" id="L37">        swapInBlocks(a, k - i, k, j);</span>
+<span class="fc" id="L38">        i -= j;</span>
+      }
+    }
+<span class="fc" id="L41">    swapInBlocks(a, k - i, k, i);</span>
+<span class="fc" id="L42">    return a;</span>
+  }
+
+  @Override
+  public ListNode&lt;T&gt; rotate(ListNode&lt;T&gt; listNode, int k, boolean clockwise) {
+<span class="fc" id="L47">    throw new UnsupportedOperationException();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnixOwnersHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">UnixOwnersHeader.java</span></div><h1>UnixOwnersHeader.java</h1><pre class="source lang-java linenums">package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+public class UnixOwnersHeader extends SubBlockHeader {
+<span class="nc" id="L9">    private static final Logger logger = LoggerFactory.getLogger(UnixOwnersHeader.class);</span>
+    private int ownerNameSize;
+    private int groupNameSize;
+    private String owner;
+    private String group;
+
+    public  UnixOwnersHeader(SubBlockHeader sb, byte[] uoHeader) {
+<span class="nc" id="L16">        super(sb);</span>
+<span class="nc" id="L17">        int pos = 0;</span>
+<span class="nc" id="L18">        ownerNameSize = Raw.readShortLittleEndian(uoHeader, pos) &amp; 0xFFFF;</span>
+<span class="nc" id="L19">        pos += 2;</span>
+<span class="nc" id="L20">        groupNameSize = Raw.readShortLittleEndian(uoHeader, pos) &amp; 0xFFFF;</span>
+<span class="nc" id="L21">        pos += 2;</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        if (pos + ownerNameSize &lt; uoHeader.length) {</span>
+<span class="nc" id="L23">            owner = new String(uoHeader, pos, ownerNameSize);</span>
+        }
+<span class="nc" id="L25">        pos += ownerNameSize;</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (pos + groupNameSize &lt; uoHeader.length) {</span>
+<span class="nc" id="L27">            group = new String(uoHeader, pos, groupNameSize);</span>
+        }
+<span class="nc" id="L29">    }</span>
+    /**
+     * @return the group
+     */
+    public String getGroup() {
+<span class="nc" id="L34">        return group;</span>
+    }
+    /**
+     * @param group the group to set
+     */
+    public void setGroup(String group) {
+<span class="nc" id="L40">        this.group = group;</span>
+<span class="nc" id="L41">    }</span>
+    /**
+     * @return the groupNameSize
+     */
+    public int getGroupNameSize() {
+<span class="nc" id="L46">        return groupNameSize;</span>
+    }
+    /**
+     * @param groupNameSize the groupNameSize to set
+     */
+    public void setGroupNameSize(int groupNameSize) {
+<span class="nc" id="L52">        this.groupNameSize = groupNameSize;</span>
+<span class="nc" id="L53">    }</span>
+    /**
+     * @return the owner
+     */
+    public String getOwner() {
+<span class="nc" id="L58">        return owner;</span>
+    }
+    /**
+     * @param owner the owner to set
+     */
+    public void setOwner(String owner) {
+<span class="nc" id="L64">        this.owner = owner;</span>
+<span class="nc" id="L65">    }</span>
+    /**
+     * @return the ownerNameSize
+     */
+    public int getOwnerNameSize() {
+<span class="nc" id="L70">        return ownerNameSize;</span>
+    }
+    /**
+     * @param ownerNameSize the ownerNameSize to set
+     */
+    public void setOwnerNameSize(int ownerNameSize) {
+<span class="nc" id="L76">        this.ownerNameSize = ownerNameSize;</span>
+<span class="nc" id="L77">    }</span>
+
+    /* (non-Javadoc)
+     * @see de.innosystec.unrar.rarfile.SubBlockHeader#print()
+     */
+    public void print() {
+<span class="nc" id="L83">        super.print();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L85">            logger.info(&quot;ownerNameSize: {}&quot;, ownerNameSize);</span>
+<span class="nc" id="L86">            logger.info(&quot;owner: {}&quot;, owner);</span>
+<span class="nc" id="L87">            logger.info(&quot;groupNameSize: {}&quot;, groupNameSize);</span>
+<span class="nc" id="L88">            logger.info(&quot;group: {}&quot;, group);</span>
+        }
+<span class="nc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

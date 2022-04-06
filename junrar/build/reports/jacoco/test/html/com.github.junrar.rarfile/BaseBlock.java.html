@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BaseBlock.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">BaseBlock.java</span></div><h1>BaseBlock.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 22.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
+/**
+ * Base class of all rar headers
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class BaseBlock {
+
+<span class="fc" id="L35">    private static final Logger logger = LoggerFactory.getLogger(BaseBlock.class);</span>
+
+    public static final short BaseBlockSize = 7;
+
+    //TODO move somewhere else
+
+    public static final short MHD_VOLUME = 0x0001;
+    public static final short MHD_COMMENT = 0x0002;
+    public static final short MHD_LOCK = 0x0004;
+    public static final short MHD_SOLID = 0x0008;
+    public static final short MHD_PACK_COMMENT = 0x0010;
+    public static final short MHD_NEWNUMBERING = 0x0010;
+    public static final short MHD_AV = 0x0020;
+    public static final short MHD_PROTECT = 0x0040;
+    public static final short MHD_PASSWORD = 0x0080;
+    public static final short MHD_FIRSTVOLUME = 0x0100;
+    public static final short MHD_ENCRYPTVER = 0x0200;
+
+
+    public static final short LHD_SPLIT_BEFORE =  0x0001;
+    public static final short LHD_SPLIT_AFTER  =  0x0002;
+    public static final short LHD_PASSWORD     =  0x0004;
+    public static final short LHD_COMMENT      =  0x0008;
+    public static final short LHD_SOLID        =  0x0010;
+
+    public static final short LHD_WINDOWMASK   =  0x00e0;
+    public static final short LHD_WINDOW64     =  0x0000;
+    public static final short LHD_WINDOW128    =  0x0020;
+    public static final short LHD_WINDOW256    =  0x0040;
+    public static final short LHD_WINDOW512    =  0x0060;
+    public static final short LHD_WINDOW1024   =  0x0080;
+    public static final short LHD_WINDOW2048   =  0x00a0;
+    public static final short LHD_WINDOW4096   =  0x00c0;
+    public static final short LHD_DIRECTORY    =  0x00e0;
+
+    public static final short LHD_LARGE        =  0x0100;
+    public static final short LHD_UNICODE      =  0x0200;
+    public static final short LHD_SALT         =  0x0400;
+    public static final short LHD_VERSION      =  0x0800;
+    public static final short LHD_EXTTIME      =  0x1000;
+    public static final short LHD_EXTFLAGS     =  0x2000;
+
+    public static final short SKIP_IF_UNKNOWN  =  0x4000;
+    public static final short LONG_BLOCK       = -0x8000;
+
+    public static final short EARC_NEXT_VOLUME =  0x0001;
+    public static final short EARC_DATACRC     =  0x0002;
+    public static final short EARC_REVSPACE    =  0x0004;
+    public static final short EARC_VOLNUMBER   =  0x0008;
+
+
+    protected long positionInFile;
+
+<span class="pc" id="L88">    protected short headCRC = 0;</span>
+<span class="pc" id="L89">    protected byte headerType = 0;</span>
+<span class="pc" id="L90">    protected short flags = 0;</span>
+<span class="pc" id="L91">    protected short headerSize = 0;</span>
+
+    /**
+     *
+     */
+<span class="nc" id="L96">    public BaseBlock() {</span>
+
+<span class="nc" id="L98">    }</span>
+
+<span class="fc" id="L100">    public BaseBlock(BaseBlock bb) {</span>
+<span class="fc" id="L101">        this.flags = bb.getFlags();</span>
+<span class="fc" id="L102">        this.headCRC = bb.getHeadCRC();</span>
+<span class="fc" id="L103">        this.headerType = bb.getHeaderType().getHeaderByte();</span>
+<span class="fc" id="L104">        this.headerSize = bb.getHeaderSize(false);</span>
+<span class="fc" id="L105">        this.positionInFile = bb.getPositionInFile();</span>
+<span class="fc" id="L106">    }</span>
+<span class="fc" id="L107">    public BaseBlock(byte[] baseBlockHeader) {</span>
+
+<span class="fc" id="L109">        int pos = 0;</span>
+<span class="fc" id="L110">        this.headCRC = Raw.readShortLittleEndian(baseBlockHeader, pos);</span>
+<span class="fc" id="L111">        pos += 2;</span>
+<span class="fc" id="L112">        this.headerType |= baseBlockHeader[pos] &amp; 0xff;</span>
+<span class="fc" id="L113">        pos++;</span>
+<span class="fc" id="L114">        this.flags = Raw.readShortLittleEndian(baseBlockHeader, pos);</span>
+<span class="fc" id="L115">        pos += 2;</span>
+<span class="fc" id="L116">        this.headerSize = Raw.readShortLittleEndian(baseBlockHeader, pos);</span>
+<span class="fc" id="L117">    }</span>
+
+
+    public boolean hasArchiveDataCRC() {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        return (this.flags &amp; EARC_DATACRC) != 0;</span>
+    }
+
+    public boolean hasVolumeNumber() {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        return (this.flags &amp; EARC_VOLNUMBER) != 0;</span>
+    }
+
+    public boolean hasEncryptVersion() {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        return (flags &amp; MHD_ENCRYPTVER) != 0;</span>
+    }
+
+    /**
+     * @return is it a sub block
+     */
+    public boolean isSubBlock() {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (UnrarHeadertype.SubHeader.equals(headerType)) {</span>
+<span class="nc" id="L137">            return (true);</span>
+        }
+<span class="nc bnc" id="L139" title="All 4 branches missed.">        if (UnrarHeadertype.NewSubHeader.equals(headerType) &amp;&amp; (flags &amp; LHD_SOLID) != 0) {</span>
+<span class="nc" id="L140">            return (true);</span>
+        }
+<span class="nc" id="L142">        return (false);</span>
+
+    }
+
+    public long getPositionInFile() {
+<span class="fc" id="L147">        return positionInFile;</span>
+    }
+
+    public short getFlags() {
+<span class="fc" id="L151">        return flags;</span>
+    }
+
+    public short getHeadCRC() {
+<span class="fc" id="L155">        return headCRC;</span>
+    }
+
+    /**
+     * The header size.
+     *
+     * @return the header size
+     * @deprecated As of 7.3.0, replaced by {@link #getHeaderSize(boolean)}
+     */
+    @Deprecated
+    public short getHeaderSize() {
+<span class="nc" id="L166">        return headerSize;</span>
+    }
+
+    /**
+     * The header size, padded if encrypted.
+     *
+     * @param encrypted if the header is encrypted.
+     * @return the header size, and the padded header size if the header is encrypted.
+     */
+    public short getHeaderSize(boolean encrypted) {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (encrypted) {</span>
+<span class="fc" id="L177">            return (short) (headerSize + getHeaderPaddingSize());</span>
+        } else {
+<span class="fc" id="L179">            return headerSize;</span>
+        }
+    }
+
+    private short getHeaderPaddingSize() {
+<span class="fc" id="L184">        return (short) ((~headerSize + 1) &amp; 0xF);</span>
+    }
+
+    public UnrarHeadertype getHeaderType() {
+<span class="fc" id="L188">        return UnrarHeadertype.findType(headerType);</span>
+    }
+
+    public void setPositionInFile(long positionInFile) {
+<span class="fc" id="L192">        this.positionInFile = positionInFile;</span>
+<span class="fc" id="L193">    }</span>
+
+    public void print() {
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="fc" id="L197">            StringBuilder str = new StringBuilder();</span>
+<span class="fc" id="L198">            str.append(&quot;HeaderType: &quot;).append(getHeaderType());</span>
+<span class="fc" id="L199">            str.append(&quot;\nHeadCRC: &quot;).append(Integer.toHexString(getHeadCRC()));</span>
+<span class="fc" id="L200">            str.append(&quot;\nFlags: &quot;).append(Integer.toHexString(getFlags()));</span>
+<span class="fc" id="L201">            str.append(&quot;\nHeaderSize: &quot;).append(getHeaderSize(false));</span>
+<span class="fc" id="L202">            str.append(&quot;\nPosition in file: &quot;).append(getPositionInFile());</span>
+<span class="fc" id="L203">            logger.info(str.toString());</span>
+        }
+<span class="fc" id="L205">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

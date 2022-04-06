@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CountingSort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.sort.finitegroups.integersorting</a> &gt; <span class="el_source">CountingSort.java</span></div><h1>CountingSort.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.sort.finitegroups.integersorting;
+
+import com.sl.algorithms.core.interfaces.select.MedianFinder;
+import com.sl.algorithms.core.interfaces.sort.SortingEngine;
+import com.sl.algorithms.core.list.ListNode;
+import com.sl.algorithms.search.median.QuickSelectMedianFinder;
+
+/**
+ * &lt;br&gt;A stable special-purpose integer-sort algorithm with linear time and space complexity =
+ * O(N+kMax), the range of legit values in the array i.e. (0..kMax-1).&lt;br&gt;
+ * &lt;br&gt;&lt;u&gt;Inventor&lt;/u&gt;:&amp;nbsp;&lt;a href=&quot;https://en.wikipedia.org/wiki/Harold_H._Seward&quot;&gt;Harold H
+ * Seward&lt;/a&gt;&lt;br&gt; &lt;br&gt;&lt;u&gt;Note&lt;/u&gt;:&amp;nbsp;kMax is not significantly more than n (only then this algo
+ * is advantageous). While I have implemented for integers, counting-sort can be used for any
+ * elements as long as their key is an integer.&lt;br&gt; &lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Counting_sort&quot;&gt;Reference
+ * Reading 0&lt;/a&gt; &lt;br&gt;&lt;a href=&quot;https://brilliant.org/wiki/counting-sort/&quot;&gt;Reference Reading 1&lt;/a&gt;
+ * &lt;br&gt;&lt;a href=&quot;https://stackoverflow.com/a/17111445/5775247&quot;&gt;Reference Reading 2 (how stability is
+ * achieved)&lt;/a&gt; &lt;br&gt;&lt;a href=&quot;http://www.cs.usfca.edu/~galles/visualization/CountingSort.html&quot;&gt;Animation&lt;/a&gt;&lt;br&gt;
+ */
+@SuppressWarnings(&quot;unchecked&quot;) // valueOf
+<span class="fc" id="L20">public class CountingSort&lt;T extends Integer&gt; implements SortingEngine&lt;T&gt; {</span>
+
+  @Override
+  public void sort(T[] nums) {
+<span class="fc" id="L24">    checkArray(nums);</span>
+<span class="fc" id="L25">    int n = nums.length;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (n == 1) {</span>
+<span class="fc" id="L27">      return;</span>
+    }
+<span class="fc" id="L29">    countSort(nums, n, 1, findMax(nums));</span>
+<span class="fc" id="L30">  }</span>
+
+  /**
+   * @param nums - array to be sorted
+   * @param n - size
+   * @param digit - the digit's place to use for sort, with defaultValue = 1
+   * @param kMax - the range of legit values in the array i.e. (0..kMax-1)
+   */
+  void countSort(T[] nums, int n, int digit, int kMax) {
+<span class="fc" id="L39">    int[] counts = count(nums, digit, kMax);</span>
+<span class="fc" id="L40">    T[] output = (T[]) new Integer[n];</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    for (int i = n - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L42">      T obj = nums[i];</span>
+<span class="fc" id="L43">      int j = getIndex(obj, digit);</span>
+<span class="fc" id="L44">      output[counts[j] - 1] = obj;</span>
+<span class="fc" id="L45">      --counts[j];</span>
+    }
+<span class="fc" id="L47">    System.arraycopy(output, 0, nums, 0, n);</span>
+<span class="fc" id="L48">  }</span>
+
+  private int[] count(T[] objects, int digitPlace, int kMax) {
+<span class="fc" id="L51">    int[] countArray = new int[kMax + 1];</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    for (T obj : objects) { // count</span>
+<span class="fc" id="L53">      int i = getIndex(obj, digitPlace);</span>
+<span class="fc" id="L54">      ++countArray[i];</span>
+    }
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    for (int i = 1; i &lt;= kMax; i++) { // mark start-index for each element</span>
+<span class="fc" id="L57">      countArray[i] += countArray[i - 1];</span>
+    }
+<span class="fc" id="L59">    return countArray;</span>
+  }
+
+  private int getIndex(int obj, int digitPlace) {
+<span class="fc" id="L63">    return (obj / digitPlace) % DECIMAL_RADIX;</span>
+  }
+
+  T findMax(T[] objects) {
+<span class="fc" id="L67">    MedianFinder&lt;T&gt; medianFinder = new QuickSelectMedianFinder&lt;&gt;();</span>
+<span class="fc" id="L68">    return medianFinder.findMaximum(objects);</span>
+  }
+
+  @Override
+  public ListNode&lt;T&gt; sortList(ListNode&lt;T&gt; list) {
+<span class="fc" id="L73">    throw new UnsupportedOperationException();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

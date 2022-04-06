@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.core.utils.FormulasTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:32" hostname="LAPTOP-0DNPIBQS" time="0.015">
+  <properties/>
+  <testcase name="testIsNeonNumber" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.001"/>
+  <testcase name="midPointTest" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testOrderOf" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testPrimality" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testPrintArmstrongNumbers" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.009"/>
+  <testcase name="testHaveSameDigitsAndLengthPrimes" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.001"/>
+  <testcase name="testEulerPrimes" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.002"/>
+  <testcase name="midPointTestLargeNumbers" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testIsPalindrome" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testHaveSameDigitsAndLength" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testRaiseTo" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="hcfTest" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="midPointTestLargeRange" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <testcase name="testPrimalityLargeNumber" classname="com.sl.algorithms.core.utils.FormulasTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

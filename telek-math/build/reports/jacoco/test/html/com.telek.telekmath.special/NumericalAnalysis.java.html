@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumericalAnalysis.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.special</a> &gt; <span class="el_source">NumericalAnalysis.java</span></div><h1>NumericalAnalysis.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.special;
+
+import com.telek.telekmath.core.functions.AbstractFunction;
+import com.telek.telekmath.core.functions.other.TPolynomial;
+import com.telek.telekmath.core.geometry.points.TPoint2D;
+import com.telek.telekmath.utils.TelekMathException.*;
+import com.telek.telekutils.arrayref.oned.DoubleArrRef;
+import com.telek.telekutils.arrayref.oned.FloatArrRef;
+import com.telek.telekutils.arrayref.oned.IntArrRef;
+import com.telek.telekutils.arrayref.oned.ArrayRef;
+
+
+public class NumericalAnalysis {
+
+    /*  No constructor  */
+    private NumericalAnalysis(){}
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+    ////////////////////////    LAGRANGE POLYNOMIALS    ////////////////////////
+
+    public static TPolynomial getLagrangePolynomial(ArrayRef array){
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if(array.getSize() % 2 != 0)</span>
+<span class="nc" id="L27">            throw new InvalidValueException(&quot;points.length&quot;, array.getSize());</span>
+<span class="fc" id="L28">        TPolynomial res = new TPolynomial(0);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        for (int i = 0; i &lt; array.getSize(); i+=2) {</span>
+<span class="fc" id="L30">            double curY = array.getValue(i+1);</span>
+<span class="fc" id="L31">            TPolynomial p = getPolyForLagrange(array, i).multiply(new TPolynomial(curY));</span>
+<span class="fc" id="L32">            double denom = getDenomForLagrange(array, i);</span>
+<span class="fc" id="L33">            p = p.multiply(new TPolynomial(1d / denom));</span>
+<span class="fc" id="L34">            res = res.add(p);</span>
+        }
+<span class="fc" id="L36">        return res;</span>
+    }
+
+    public static TPolynomial getLagrangePolynomial(TPoint2D... points){
+<span class="fc" id="L40">        TPolynomial res = new TPolynomial(0);</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        for (int i = 0; i &lt; points.length; i++) {</span>
+<span class="fc" id="L42">            TPoint2D curPoint = points[i];</span>
+<span class="fc" id="L43">            TPolynomial p = getPolyForLagrange(points, i).multiply(new TPolynomial(curPoint.y));</span>
+<span class="fc" id="L44">            double denom = getDenomForLagrange(points, i);</span>
+<span class="fc" id="L45">            p = p.multiply(new TPolynomial(1d / denom));</span>
+<span class="fc" id="L46">            res = res.add(p);</span>
+        }
+<span class="fc" id="L48">        return res;</span>
+    }
+
+    public static TPolynomial getLagrangePolynomial(double... array){
+<span class="nc" id="L52">        return getLagrangePolynomial(new DoubleArrRef(array));</span>
+    }
+    public static TPolynomial getLagrangePolynomial(float... array){
+<span class="nc" id="L55">        return getLagrangePolynomial(new FloatArrRef(array));</span>
+    }
+    public static TPolynomial getLagrangePolynomial(int... array){
+<span class="fc" id="L58">        return getLagrangePolynomial(new IntArrRef(array));</span>
+    }
+
+
+
+    ////////////////////////    NUMERICAL METHODS FOR FINDING ROOTS    ////////////////////////
+
+
+    public static double regulaFalse(AbstractFunction f, double a, double b, int iterationCount){
+<span class="fc" id="L67">        double bigNum = Math.max(a,b);</span>
+<span class="fc" id="L68">        double smallNum = Math.min(a,b);</span>
+<span class="fc" id="L69">        double c = 0;</span>
+        double fa, fb, fc;
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for(int i = 0; i &lt; iterationCount; i++){</span>
+<span class="fc" id="L72">            fa = f.value(smallNum);</span>
+<span class="fc" id="L73">            fb = f.value(bigNum);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">            if( fa * fb &gt;= 0) break;</span>
+            else{
+<span class="fc" id="L76">                c = bigNum - ( fb * ( (bigNum-smallNum) / (fb - fa) ) );</span>
+<span class="fc" id="L77">                fc = f.value(c);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">                if( fa * fc &lt; 0){</span>
+<span class="fc" id="L79">                    smallNum = Math.min(smallNum, bigNum);</span>
+<span class="fc" id="L80">                    bigNum = c;</span>
+                }
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                else if(fb * fc &lt; 0){</span>
+<span class="fc" id="L83">                    smallNum = c;</span>
+<span class="fc" id="L84">                    bigNum = Math.max(smallNum, bigNum);</span>
+                }
+            }
+        }
+<span class="fc" id="L88">        return c;</span>
+    }
+
+
+    public static double bisectionMethod(AbstractFunction f, double a, double b, int iterationCount){
+<span class="fc" id="L93">        double bigNum = Math.max(a,b);</span>
+<span class="fc" id="L94">        double smallNum = Math.min(a,b);</span>
+<span class="fc" id="L95">        double c = 0;</span>
+        double fa, fb, fc;
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for(int i = 0; i &lt; iterationCount; i++){</span>
+<span class="fc" id="L98">            fa = f.value(smallNum);</span>
+<span class="fc" id="L99">            fb = f.value(bigNum);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">            if( fa * fb &gt;= 0) break;</span>
+            else{
+<span class="fc" id="L102">                c = (bigNum + smallNum)/2;</span>
+<span class="fc" id="L103">                fc = f.value(c);</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                if( fa * fc &lt; 0){</span>
+<span class="fc" id="L105">                    smallNum = Math.min(smallNum, bigNum);</span>
+<span class="fc" id="L106">                    bigNum = c;</span>
+                }
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">                else if(fb * fc &lt; 0){</span>
+<span class="fc" id="L109">                    smallNum = c;</span>
+<span class="fc" id="L110">                    bigNum = Math.max(smallNum, bigNum);</span>
+                }
+            }
+        }
+<span class="fc" id="L114">        return c;</span>
+    }
+
+
+    public static double newtonsMethod(AbstractFunction f, double a, double b, int iterationCount){
+<span class="fc" id="L119">        AbstractFunction df = f.derivative();</span>
+<span class="fc" id="L120">        double xn1 = Math.min(a,b);</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        for(int i = 0; i &lt; iterationCount; i++)</span>
+<span class="fc" id="L122">            xn1 = xn1 - ( f.value(xn1) / df.value(xn1) );</span>
+
+<span class="fc" id="L124">        return xn1;</span>
+    }
+
+
+    ///////////////
+    /*  HELPERS  */
+    ///////////////
+
+    private static TPolynomial getPolyForLagrange(ArrayRef array, int dontTake){
+<span class="fc" id="L133">        TPolynomial res = new TPolynomial(1); // f(x) = 1</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (int i = 0; i &lt; array.getSize(); i+=2) {</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            if(i == dontTake)</span>
+<span class="fc" id="L136">                continue;</span>
+<span class="fc" id="L137">            res = res.multiply(new TPolynomial(-array.getValue(i), 1)); // x - x_i</span>
+        }
+<span class="fc" id="L139">        return res;</span>
+    }
+
+    private static double getDenomForLagrange(ArrayRef array, int dontTake){
+<span class="fc" id="L143">        double d = 1d;</span>
+<span class="fc" id="L144">        final double dontTakeX = array.getValue(dontTake);</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (int i = 0; i &lt; array.getSize(); i+=2) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if(i == dontTake)</span>
+<span class="fc" id="L147">                continue;</span>
+<span class="fc" id="L148">            d *= (dontTakeX - array.getValue(i));</span>
+        }
+<span class="fc" id="L150">        return d;</span>
+    }
+
+    private static TPolynomial getPolyForLagrange(TPoint2D[] points, int dontTake){
+<span class="fc" id="L154">        TPolynomial res = new TPolynomial(1); // f(x) = 1</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        for (int i = 0; i &lt; points.length; i++) {</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if(i == dontTake)</span>
+<span class="fc" id="L157">                continue;</span>
+<span class="fc" id="L158">            TPoint2D curPoint = points[i];</span>
+<span class="fc" id="L159">            res = res.multiply(new TPolynomial(-curPoint.x, 1)); // x - x_i</span>
+        }
+<span class="fc" id="L161">        return res;</span>
+    }
+
+    private static double getDenomForLagrange(TPoint2D[] points, int dontTake){
+<span class="fc" id="L165">        double d = 1d;</span>
+<span class="fc" id="L166">        final double dontTakeX = points[dontTake].x;</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        for (int i = 0; i &lt; points.length; i++) {</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            if(i == dontTake)</span>
+<span class="fc" id="L169">                continue;</span>
+<span class="fc" id="L170">            d *= (dontTakeX - points[i].x);</span>
+        }
+<span class="fc" id="L172">        return d;</span>
+    }
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

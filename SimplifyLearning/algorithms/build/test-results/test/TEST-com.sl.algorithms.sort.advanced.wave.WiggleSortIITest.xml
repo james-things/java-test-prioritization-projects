@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.sort.advanced.wave.WiggleSortIITest" tests="4" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:47" hostname="LAPTOP-0DNPIBQS" time="0.012">
+  <properties/>
+  <testcase name="assertWaveForListWithDupes" classname="com.sl.algorithms.sort.advanced.wave.WiggleSortIITest" time="0.004"/>
+  <testcase name="assertSmallSets" classname="com.sl.algorithms.sort.advanced.wave.WiggleSortIITest" time="0.0"/>
+  <testcase name="assertWaveForSortedList" classname="com.sl.algorithms.sort.advanced.wave.WiggleSortIITest" time="0.006"/>
+  <testcase name="assertWaveForUnsortedList" classname="com.sl.algorithms.sort.advanced.wave.WiggleSortIITest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

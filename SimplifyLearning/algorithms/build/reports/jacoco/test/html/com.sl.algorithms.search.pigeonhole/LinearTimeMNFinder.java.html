@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinearTimeMNFinder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.search.pigeonhole</a> &gt; <span class="el_source">LinearTimeMNFinder.java</span></div><h1>LinearTimeMNFinder.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.search.pigeonhole;
+
+import static com.sl.algorithms.core.utils.ArrayOps.swap;
+
+import com.sl.algorithms.core.interfaces.search.pigeonhole.MissingNumberFinder;
+
+/**
+ * &lt;p&gt;O(n) time and O(1) space algorithm to find the first missing positive number.&lt;/p&gt;
+ *
+ * @see MissingNumberFinder
+ */
+<span class="fc" id="L12">public class LinearTimeMNFinder implements MissingNumberFinder {</span>
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/first-missing-positive/description/&quot;&gt;First Missing
+   * Positive&lt;/a&gt;&lt;br&gt; &lt;br&gt;&lt;u&gt;Approach (Reverse of Pigeonhole)&lt;/u&gt;: you can 'n' balls, you put them
+   * into n+1 bins, one bin will remain empty.&lt;br&gt; &lt;br&gt;Phase-1: &quot;approximate&quot; sort to ensure the
+   * elements are at their rightful index e.g. 3 is at 3 &lt;br&gt;Phase-2: detect mis-match i.e.
+   * missing-number.&lt;br&gt; &lt;br&gt;Usefulness: can handle duplicates and space is constant.&lt;br&gt;
+   */
+  @Override
+  public int findFirstMissingPositive(int[] nums) {
+<span class="fc bfc" id="L23" title="All 4 branches covered.">    if (nums == null || nums.length == 0) {</span>
+<span class="fc" id="L24">      return 1;</span>
+    }
+<span class="fc" id="L26">    int n = nums.length;</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">    for (int i = 0; i &lt; n; ) { // phase-1 : sort as much possible</span>
+<span class="fc" id="L28">      int num = nums[i];</span>
+<span class="fc bfc" id="L29" title="All 6 branches covered.">      if (num &gt; 0 &amp;&amp; num &lt; n &amp;&amp; num != nums[num]) { // n&gt;=0, if 0 is also in scope</span>
+<span class="fc" id="L30">        swap(nums, i, num);</span>
+      } else {
+<span class="fc" id="L32">        i++;</span>
+      }
+<span class="fc" id="L34">    }</span>
+    // at this point, all numbers will be at their designated positions, except the missing number
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    for (int i = 1; i &lt; n; i++) { // phase-2a : find missing number // i=0 if 0 is also in scope</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">      if (nums[i] != i) {</span>
+<span class="fc" id="L38">        return i;</span>
+      }
+    }
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    if (nums[0]</span>
+        == n) { // phase-2b : // missing number is greater than all the numbers present in the array
+<span class="fc" id="L43">      return ++n;</span>
+    }
+<span class="fc" id="L45">    return n;</span>
+  }
+
+  /**
+   * &lt;br&gt;&lt;u&gt;Complexity&lt;/u&gt;: O(n) time and O(1) space.&lt;br&gt; &lt;br&gt;&lt;u&gt;Assumption&lt;/u&gt;: no duplicates.&lt;br&gt;
+   * &lt;br&gt;&lt;u&gt;Approach&lt;/u&gt;: Because we know that 'nums' contains 'n' numbers and that it is missing
+   * exactly one number in the range [0..n-1], we can infer that 'n' definitely replaces the missing
+   * number in nums.&lt;br&gt; &lt;br&gt;Therefore, if we initialize an integer to 'n' and XOR it with every
+   * index and value, we will be left with the missing number.&lt;br&gt;
+   */
+  @Override
+  public int findMissingNumber(int[] nums) {
+<span class="fc bfc" id="L57" title="All 4 branches covered.">    if (nums == null || nums.length == 0) {</span>
+<span class="fc" id="L58">      return 0;</span>
+    }
+<span class="fc" id="L60">    int n = nums.length;</span>
+<span class="fc" id="L61">    int xor = n;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    for (int i = n - 1; i &gt; 0; i--) {</span>
+<span class="fc" id="L63">      xor ^= i;</span>
+    }
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L66">      xor ^= nums[i];</span>
+    }
+<span class="fc" id="L68">    return xor;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

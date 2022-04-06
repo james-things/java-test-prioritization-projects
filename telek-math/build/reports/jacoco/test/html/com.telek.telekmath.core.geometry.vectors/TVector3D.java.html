@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TVector3D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.geometry.vectors</a> &gt; <span class="el_source">TVector3D.java</span></div><h1>TVector3D.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.geometry.vectors;
+
+
+import com.telek.telekmath.core.geometry.TLine2D;
+import com.telek.telekmath.core.geometry.points.TPoint3D;
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekmath.core.matrices.TMatrix;
+
+import java.util.Objects;
+
+
+/**
+ * An immutable 3D vector class. &lt;br&gt;
+ * All methods either return a numeric value or &lt;b&gt;a new {@link TVector3D} instance&lt;/b&gt;.
+ */
+public class TVector3D {
+
+<span class="fc" id="L18">    public static final TVector3D ZERO = new TVector3D(0d, 0d, 0d);</span>
+
+    public final double x,y,z;
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+<span class="fc" id="L27">    public TVector3D(double x, double y, double z) {</span>
+<span class="fc" id="L28">        this.x = x;</span>
+<span class="fc" id="L29">        this.y = y;</span>
+<span class="fc" id="L30">        this.z = z;</span>
+<span class="fc" id="L31">    }</span>
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+    public TVector3D add(TVector3D vector2){
+<span class="fc" id="L40">        return new TVector3D(this.x + vector2.x, this.y + vector2.y, this.z + vector2.z);</span>
+    }
+
+    public TVector3D add(double x, double y, double z){
+<span class="fc" id="L44">        return new TVector3D(this.x + x, this.y + y, this.z + z);</span>
+    }
+
+    public TVector3D subtract(TVector3D vector2){
+<span class="fc" id="L48">        return new TVector3D(this.x - vector2.x, this.y - vector2.y, this.z - vector2.z);</span>
+    }
+
+    public TVector3D subtract(double x, double y, double z){
+<span class="fc" id="L52">        return new TVector3D(this.x - x, this.y - y, this.z - z);</span>
+    }
+
+    public TVector3D scale(double scale){
+<span class="fc" id="L56">        return new TVector3D( this.x * scale, this.y * scale, this.z * scale );</span>
+    }
+
+    public TVector3D scale(double scaleX, double scaleY, double scaleZ){
+<span class="fc" id="L60">        return new TVector3D( this.x * scaleX, this.y * scaleY, this.z * scaleZ );</span>
+    }
+
+    public double dot(TVector3D vector2){
+<span class="fc" id="L64">        return this.x * vector2.x + this.y * vector2.y + this.z * vector2.z;</span>
+    }
+
+    public TVector3D cross(TVector3D vector2){
+<span class="fc" id="L68">        return new TVector3D(</span>
+                (this.y * vector2.z - this.z * vector2.y),
+                (this.z * vector2.x - this.x * vector2.z),
+                (this.x * vector2.y - this.y * vector2.x)
+        );
+    }
+
+    public TVector3D unitVector(){
+<span class="fc" id="L76">        double size = this.length();</span>
+<span class="fc" id="L77">        return new TVector3D( this.x / size, this.y / size, this.z / size );</span>
+    }
+
+    public boolean isUnitVector() {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        return this.length() == 1;</span>
+    }
+
+    public boolean isZeroVector() {
+<span class="pc bpc" id="L85" title="2 of 6 branches missed.">        return this.x == 0 &amp;&amp; this.y == 0 &amp;&amp; this.z == 0;</span>
+    }
+
+
+    /**
+     * vec1.projection(vec2) computes the projection of vec2 onto vec1.
+     * @param vector2 any vector
+     * @return projection of vec2 onto vec1
+     */
+    public TVector3D projection(TVector3D vector2) {
+<span class="fc" id="L95">        return vector2.scale( (this.dot(vector2)) / (vector2.length() * vector2.length()) );</span>
+    }
+
+
+    public double length() {
+<span class="fc" id="L100">        return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );</span>
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static boolean areOrthogonal(TVector3D vector1, TVector3D vector2, TVector3D vector3){
+<span class="nc bnc" id="L108" title="All 6 branches missed.">        return (vector1.dot(vector2) == 0 &amp;&amp; vector1.dot(vector3) == 0 &amp;&amp; vector2.dot(vector3) == 0);</span>
+    }
+
+    public static boolean areLinearlyIndependent(TVector3D vector1, TVector3D vector2, TVector3D vector3){
+<span class="nc" id="L112">        double det = new TMatrix(new double[][]{</span>
+                {vector1.x, vector2.x, vector2.x},
+                {vector1.y, vector2.y, vector2.y},
+                {vector1.z, vector2.z, vector2.z}
+<span class="nc" id="L116">        }).determinant();</span>
+
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        return ( det != 0 );</span>
+    }
+
+    public static double distanceBetweenTwoVectors(TVector3D vector1, TVector3D vector2) {
+<span class="fc" id="L122">        return vector1.subtract(vector2).length();</span>
+    }
+
+    public static double angleBetweenTwoVectors(TVector3D vector1, TVector3D vector2) {
+<span class="nc" id="L126">        return Math.acos( vector1.dot(vector2) / ( vector1.length() * vector2.length()) );</span>
+    }
+
+    public static boolean areOrthonormal(TVector3D vector1, TVector3D vector2, TVector3D vector3) {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        return areOrthogonal(vector1, vector2, vector3) &amp;&amp;</span>
+<span class="nc bnc" id="L131" title="All 6 branches missed.">                vector1.isUnitVector() &amp;&amp; vector2.isUnitVector() &amp;&amp; vector3.isUnitVector() ;</span>
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+
+<span class="fc" id="L141">        return String.format(&quot;&lt;%f, %f, %f&gt;&quot;, this.x, this.y, this.z)</span>
+<span class="fc" id="L142">                .replaceAll(&quot;&lt;0.000000&quot;, &quot;&lt;0&quot;)</span>
+<span class="fc" id="L143">                .replaceAll(&quot;0.000000&gt;&quot;, &quot;0&gt;&quot;)</span>
+<span class="fc" id="L144">                .replaceAll(&quot;&lt;1.000000&quot;, &quot;&lt;1&quot;)</span>
+<span class="fc" id="L145">                .replaceAll(&quot;1.000000&gt;&quot;, &quot;1&gt;&quot;)</span>
+<span class="fc" id="L146">                .replaceAll(&quot;&lt;-1.000000&quot;, &quot;&lt;-1&quot;)</span>
+<span class="fc" id="L147">                .replaceAll(&quot;-1.000000&gt;&quot;, &quot;-1&gt;&quot;)</span>
+<span class="fc" id="L148">                .replaceAll(&quot;, 0.000000&quot;, &quot;, 0&quot;)</span>
+<span class="fc" id="L149">                .replaceAll(&quot;, 1.000000&quot;, &quot;, 1&quot;)</span>
+<span class="fc" id="L150">                .replaceAll(&quot;, -1.000000&quot;,&quot;, -1&quot;)</span>
+<span class="fc" id="L151">                .replaceAll( &quot;0.000000,&quot;,  &quot;0,&quot;)</span>
+<span class="fc" id="L152">                .replaceAll( &quot;1.000000,&quot;,  &quot;1,&quot;)</span>
+<span class="fc" id="L153">                .replaceAll(&quot;-1.000000,&quot;, &quot;-1,&quot;);</span>
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L160" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L161">        TVector3D tVector3D = (TVector3D) o;</span>
+<span class="pc bpc" id="L162" title="2 of 6 branches missed.">        return TMath.areEqual(tVector3D.x, x) &amp;&amp; TMath.areEqual(tVector3D.y, y) &amp;&amp; TMath.areEqual(tVector3D.z, z) ;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L167">        return Objects.hash(x, y, z);</span>
+    }
+
+
+
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

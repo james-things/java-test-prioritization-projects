@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConstantSpaceDupFinder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.search.pigeonhole</a> &gt; <span class="el_source">ConstantSpaceDupFinder.java</span></div><h1>ConstantSpaceDupFinder.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.search.pigeonhole;
+
+import com.sl.algorithms.core.interfaces.search.pigeonhole.DuplicateFinder;
+
+/**
+ * &lt;br&gt;&lt;a href=&quot;https://www.interviewcake.com/question/java/find-duplicate-optimize-for-space-beast-mode&quot;&gt;Reference&lt;/a&gt;&lt;br&gt;
+ * &lt;br&gt;&lt;u&gt;Crux&lt;/u&gt;: Position of the node with multiple incoming pointers is the duplicate.&lt;br&gt;
+ * &lt;br&gt;&lt;u&gt;Assumption&lt;/u&gt;: There is at least one duplicate in the list.&lt;br&gt; &lt;br&gt;&lt;u&gt;Complexity&lt;/u&gt;:
+ * O(n) time, O(1) space&lt;br&gt;
+ */
+<span class="fc" id="L11">public class ConstantSpaceDupFinder implements DuplicateFinder {</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  public int findDuplicate(int[] nums) {
+<span class="fc" id="L17">    checkIntArray(nums);</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">    if (nums.length == 1) {</span>
+<span class="fc" id="L19">      throw new IllegalArgumentException(NO_DUPLICATES_FOUND);</span>
+    }
+<span class="fc" id="L21">    int slow = nums[0], fast = nums[0];</span>
+    do {
+<span class="fc" id="L23">      slow = nums[slow];</span>
+<span class="fc" id="L24">      fast = nums[nums[fast]];</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    } while (slow != fast);</span>
+
+<span class="fc" id="L27">    int ptr1 = nums[0];</span>
+<span class="fc" id="L28">    int ptr2 = slow;</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">    while (ptr1 != ptr2) {</span>
+<span class="fc" id="L30">      ptr1 = nums[ptr1];</span>
+<span class="fc" id="L31">      ptr2 = nums[ptr2];</span>
+    }
+<span class="fc" id="L33">    return ptr1;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

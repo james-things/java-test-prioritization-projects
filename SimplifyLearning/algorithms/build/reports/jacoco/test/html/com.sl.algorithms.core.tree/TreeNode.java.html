@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TreeNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.tree</a> &gt; <span class="el_source">TreeNode.java</span></div><h1>TreeNode.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.tree;
+
+/**
+ * Basic representation of a Binary Tree node.&lt;br&gt;
+ *
+ * @param &lt;T&gt; extends {@link Comparable}
+ */
+public class TreeNode&lt;T extends Comparable&gt; {
+
+  /**
+   * Direct public access for this project only (as it's not a service/app).&lt;br&gt;
+   */
+  public T data;
+  public TreeNode&lt;T&gt; left;
+  public TreeNode&lt;T&gt; right;
+
+<span class="fc" id="L17">  public TreeNode(final T _data) {</span>
+<span class="fc" id="L18">    data = _data;</span>
+<span class="fc" id="L19">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

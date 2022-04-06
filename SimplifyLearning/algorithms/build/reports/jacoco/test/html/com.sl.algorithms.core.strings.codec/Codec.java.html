@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Codec.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.strings.codec</a> &gt; <span class="el_source">Codec.java</span></div><h1>Codec.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.strings.codec;
+
+import com.sl.algorithms.core.interfaces.base.Constants;
+import com.sl.algorithms.core.interfaces.strings.codec.Decoder;
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+/**
+ * &lt;a href=&quot;https://leetcode.com/problems/decode-string/description/&quot;&gt;Decode String&lt;/a&gt;
+ */
+<span class="fc" id="L11">public class Codec implements Decoder, Constants {</span>
+
+  @Override
+  public String decode(String str) {
+<span class="fc bfc" id="L15" title="All 4 branches covered.">    if (str == null || str.length() == 0) {</span>
+<span class="fc" id="L16">      return str;</span>
+    }
+<span class="fc" id="L18">    StringBuilder result = new StringBuilder();</span>
+<span class="fc" id="L19">    Deque&lt;Integer&gt; countStack = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L20">    Deque&lt;StringBuilder&gt; resultStack = new ArrayDeque&lt;&gt;();</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">    for (int i = 0; i &lt; str.length(); ) {</span>
+<span class="fc" id="L22">      char c = str.charAt(i);</span>
+<span class="pc bpc" id="L23" title="1 of 4 branches missed.">      if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
+<span class="fc" id="L24">        int count = 0;</span>
+<span class="pc bpc" id="L25" title="1 of 4 branches missed.">        while (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
+<span class="fc" id="L26">          count = DECIMAL_RADIX * count + (c - '0');</span>
+<span class="fc" id="L27">          c = str.charAt(++i);</span>
+        }
+<span class="fc" id="L29">        countStack.push(count);</span>
+<span class="fc" id="L30">      } else {</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (c == '[') {</span>
+<span class="fc" id="L32">          resultStack.push(result);</span>
+<span class="fc" id="L33">          result = new StringBuilder();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        } else if (c == ']') {</span>
+<span class="fc" id="L35">          StringBuilder tempBuilder = new StringBuilder();</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">          if (!resultStack.isEmpty()) {</span>
+<span class="fc" id="L37">            tempBuilder.append(resultStack.pop());</span>
+          }
+<span class="fc" id="L39">          int multiplier = countStack.pop();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">          for (int j = 0; j &lt; multiplier; j++) {</span>
+<span class="fc" id="L41">            tempBuilder.append(result);</span>
+          }
+<span class="fc" id="L43">          result = tempBuilder;</span>
+<span class="fc" id="L44">        } else {</span>
+<span class="fc" id="L45">          result.append(c);</span>
+        }
+<span class="fc" id="L47">        i++;</span>
+      }
+<span class="fc" id="L49">    }</span>
+<span class="fc" id="L50">    return result.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

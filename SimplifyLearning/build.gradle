@@ -1,0 +1,106 @@
+plugins {
+    id 'com.github.kt3k.coveralls' version '2.6.3'
+}
+
+group 'SimplifyLearning'
+version '0.9'
+
+allprojects {
+    apply plugin: 'base'
+    apply plugin: 'jacoco'
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    jacoco {
+        toolVersion = JaCoCoVersion
+    }
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'checkstyle'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    checkstyle {
+        toolVersion = CheckStyleVersion
+        configDir = file("$rootProject.projectDir/quality-checks/checkstyle")
+        configFile = rootProject.file('quality-checks/checkstyle/google_checks.xml')
+        configProperties = [
+                'checkstyle.cache.file': "${buildDir}/checkstyle.cache",
+        ]
+        ignoreFailures = false
+        showViolations = true
+    }
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: JUnitVersion
+    }
+    jacocoTestReport {
+        reports {
+            html.enabled = true
+            xml.enabled = true
+            csv.enabled = false
+        }
+        onlyIf = {
+            true
+        }
+        doFirst {
+            executionData.from = files(executionData.findAll {
+                it.exists()
+            })
+        }
+        afterEvaluate {
+            classDirectories.from = files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: ['**/*SampleRESTApplication.*'])
+            })
+        }
+    }
+    test.finalizedBy(project.tasks.jacocoTestReport)
+    check.dependsOn jacocoTestReport
+}
+
+task alljavadoc(type: Javadoc) {
+    dependsOn = subprojects.test
+    source subprojects.collect { subprojects.sourceSets.main.allJava }
+    classpath = files(subprojects.collect { subprojects.sourceSets.main.compileClasspath })
+    destinationDir = file("docs")
+}
+
+task jacocoRootReport(type: JacocoReport) {
+    dependsOn = subprojects.test
+    sourceDirectories.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories.from = files(subprojects.sourceSets.main.output)
+    executionData.from = files(subprojects.jacocoTestReport.executionData)
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
+    onlyIf = {
+        true
+    }
+    doFirst {
+        executionData = files(executionData.findAll {
+            it.exists()
+        })
+    }
+    afterEvaluate {
+        classDirectories.from = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['**/*SampleRESTApplication.*'])
+        })
+    }
+}
+
+coveralls {
+    sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+}
+
+tasks.coveralls {
+    dependsOn jacocoRootReport
+}

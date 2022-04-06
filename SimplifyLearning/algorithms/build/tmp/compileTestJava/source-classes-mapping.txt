@@ -1,0 +1,106 @@
+com/sl/algorithms/core/utils/PairTest.java
+ com.sl.algorithms.core.utils.PairTest
+com/sl/algorithms/search/nge/NGERegularArrayTest.java
+ com.sl.algorithms.search.nge.NGERegularArrayTest
+com/sl/algorithms/sort/BaseTest.java
+ com.sl.algorithms.sort.BaseTest
+com/sl/algorithms/sort/finitegroups/DutchNationalFlagSortTest.java
+ com.sl.algorithms.sort.finitegroups.DutchNationalFlagSortTest
+com/sl/algorithms/core/array/count/CountElementSortedListTest.java
+ com.sl.algorithms.core.array.count.CountElementSortedListTest
+com/sl/algorithms/core/array/subarray/RunningProductTest.java
+ com.sl.algorithms.core.array.subarray.RunningProductTest
+com/sl/algorithms/core/list/rotation/LinkedListRotationTest.java
+ com.sl.algorithms.core.list.rotation.LinkedListRotationTest
+com/sl/algorithms/core/utils/StringOpsTest.java
+ com.sl.algorithms.core.utils.StringOpsTest
+com/sl/algorithms/search/nge/NarayanPanditPermutationAlgorithmTest.java
+ com.sl.algorithms.search.nge.NarayanPanditPermutationAlgorithmTest
+com/sl/algorithms/search/select/QuickSelectTest.java
+ com.sl.algorithms.search.select.QuickSelectTest
+com/sl/algorithms/core/array/subarray/MaxNonNeighboursSumTest.java
+ com.sl.algorithms.core.array.subarray.MaxNonNeighboursSumTest
+com/sl/algorithms/core/strings/codec/CodecTest.java
+ com.sl.algorithms.core.strings.codec.CodecTest
+com/sl/algorithms/core/array/count/CountNegativesInMatrixTest.java
+ com.sl.algorithms.core.array.count.CountNegativesInMatrixTest
+com/sl/algorithms/core/list/intersection/LinkedListIntersectionTest.java
+ com.sl.algorithms.core.list.intersection.LinkedListIntersectionTest
+com/sl/algorithms/core/list/reversal/SwapInPairsTest.java
+ com.sl.algorithms.core.list.reversal.SwapInPairsTest
+com/sl/algorithms/sort/finitegroups/bucketsort/BucketSortTest.java
+ com.sl.algorithms.sort.finitegroups.bucketsort.BucketSortTest
+com/sl/algorithms/core/utils/ArrayOpsTest.java
+ com.sl.algorithms.core.utils.ArrayOpsTest
+com/sl/algorithms/core/array/subarray/MaxNonNeighboursCircularSumTest.java
+ com.sl.algorithms.core.array.subarray.MaxNonNeighboursCircularSumTest
+com/sl/algorithms/core/list/ListNodeTest.java
+ com.sl.algorithms.core.list.ListNodeTest
+com/sl/algorithms/core/list/LLCycleDetectionTest.java
+ com.sl.algorithms.core.list.LLCycleDetectionTest
+com/sl/algorithms/sort/finitegroups/integersorting/IntegerSortingTest.java
+ com.sl.algorithms.sort.finitegroups.integersorting.IntegerSortingTest
+com/sl/algorithms/core/utils/NumberOpsTest.java
+ com.sl.algorithms.core.utils.NumberOpsTest
+com/sl/algorithms/core/list/reversal/LinkedListReversalTest.java
+ com.sl.algorithms.core.list.reversal.LinkedListReversalTest
+com/sl/algorithms/core/stack/MinStackTest.java
+ com.sl.algorithms.core.stack.MinStackTest
+com/sl/algorithms/core/array/subarray/MaxSubSequenceSumTest.java
+ com.sl.algorithms.core.array.subarray.MaxSubSequenceSumTest
+com/sl/algorithms/sort/finitegroups/ElementMoverTest.java
+ com.sl.algorithms.sort.finitegroups.ElementMoverTest
+com/sl/algorithms/core/list/merge/LinkedListMergeTest.java
+ com.sl.algorithms.core.list.merge.LinkedListMergeTest
+com/sl/algorithms/core/strings/checks/LapindromeTest.java
+ com.sl.algorithms.core.strings.checks.LapindromeTest
+com/sl/algorithms/core/array/subarray/KadaneAlgorithmTest.java
+ com.sl.algorithms.core.array.subarray.KadaneAlgorithmTest
+com/sl/algorithms/sort/finitegroups/PolishNationalFlagsSortTest.java
+ com.sl.algorithms.sort.finitegroups.PolishNationalFlagsSortTest
+com/sl/algorithms/sort/generalpurpose/SortingTest.java
+ com.sl.algorithms.sort.generalpurpose.SortingTest
+com/sl/algorithms/core/list/reversal/IncrementByOneTest.java
+ com.sl.algorithms.core.list.reversal.IncrementByOneTest
+com/sl/algorithms/search/linearsearch/LinearSearchTest.java
+ com.sl.algorithms.search.linearsearch.LinearSearchTest
+com/sl/algorithms/sort/advanced/wave/WiggleSortTest.java
+ com.sl.algorithms.sort.advanced.wave.WiggleSortTest
+com/sl/algorithms/core/utils/FormulasTest.java
+ com.sl.algorithms.core.utils.FormulasTest
+com/sl/algorithms/search/pigeonhole/MNFinderTest.java
+ com.sl.algorithms.search.pigeonhole.MNFinderTest
+com/sl/algorithms/search/majorityelement/BoyerMooreVotingTest.java
+ com.sl.algorithms.search.majorityelement.BoyerMooreVotingTest
+com/sl/algorithms/core/utils/LinkedListOpsTest.java
+ com.sl.algorithms.core.utils.LinkedListOpsTest
+com/sl/algorithms/core/list/intersection/ListIntersectionTest.java
+ com.sl.algorithms.core.list.intersection.ListIntersectionTest
+com/sl/algorithms/search/pigeonhole/DuplicateFinderTest.java
+ com.sl.algorithms.search.pigeonhole.DuplicateFinderTest
+com/sl/algorithms/shuffle/ShufflingTest.java
+ com.sl.algorithms.shuffle.ShufflingTest
+com/sl/algorithms/core/array/rotation/ArrayRotationTest.java
+ com.sl.algorithms.core.array.rotation.ArrayRotationTest
+com/sl/algorithms/core/strings/checks/parenthesis/ParenthesisValidatorTest.java
+ com.sl.algorithms.core.strings.checks.parenthesis.ParenthesisValidatorTest
+com/sl/algorithms/search/peakelement/PeakElementFinderTest.java
+ com.sl.algorithms.search.peakelement.PeakElementFinderTest
+com/sl/algorithms/search/nge/NGECircularArrayTest.java
+ com.sl.algorithms.search.nge.NGECircularArrayTest
+com/sl/algorithms/core/utils/ScratchArea.java
+ com.sl.algorithms.core.utils.ScratchArea
+ com.sl.algorithms.core.utils.ScratchArea$1
+ com.sl.algorithms.core.utils.ScratchArea$2
+ com.sl.algorithms.core.utils.ScratchArea$Singleton
+ com.sl.algorithms.core.utils.ScratchArea$Singleton$1
+com/sl/algorithms/core/tree/lca/LCAFinderTest.java
+ com.sl.algorithms.core.tree.lca.LCAFinderTest
+com/sl/algorithms/search/median/MedianFinderTest.java
+ com.sl.algorithms.search.median.MedianFinderTest
+com/sl/algorithms/search/binarysearch/BinarySearchTest.java
+ com.sl.algorithms.search.binarysearch.BinarySearchTest
+com/sl/algorithms/search/binarysearch/LargeSizeBinarySearchTest.java
+ com.sl.algorithms.search.binarysearch.LargeSizeBinarySearchTest
+com/sl/algorithms/sort/advanced/wave/WiggleSortIITest.java
+ com.sl.algorithms.sort.advanced.wave.WiggleSortIITest

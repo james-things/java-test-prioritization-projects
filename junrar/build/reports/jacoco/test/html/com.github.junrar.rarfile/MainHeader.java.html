@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">MainHeader.java</span></div><h1>MainHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 22.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * The main header of an rar archive. holds information concerning the whole archive (solid, encrypted etc).
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class MainHeader extends BaseBlock {
+<span class="fc" id="L33">    private static final Logger logger = LoggerFactory.getLogger(MainHeader.class);</span>
+    public static final short mainHeaderSizeWithEnc = 7;
+    public static final short mainHeaderSize = 6;
+    private final short highPosAv;
+    private final int posAv;
+    private byte encryptVersion;
+
+    public MainHeader(BaseBlock bb, byte[] mainHeader) {
+<span class="fc" id="L41">        super(bb);</span>
+<span class="fc" id="L42">        int pos = 0;</span>
+<span class="fc" id="L43">        highPosAv = Raw.readShortLittleEndian(mainHeader, pos);</span>
+<span class="fc" id="L44">        pos += 2;</span>
+<span class="fc" id="L45">        posAv = Raw.readIntLittleEndian(mainHeader, pos);</span>
+<span class="fc" id="L46">        pos += 4;</span>
+
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (hasEncryptVersion()) {</span>
+<span class="nc" id="L49">            encryptVersion |= mainHeader[pos] &amp; 0xff;</span>
+        }
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * old cmt block is present
+     * @return true if has cmt block
+     */
+    public boolean hasArchCmt() {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        return (this.flags &amp; BaseBlock.MHD_COMMENT) != 0;</span>
+    }
+    /**
+     * the version the the encryption
+     * @return .
+     */
+    public byte getEncryptVersion() {
+<span class="nc" id="L65">        return encryptVersion;</span>
+    }
+
+    public short getHighPosAv() {
+<span class="nc" id="L69">        return highPosAv;</span>
+    }
+
+    public int getPosAv() {
+<span class="nc" id="L73">        return posAv;</span>
+    }
+
+    /**
+     * returns whether the archive is encrypted
+     * @return .
+     */
+    public boolean isEncrypted() {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        return (this.flags &amp; BaseBlock.MHD_PASSWORD) != 0;</span>
+    }
+
+    /**
+     *
+     * @return whether the archive is a multivolume archive
+     */
+    public boolean isMultiVolume() {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        return (this.flags &amp; BaseBlock.MHD_VOLUME) != 0;</span>
+    }
+
+    /**
+     *
+     * @return if the archive is a multivolume archive this method returns whether this instance is the first part of the multivolume archive
+     */
+    public boolean isFirstVolume() {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        return (this.flags &amp; BaseBlock.MHD_FIRSTVOLUME) != 0;</span>
+    }
+
+    public void print() {
+<span class="nc" id="L101">        super.print();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L103">            StringBuilder str = new StringBuilder();</span>
+<span class="nc" id="L104">            str.append(&quot;posav: &quot;).append(getPosAv());</span>
+<span class="nc" id="L105">            str.append(&quot;\nhighposav: &quot;).append(getHighPosAv());</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            str.append(&quot;\nhasencversion: &quot;).append(hasEncryptVersion()).append(hasEncryptVersion() ? getEncryptVersion() : &quot;&quot;);</span>
+<span class="nc" id="L107">            str.append(&quot;\nhasarchcmt: &quot;).append(hasArchCmt());</span>
+<span class="nc" id="L108">            str.append(&quot;\nisEncrypted: &quot;).append(isEncrypted());</span>
+<span class="nc" id="L109">            str.append(&quot;\nisMultivolume: &quot;).append(isMultiVolume());</span>
+<span class="nc" id="L110">            str.append(&quot;\nisFirstvolume: &quot;).append(isFirstVolume());</span>
+<span class="nc" id="L111">            str.append(&quot;\nisSolid: &quot;).append(isSolid());</span>
+<span class="nc" id="L112">            str.append(&quot;\nisLocked: &quot;).append(isLocked());</span>
+<span class="nc" id="L113">            str.append(&quot;\nisProtected: &quot;).append(isProtected());</span>
+<span class="nc" id="L114">            str.append(&quot;\nisAV: &quot;).append(isAV());</span>
+<span class="nc" id="L115">            logger.info(str.toString());</span>
+        }
+<span class="nc" id="L117">    }</span>
+
+    /**
+     * @return whether this archive is solid. in this case you can only extract all file at once
+     */
+    public boolean isSolid() {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        return (this.flags &amp; MHD_SOLID) != 0;</span>
+    }
+
+    public boolean isLocked() {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        return (this.flags &amp; MHD_LOCK) != 0;</span>
+    }
+
+    public boolean isProtected() {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        return (this.flags &amp; MHD_PROTECT) != 0;</span>
+    }
+
+    public boolean isAV() {
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        return (this.flags &amp; MHD_AV) != 0;</span>
+    }
+
+    /**
+     *
+     * @return the numbering format a multivolume archive
+     */
+    public boolean isNewNumbering() {
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        return (this.flags &amp; MHD_NEWNUMBERING) != 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

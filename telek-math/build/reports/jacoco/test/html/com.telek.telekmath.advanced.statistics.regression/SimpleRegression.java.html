@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleRegression.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.statistics.regression</a> &gt; <span class="el_source">SimpleRegression.java</span></div><h1>SimpleRegression.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.statistics.regression;
+
+import com.telek.telekmath.advanced.distributions.cont.TDist;
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.core.functions.other.TPolynomial;
+import com.telek.telekmath.core.geometry.points.TPoint2D;
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekmath.utils.TelekMathException.*;
+import com.telek.telekutils.arrayref.oned.*;
+import com.telek.telekutils.arrayref.twod.*;
+import com.telek.telekutils.plain.TClassUtils;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
+
+public class SimpleRegression {
+
+
+    /* No constructor */
+    private SimpleRegression(){}
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+
+    /* ----------- One dimension: TypelessArray ----------- */
+
+    public static RegressionResult getResult(ArrayRef array, double alpha){
+        // error checking
+<span class="fc" id="L32">        final int len = array.getSize();</span>
+<span class="fc" id="L33">        checkEven(len);</span>
+
+        // n &amp; sums
+<span class="fc" id="L36">        double n = len / 2d;</span>
+<span class="fc" id="L37">        double sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i+=2) {</span>
+<span class="fc" id="L39">            double x = array.getValue(i), y = array.getValue(i+1);</span>
+<span class="fc" id="L40">            sumX += x;</span>
+<span class="fc" id="L41">            sumY += y;</span>
+<span class="fc" id="L42">            sumX2 += x * x;</span>
+<span class="fc" id="L43">            sumY2 += y * y;</span>
+<span class="fc" id="L44">            sumXY += x * y;</span>
+        }
+
+        // line
+<span class="fc" id="L48">        double down = n * sumX2 - sumX * sumX;</span>
+<span class="fc" id="L49">        double b0 = (sumY * sumX2 - sumXY * sumX) / down;</span>
+<span class="fc" id="L50">        double b1 = (n * sumXY - sumY * sumX) / down;</span>
+<span class="fc" id="L51">        TPolynomial line = new TPolynomial(b0, b1); // y = b1 x + b0</span>
+
+        // standardError
+<span class="fc" id="L54">        double sumE2 = 0;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i+=2) {</span>
+<span class="fc" id="L56">            double x = array.getValue(i), y = array.getValue(i+1);</span>
+<span class="fc" id="L57">            double error = y - line.value(x);</span>
+<span class="fc" id="L58">            sumE2 += error * error;</span>
+        }
+
+<span class="fc" id="L61">        return result(n, sumX, sumY, sumXY, sumX2, sumY2, sumE2, line, alpha);</span>
+    }
+
+
+
+    public static RegressionResult getResult(double[] array, double alpha){
+<span class="fc" id="L67">        return getResult(new DoubleArrRef(array), alpha);</span>
+    }
+    public static RegressionResult getResult(float[] array, double alpha){
+<span class="fc" id="L70">        return getResult(new FloatArrRef(array), alpha);</span>
+    }
+    public static RegressionResult getResult(int[] array, double alpha){
+<span class="nc" id="L73">        return getResult(new IntArrRef(array), alpha);</span>
+    }
+    public static RegressionResult getResult(Number[] array, double alpha){
+<span class="fc" id="L76">        return getResult(new NumberArrRef(array), alpha);</span>
+    }
+
+
+
+
+    /* ----------- double[][], float[][], int[][] ----------- */
+
+
+    public static RegressionResult getResult(ArrayRef2 array, double alpha){
+        // error checking
+<span class="fc" id="L87">        checkPointLength(array.getRowSize());</span>
+
+        // n &amp; sums
+<span class="fc" id="L90">        double n = array.getRowSize();</span>
+
+<span class="fc" id="L92">        double sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0;</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (int i = 0; i &lt; array.getRowSize(); i++) {</span>
+<span class="fc" id="L94">            double x = array.getValue(i, 0);</span>
+<span class="fc" id="L95">            double y = array.getValue(i, 1);</span>
+<span class="fc" id="L96">            sumX += x;</span>
+<span class="fc" id="L97">            sumY += y;</span>
+<span class="fc" id="L98">            sumX2 += x * x;</span>
+<span class="fc" id="L99">            sumY2 += y * y;</span>
+<span class="fc" id="L100">            sumXY += x * y;</span>
+        }
+
+        // line
+<span class="fc" id="L104">        double down = n * sumX2 - sumX * sumX;</span>
+<span class="fc" id="L105">        double b0 = (sumY * sumX2 - sumXY * sumX) / down;</span>
+<span class="fc" id="L106">        double b1 = (n * sumXY - sumY * sumX) / down;</span>
+<span class="fc" id="L107">        TPolynomial line = new TPolynomial(b0, b1); // y = b1 x + b0</span>
+
+        // standardError
+<span class="fc" id="L110">        double sumE2 = 0;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int i = 0; i &lt; array.getRowSize(); i++) {</span>
+<span class="fc" id="L112">            double x = array.getValue(i, 0);</span>
+<span class="fc" id="L113">            double y = array.getValue(i, 1);</span>
+<span class="fc" id="L114">            double error = y - line.value(x);</span>
+<span class="fc" id="L115">            sumE2 += error * error;</span>
+        }
+
+<span class="fc" id="L118">        return result(n,sumX,sumY,sumXY,sumX2,sumY2,sumE2,line,alpha);</span>
+    }
+
+
+    public static RegressionResult getResult(float[][] array, double alpha){
+<span class="fc" id="L123">        return getResult(new FloatArrRef2(array), alpha);</span>
+    }
+    public static RegressionResult getResult(double[][] array, double alpha){
+<span class="fc" id="L126">        return getResult(new DoubleArrRef2(array), alpha);</span>
+    }
+    public static RegressionResult getResult(int[][] array, double alpha){
+<span class="nc" id="L129">        return getResult(new IntArrRef2(array), alpha);</span>
+    }
+    public static RegressionResult getResult(Number[][] array, double alpha){
+<span class="nc" id="L132">        return getResult(new NumberArrRef2(array), alpha);</span>
+    }
+
+
+
+
+    /* ----------- TPoint2D[] ----------- */
+
+    public static RegressionResult getResult(TPoint2D[] array, double alpha){
+        // error checking
+<span class="fc" id="L142">        checkPointLength(array.length);</span>
+
+        // n &amp; sums
+<span class="fc" id="L145">        double n = array.length;</span>
+<span class="fc" id="L146">        double sumX = Arrays.stream(array).mapToDouble(value -&gt; value.x).sum();</span>
+<span class="fc" id="L147">        double sumY = Arrays.stream(array).mapToDouble(value -&gt; value.y).sum();</span>
+<span class="fc" id="L148">        double sumX2 = Arrays.stream(array).mapToDouble(value -&gt; value.x * value.x).sum();</span>
+<span class="fc" id="L149">        double sumY2 = Arrays.stream(array).mapToDouble(value -&gt; value.y * value.y).sum();</span>
+<span class="fc" id="L150">        double sumXY = Arrays.stream(array).mapToDouble(value -&gt; value.x * value.y).sum();</span>
+
+        // line
+<span class="fc" id="L153">        double down = n * sumX2 - sumX * sumX;</span>
+<span class="fc" id="L154">        double b0 = (sumY * sumX2 - sumXY * sumX) / down;</span>
+<span class="fc" id="L155">        double b1 = (n * sumXY - sumY * sumX) / down;</span>
+<span class="fc" id="L156">        TPolynomial line = new TPolynomial(b0, b1); // y = b1 x + b0</span>
+
+        // standardError
+<span class="fc" id="L159">        double sumE2 = Arrays.stream(array).mapToDouble(value -&gt; {</span>
+<span class="fc" id="L160">            double error = value.y - line.value(value.x);</span>
+<span class="fc" id="L161">            return error * error;</span>
+<span class="fc" id="L162">        }).sum();</span>
+
+
+<span class="fc" id="L165">        return result(n,sumX,sumY,sumXY,sumX2,sumY2,sumE2,line,alpha);</span>
+    }
+
+
+    /* ----------- T[] ----------- */
+
+    public static &lt;T&gt; RegressionResult getResult(T[] array, Field xField, Field yField, double alpha){
+        try{
+            // error checking
+<span class="fc" id="L174">            checkPointLength(array.length);</span>
+
+            // n &amp; sums
+<span class="fc" id="L177">            double n = array.length;</span>
+<span class="fc" id="L178">            double sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0;</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc" id="L180">                double x = TClassUtils.getValue(array, xField, i);</span>
+<span class="fc" id="L181">                double y = TClassUtils.getValue(array, yField, i);</span>
+<span class="fc" id="L182">                sumX += x;</span>
+<span class="fc" id="L183">                sumY += y;</span>
+<span class="fc" id="L184">                sumX2 += x * x;</span>
+<span class="fc" id="L185">                sumY2 += y * y;</span>
+<span class="fc" id="L186">                sumXY += x * y;</span>
+            }
+
+            // line
+<span class="fc" id="L190">            double down = n * sumX2 - sumX * sumX;</span>
+<span class="fc" id="L191">            double b0 = (sumY * sumX2 - sumXY * sumX) / down;</span>
+<span class="fc" id="L192">            double b1 = (n * sumXY - sumY * sumX) / down;</span>
+<span class="fc" id="L193">            TPolynomial line = new TPolynomial(b0, b1); // y = b1 x + b0</span>
+
+            // standardError
+<span class="fc" id="L196">            double sumE2 = 0;</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc" id="L198">                double x = TClassUtils.getValue(array, xField, i);</span>
+<span class="fc" id="L199">                double y = TClassUtils.getValue(array, yField, i);</span>
+<span class="fc" id="L200">                double error = y - line.value(x);</span>
+<span class="fc" id="L201">                sumE2 += error * error;</span>
+            }
+
+<span class="fc" id="L204">            return result(n,sumX,sumY,sumXY,sumX2,sumY2,sumE2,line,alpha);</span>
+        }
+<span class="nc" id="L206">        catch (IllegalAccessException e){</span>
+<span class="nc" id="L207">            e.printStackTrace();</span>
+<span class="nc" id="L208">            return null;</span>
+        }
+    }
+
+
+
+    ///////////////
+    /*  HELPERS  */
+    ///////////////
+
+
+    private static RegressionResult result(double n, double sumX, double sumY, double sumXY,
+                                           double sumX2, double sumY2, double sumE2, TPolynomial line, double alpha)
+    {
+<span class="fc" id="L222">        double b0 = line.getCoefficientOfDegree(0), b1 = line.getCoefficientOfDegree(1);</span>
+
+<span class="fc" id="L224">        double variance = sumE2 / (n - 2d);</span>
+<span class="fc" id="L225">        double standardError = TMath.sqrt(variance);</span>
+<span class="fc" id="L226">        double STS = sumY2 - sumY * sumY / n;</span>
+<span class="fc" id="L227">        double SRS = b1 * b1 * (sumX2 - sumX * sumX / n);</span>
+<span class="fc" id="L228">        double SES = STS - SRS;</span>
+<span class="fc" id="L229">        double R2 = SRS / STS;</span>
+<span class="fc" id="L230">        double r = Math.copySign(Math.sqrt(R2), b1); // r = sqrt(R2) with the sign of b1</span>
+
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        boolean hasPositiveDirection = b1 &gt; 0;</span>
+<span class="fc" id="L233">        double standardErrorOfCorCoef = TMath.sqrt((1d - r * r) / (n - 2d));</span>
+<span class="fc" id="L234">        double t = TDist.invCumLeftTailed(n - 2d, 1d - alpha / 2d);</span>
+<span class="fc" id="L235">        TRange confIntOfCorrelationCoef = new TRange(r - t * standardErrorOfCorCoef, r + t * standardErrorOfCorCoef);</span>
+
+<span class="fc" id="L237">        double testStatForR = r / standardErrorOfCorCoef;</span>
+        // reverse because if hypothesis test is correct there will be no correlation
+<span class="pc bpc" id="L239" title="1 of 4 branches missed.">        boolean areTheyCorrelated = !(-t &lt;= testStatForR &amp;&amp; testStatForR &lt;= t);</span>
+
+<span class="fc" id="L241">        return new RegressionResult(n, sumX, sumY, sumX2, sumY2, sumXY, line, sumE2,</span>
+                variance, standardError, STS, SRS, SES, R2, r, standardErrorOfCorCoef,
+                hasPositiveDirection, confIntOfCorrelationCoef, areTheyCorrelated);
+    }
+
+
+    private static void checkEven(int arrLen) {
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">        if(arrLen &lt;= 4)</span>
+<span class="nc" id="L249">            throw new NotGreaterThanNException(&quot;array.length&quot;, String.valueOf(arrLen));</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        if(arrLen % 2 != 0)</span>
+<span class="nc" id="L251">            throw new InvalidValueException(&quot;array.length&quot;, arrLen);</span>
+<span class="fc" id="L252">    }</span>
+
+
+    private static void checkPointLength(int arrLen) {
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if(arrLen &lt;= 2)</span>
+<span class="nc" id="L257">            throw new NotGreaterThanNException(&quot;array.length&quot;, String.valueOf(arrLen));</span>
+<span class="fc" id="L258">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

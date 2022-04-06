@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Unpack20.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack</a> &gt; <span class="el_source">Unpack20.java</span></div><h1>Unpack20.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 21.06.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.unpack.decode.AudioVariables;
+import com.github.junrar.unpack.decode.BitDecode;
+import com.github.junrar.unpack.decode.Compress;
+import com.github.junrar.unpack.decode.Decode;
+import com.github.junrar.unpack.decode.DistDecode;
+import com.github.junrar.unpack.decode.LitDecode;
+import com.github.junrar.unpack.decode.LowDistDecode;
+import com.github.junrar.unpack.decode.MultDecode;
+import com.github.junrar.unpack.decode.RepDecode;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="fc" id="L42">public abstract class Unpack20 extends Unpack15 {</span>
+
+<span class="fc" id="L44">    protected MultDecode[] MD = new MultDecode[4];</span>
+
+<span class="fc" id="L46">    protected byte[] UnpOldTable20 = new byte[Compress.MC20 * 4];</span>
+
+    protected int UnpAudioBlock, UnpChannels, UnpCurChannel, UnpChannelDelta;
+
+<span class="fc" id="L50">    protected AudioVariables[] AudV = new AudioVariables[4];</span>
+
+<span class="fc" id="L52">    protected LitDecode LD = new LitDecode();</span>
+
+<span class="fc" id="L54">    protected DistDecode DD = new DistDecode();</span>
+
+<span class="fc" id="L56">    protected LowDistDecode LDD = new LowDistDecode();</span>
+
+<span class="fc" id="L58">    protected RepDecode RD = new RepDecode();</span>
+
+<span class="fc" id="L60">    protected BitDecode BD = new BitDecode();</span>
+
+<span class="fc" id="L62">    public static final int[] LDecode = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12,</span>
+            14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192,
+            224 };
+
+<span class="fc" id="L66">    public static final byte[] LBits = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2,</span>
+            2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5 };
+
+<span class="fc" id="L69">    public static final int[] DDecode = {0, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32,</span>
+            48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072,
+            4096, 6144, 8192, 12288, 16384, 24576, 32768, 49152, 65536, 98304,
+            131072, 196608, 262144, 327680, 393216, 458752, 524288, 589824,
+            655360, 720896, 786432, 851968, 917504, 983040 };
+
+<span class="fc" id="L75">    public static final int[] DBits = {0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5,</span>
+            5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14,
+            15, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 };
+
+<span class="fc" id="L79">    public static final int[] SDDecode = {0, 4, 8, 16, 32, 64, 128, 192 };</span>
+
+<span class="fc" id="L81">    public static final int[] SDBits = {2, 2, 3, 4, 5, 6, 6, 6 };</span>
+
+    protected void unpack20(boolean solid) throws IOException, RarException {
+
+        int Bits;
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (suspended) {</span>
+<span class="nc" id="L88">            unpPtr = wrPtr;</span>
+        } else {
+<span class="fc" id="L90">            unpInitData(solid);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (!unpReadBuf()) {</span>
+<span class="nc" id="L92">                return;</span>
+            }
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (!solid) {</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                if (!ReadTables20()) {</span>
+<span class="fc" id="L96">                    return;</span>
+                }
+            }
+<span class="fc" id="L99">            --destUnpSize;</span>
+        }
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        while (destUnpSize &gt;= 0) {</span>
+<span class="fc" id="L103">            unpPtr &amp;= Compress.MAXWINMASK;</span>
+
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (inAddr &gt; readTop - 30) {</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">                if (!unpReadBuf()) {</span>
+<span class="nc" id="L107">                    break;</span>
+                }
+            }
+<span class="pc bpc" id="L110" title="1 of 4 branches missed.">            if (((wrPtr - unpPtr) &amp; Compress.MAXWINMASK) &lt; 270</span>
+                    &amp;&amp; wrPtr != unpPtr) {
+<span class="nc" id="L112">                oldUnpWriteBuf();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (suspended) {</span>
+<span class="nc" id="L114">                    return;</span>
+                }
+            }
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            if (UnpAudioBlock != 0) {</span>
+<span class="fc" id="L118">                int AudioNumber = decodeNumber(MD[UnpCurChannel]);</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">                if (AudioNumber == 256) {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">                    if (!ReadTables20()) {</span>
+<span class="nc" id="L122">                        break;</span>
+                    }
+                    continue;
+                }
+<span class="fc" id="L126">                window[unpPtr++] = DecodeAudio(AudioNumber);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">                if (++UnpCurChannel == UnpChannels) {</span>
+<span class="fc" id="L128">                    UnpCurChannel = 0;</span>
+                }
+<span class="fc" id="L130">                --destUnpSize;</span>
+<span class="fc" id="L131">                continue;</span>
+            }
+
+<span class="fc" id="L134">            int Number = decodeNumber(LD);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            if (Number &lt; 256) {</span>
+<span class="fc" id="L136">                window[unpPtr++] = (byte) Number;</span>
+<span class="fc" id="L137">                --destUnpSize;</span>
+<span class="fc" id="L138">                continue;</span>
+            }
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            if (Number &gt; 269) {</span>
+<span class="fc" id="L141">                int Length = LDecode[Number -= 270] + 3;</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                if ((Bits = LBits[Number]) &gt; 0) {</span>
+<span class="nc" id="L143">                    Length += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="nc" id="L144">                    addbits(Bits);</span>
+                }
+
+<span class="fc" id="L147">                int DistNumber = decodeNumber(DD);</span>
+<span class="fc" id="L148">                int Distance = DDecode[DistNumber] + 1;</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">                if ((Bits = DBits[DistNumber]) &gt; 0) {</span>
+<span class="fc" id="L150">                    Distance += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="fc" id="L151">                    addbits(Bits);</span>
+                }
+
+<span class="fc bfc" id="L154" title="All 2 branches covered.">                if (Distance &gt;= 0x2000) {</span>
+<span class="fc" id="L155">                    Length++;</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                    if (Distance &gt;= 0x40000L) {</span>
+<span class="nc" id="L157">                        Length++;</span>
+                    }
+                }
+
+<span class="fc" id="L161">                CopyString20(Length, Distance);</span>
+<span class="fc" id="L162">                continue;</span>
+            }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">            if (Number == 269) {</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">                if (!ReadTables20()) {</span>
+<span class="nc" id="L166">                    break;</span>
+                }
+                continue;
+            }
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            if (Number == 256) {</span>
+<span class="fc" id="L171">                CopyString20(lastLength, lastDist);</span>
+<span class="fc" id="L172">                continue;</span>
+            }
+<span class="fc bfc" id="L174" title="All 2 branches covered.">            if (Number &lt; 261) {</span>
+<span class="fc" id="L175">                int Distance = oldDist[(oldDistPtr - (Number - 256)) &amp; 3];</span>
+<span class="fc" id="L176">                int LengthNumber = decodeNumber(RD);</span>
+<span class="fc" id="L177">                int Length = LDecode[LengthNumber] + 2;</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">                if ((Bits = LBits[LengthNumber]) &gt; 0) {</span>
+<span class="nc" id="L179">                    Length += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="nc" id="L180">                    addbits(Bits);</span>
+                }
+<span class="fc bfc" id="L182" title="All 2 branches covered.">                if (Distance &gt;= 0x101) {</span>
+<span class="fc" id="L183">                    Length++;</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                    if (Distance &gt;= 0x2000) {</span>
+<span class="fc" id="L185">                        Length++;</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">                        if (Distance &gt;= 0x40000) {</span>
+<span class="nc" id="L187">                            Length++;</span>
+                        }
+                    }
+                }
+<span class="fc" id="L191">                CopyString20(Length, Distance);</span>
+<span class="fc" id="L192">                continue;</span>
+            }
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">            if (Number &lt; 270) {</span>
+<span class="fc" id="L195">                int Distance = SDDecode[Number -= 261] + 1;</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if ((Bits = SDBits[Number]) &gt; 0) {</span>
+<span class="fc" id="L197">                    Distance += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="fc" id="L198">                    addbits(Bits);</span>
+                }
+<span class="fc" id="L200">                CopyString20(2, Distance);</span>
+<span class="fc" id="L201">                continue;</span>
+            }
+<span class="nc" id="L203">        }</span>
+<span class="fc" id="L204">        ReadLastTables();</span>
+<span class="fc" id="L205">        oldUnpWriteBuf();</span>
+
+<span class="fc" id="L207">    }</span>
+
+    protected void CopyString20(int Length, int Distance) {
+<span class="fc" id="L210">        lastDist = oldDist[oldDistPtr++ &amp; 3] = Distance;</span>
+<span class="fc" id="L211">        lastLength = Length;</span>
+<span class="fc" id="L212">        destUnpSize -= Length;</span>
+
+<span class="fc" id="L214">        int DestPtr = unpPtr - Distance;</span>
+<span class="pc bpc" id="L215" title="2 of 4 branches missed.">        if (DestPtr &lt; Compress.MAXWINSIZE - 300</span>
+                &amp;&amp; unpPtr &lt; Compress.MAXWINSIZE - 300) {
+<span class="fc" id="L217">            window[unpPtr++] = window[DestPtr++];</span>
+<span class="fc" id="L218">            window[unpPtr++] = window[DestPtr++];</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">            while (Length &gt; 2) {</span>
+<span class="fc" id="L220">                Length--;</span>
+<span class="fc" id="L221">                window[unpPtr++] = window[DestPtr++];</span>
+            }
+        } else {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">            while ((Length--) != 0) {</span>
+<span class="nc" id="L225">                window[unpPtr] = window[DestPtr++ &amp; Compress.MAXWINMASK];</span>
+<span class="nc" id="L226">                unpPtr = (unpPtr + 1) &amp; Compress.MAXWINMASK;</span>
+            }
+        }
+<span class="fc" id="L229">    }</span>
+
+    protected void makeDecodeTables(byte[] lenTab, int offset, Decode dec,
+            int size) {
+<span class="fc" id="L233">        int[] lenCount = new int[16];</span>
+<span class="fc" id="L234">        int[] tmpPos = new int[16];</span>
+        int i;
+        long M, N;
+
+<span class="fc" id="L238">        Arrays.fill(lenCount, 0); // memset(LenCount,0,sizeof(LenCount));</span>
+
+<span class="fc" id="L240">        Arrays.fill(dec.getDecodeNum(), 0); // memset(Dec-&gt;DecodeNum,0,Size*sizeof(*Dec-&gt;DecodeNum));</span>
+
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        for (i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L243">            lenCount[(int) (lenTab[offset + i] &amp; 0xF)]++;</span>
+        }
+<span class="fc" id="L245">        lenCount[0] = 0;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (tmpPos[0] = 0, dec.getDecodePos()[0] = 0, dec.getDecodeLen()[0] = 0, N = 0, i = 1; i &lt; 16; i++) {</span>
+<span class="fc" id="L247">            N = 2 * (N + lenCount[i]);</span>
+<span class="fc" id="L248">            M = N &lt;&lt; (15 - i);</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">            if (M &gt; 0xFFFF) {</span>
+<span class="fc" id="L250">                M = 0xFFFF;</span>
+            }
+<span class="fc" id="L252">            dec.getDecodeLen()[i] = (int) M;</span>
+<span class="fc" id="L253">            tmpPos[i] = dec.getDecodePos()[i] = dec.getDecodePos()[i - 1]</span>
+                    + lenCount[i - 1];
+        }
+
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        for (i = 0; i &lt; size; i++) {</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if (lenTab[offset + i] != 0) {</span>
+<span class="fc" id="L259">                dec.getDecodeNum()[tmpPos[lenTab[offset + i] &amp; 0xF]++] = i;</span>
+            }
+        }
+<span class="fc" id="L262">        dec.setMaxNum(size);</span>
+<span class="fc" id="L263">    }</span>
+
+    protected int decodeNumber(Decode dec) {
+        int bits;
+<span class="fc" id="L267">        long bitField = getbits() &amp; 0xfffe;</span>
+//        if (bitField &lt; dec.getDecodeLen()[8]) {
+//            if (bitField &lt; dec.getDecodeLen()[4]) {
+//                if (bitField &lt; dec.getDecodeLen()[2]) {
+//                    if (bitField &lt; dec.getDecodeLen()[1]) {
+//                        bits = 1;
+//                    } else {
+//                        bits = 2;
+//                    }
+//                } else {
+//                    if (bitField &lt; dec.getDecodeLen()[3]) {
+//                        bits = 3;
+//                    } else {
+//                        bits = 4;
+//                    }
+//                }
+//            } else {
+//                if (bitField &lt; dec.getDecodeLen()[6]) {
+//                    if (bitField &lt; dec.getDecodeLen()[5])
+//                        bits = 5;
+//                    else
+//                        bits = 6;
+//                } else {
+//                    if (bitField &lt; dec.getDecodeLen()[7]) {
+//                        bits = 7;
+//                    } else {
+//                        bits = 8;
+//                    }
+//                }
+//            }
+//        } else {
+//            if (bitField &lt; dec.getDecodeLen()[12]) {
+//                if (bitField &lt; dec.getDecodeLen()[10])
+//                    if (bitField &lt; dec.getDecodeLen()[9])
+//                        bits = 9;
+//                    else
+//                        bits = 10;
+//                else if (bitField &lt; dec.getDecodeLen()[11])
+//                    bits = 11;
+//                else
+//                    bits = 12;
+//            } else {
+//                if (bitField &lt; dec.getDecodeLen()[14]) {
+//                    if (bitField &lt; dec.getDecodeLen()[13]) {
+//                        bits = 13;
+//                    } else {
+//                        bits = 14;
+//                    }
+//                } else {
+//                    bits = 15;
+//                }
+//            }
+//        }
+//        addbits(bits);
+//        int N = dec.getDecodePos()[bits]
+//                + (((int) bitField - dec.getDecodeLen()[bits - 1]) &gt;&gt;&gt; (16 - bits));
+//        if (N &gt;= dec.getMaxNum()) {
+//            N = 0;
+//        }
+//        return (dec.getDecodeNum()[N]);
+<span class="fc" id="L327">        int[] decodeLen = dec.getDecodeLen();</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">        if (bitField &lt; decodeLen[8]) {</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">            if (bitField &lt; decodeLen[4]) {</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">                if (bitField &lt; decodeLen[2]) {</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">                    if (bitField &lt; decodeLen[1]) {</span>
+<span class="fc" id="L332">                        bits = 1;</span>
+                    } else {
+<span class="fc" id="L334">                        bits = 2;</span>
+                    }
+                } else {
+<span class="fc bfc" id="L337" title="All 2 branches covered.">                    if (bitField &lt; decodeLen[3]) {</span>
+<span class="fc" id="L338">                        bits = 3;</span>
+                    } else {
+<span class="fc" id="L340">                        bits = 4;</span>
+                    }
+                }
+            } else {
+<span class="fc bfc" id="L344" title="All 2 branches covered.">                if (bitField &lt; decodeLen[6]) {</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">                    if (bitField &lt; decodeLen[5]) {</span>
+<span class="fc" id="L346">                        bits = 5;</span>
+                    } else {
+<span class="fc" id="L348">                        bits = 6;</span>
+                    }
+                } else {
+<span class="fc bfc" id="L351" title="All 2 branches covered.">                    if (bitField &lt; decodeLen[7]) {</span>
+<span class="fc" id="L352">                        bits = 7;</span>
+                    } else {
+<span class="fc" id="L354">                        bits = 8;</span>
+                    }
+                }
+            }
+        } else {
+<span class="fc bfc" id="L359" title="All 2 branches covered.">            if (bitField &lt; decodeLen[12]) {</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">                if (bitField &lt; decodeLen[10]) {</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">                    if (bitField &lt; decodeLen[9]) {</span>
+<span class="fc" id="L362">                        bits = 9;</span>
+                    } else {
+<span class="fc" id="L364">                        bits = 10;</span>
+                    }
+<span class="fc bfc" id="L366" title="All 2 branches covered.">                } else if (bitField &lt; decodeLen[11]) {</span>
+<span class="fc" id="L367">                    bits = 11;</span>
+                } else {
+<span class="fc" id="L369">                    bits = 12;</span>
+                }
+            } else {
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">                if (bitField &lt; decodeLen[14]) {</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">                    if (bitField &lt; decodeLen[13]) {</span>
+<span class="fc" id="L374">                        bits = 13;</span>
+                    } else {
+<span class="fc" id="L376">                        bits = 14;</span>
+                    }
+                } else {
+<span class="nc" id="L379">                    bits = 15;</span>
+                }
+            }
+        }
+<span class="fc" id="L383">        addbits(bits);</span>
+<span class="fc" id="L384">        int N = dec.getDecodePos()[bits]</span>
+                + (((int) bitField - decodeLen[bits - 1]) &gt;&gt;&gt; (16 - bits));
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">        if (N &gt;= dec.getMaxNum()) {</span>
+<span class="nc" id="L387">            N = 0;</span>
+        }
+<span class="fc" id="L389">        return (dec.getDecodeNum()[N]);</span>
+    }
+
+    protected boolean ReadTables20() throws IOException, RarException {
+<span class="fc" id="L393">        byte[] BitLength = new byte[Compress.BC20];</span>
+<span class="fc" id="L394">        byte[] Table = new byte[Compress.MC20 * 4];</span>
+        int TableSize, N, I;
+<span class="fc bfc" id="L396" title="All 2 branches covered.">        if (inAddr &gt; readTop - 25) {</span>
+<span class="pc bpc" id="L397" title="1 of 2 branches missed.">            if (!unpReadBuf()) {</span>
+<span class="nc" id="L398">                return (false);</span>
+            }
+        }
+<span class="fc" id="L401">        int BitField = getbits();</span>
+<span class="fc" id="L402">        UnpAudioBlock = (BitField &amp; 0x8000);</span>
+
+<span class="fc bfc" id="L404" title="All 2 branches covered.">        if (0 == (BitField &amp; 0x4000)) {</span>
+            // memset(UnpOldTable20,0,sizeof(UnpOldTable20));
+<span class="fc" id="L406">            Arrays.fill(UnpOldTable20, (byte) 0);</span>
+        }
+<span class="fc" id="L408">        addbits(2);</span>
+
+<span class="fc bfc" id="L410" title="All 2 branches covered.">        if (UnpAudioBlock != 0) {</span>
+<span class="fc" id="L411">            UnpChannels = ((BitField &gt;&gt;&gt; 12) &amp; 3) + 1;</span>
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">            if (UnpCurChannel &gt;= UnpChannels) {</span>
+<span class="nc" id="L413">                UnpCurChannel = 0;</span>
+            }
+<span class="fc" id="L415">            addbits(2);</span>
+<span class="fc" id="L416">            TableSize = Compress.MC20 * UnpChannels;</span>
+        } else {
+<span class="fc" id="L418">            TableSize = Compress.NC20 + Compress.DC20 + Compress.RC20;</span>
+        }
+<span class="fc bfc" id="L420" title="All 2 branches covered.">        for (I = 0; I &lt; Compress.BC20; I++) {</span>
+<span class="fc" id="L421">            BitLength[I] = (byte) (getbits() &gt;&gt;&gt; 12);</span>
+<span class="fc" id="L422">            addbits(4);</span>
+        }
+<span class="fc" id="L424">        makeDecodeTables(BitLength, 0, BD, Compress.BC20);</span>
+<span class="fc" id="L425">        I = 0;</span>
+<span class="fc bfc" id="L426" title="All 2 branches covered.">        while (I &lt; TableSize) {</span>
+<span class="fc bfc" id="L427" title="All 2 branches covered.">            if (inAddr &gt; readTop - 5) {</span>
+<span class="pc bpc" id="L428" title="1 of 2 branches missed.">                if (!unpReadBuf()) {</span>
+<span class="fc" id="L429">                    return (false);</span>
+                }
+            }
+<span class="fc" id="L432">            int Number = decodeNumber(BD);</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">            if (Number &lt; 16) {</span>
+<span class="fc" id="L434">                Table[I] = (byte) ((Number + UnpOldTable20[I]) &amp; 0xf);</span>
+<span class="fc" id="L435">                I++;</span>
+<span class="fc bfc" id="L436" title="All 2 branches covered.">            } else if (Number == 16) {</span>
+<span class="fc" id="L437">                N = (getbits() &gt;&gt;&gt; 14) + 3;</span>
+<span class="fc" id="L438">                addbits(2);</span>
+<span class="pc bpc" id="L439" title="1 of 4 branches missed.">                while (N-- &gt; 0 &amp;&amp; I &lt; TableSize) {</span>
+<span class="fc" id="L440">                    Table[I] = Table[I - 1];</span>
+<span class="fc" id="L441">                    I++;</span>
+                }
+            } else {
+<span class="fc bfc" id="L444" title="All 2 branches covered.">                if (Number == 17) {</span>
+<span class="fc" id="L445">                    N = (getbits() &gt;&gt;&gt; 13) + 3;</span>
+<span class="fc" id="L446">                    addbits(3);</span>
+                } else {
+<span class="fc" id="L448">                    N = (getbits() &gt;&gt;&gt; 9) + 11;</span>
+<span class="fc" id="L449">                    addbits(7);</span>
+                }
+<span class="pc bpc" id="L451" title="1 of 4 branches missed.">                while (N-- &gt; 0 &amp;&amp; I &lt; TableSize) {</span>
+<span class="fc" id="L452">                    Table[I++] = 0;</span>
+                }
+            }
+<span class="fc" id="L455">        }</span>
+<span class="pc bpc" id="L456" title="1 of 2 branches missed.">        if (inAddr &gt; readTop) {</span>
+<span class="nc" id="L457">            return (true);</span>
+        }
+<span class="fc bfc" id="L459" title="All 2 branches covered.">        if (UnpAudioBlock != 0) {</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">            for (I = 0; I &lt; UnpChannels; I++) {</span>
+<span class="fc" id="L461">                makeDecodeTables(Table, I * Compress.MC20, MD[I], Compress.MC20);</span>
+            }
+        } else {
+<span class="fc" id="L464">            makeDecodeTables(Table, 0, LD, Compress.NC20);</span>
+<span class="fc" id="L465">            makeDecodeTables(Table, Compress.NC20, DD, Compress.DC20);</span>
+<span class="fc" id="L466">            makeDecodeTables(Table, Compress.NC20 + Compress.DC20, RD,</span>
+                    Compress.RC20);
+        }
+        // memcpy(UnpOldTable20,Table,sizeof(UnpOldTable20));
+<span class="fc" id="L470">        System.arraycopy(Table, 0, UnpOldTable20, 0, UnpOldTable20.length);</span>
+<span class="fc" id="L471">        return (true);</span>
+    }
+
+    protected void unpInitData20(boolean Solid) {
+<span class="fc bfc" id="L475" title="All 2 branches covered.">        if (!Solid) {</span>
+<span class="fc" id="L476">            UnpChannelDelta = UnpCurChannel = 0;</span>
+<span class="fc" id="L477">            UnpChannels = 1;</span>
+            // memset(AudV,0,sizeof(AudV));
+<span class="fc bfc" id="L479" title="All 2 branches covered.">            for (int i = 0; i &lt; AudV.length; i++) {</span>
+<span class="fc" id="L480">                AudV[i] = new AudioVariables();</span>
+            }
+            // memset(UnpOldTable20,0,sizeof(UnpOldTable20));
+<span class="fc" id="L483">            Arrays.fill(UnpOldTable20, (byte) 0);</span>
+            // memset(MD,0,sizeof(MD));
+<span class="fc bfc" id="L485" title="All 2 branches covered.">            for (int i = 0; i &lt; MD.length; i++) {</span>
+<span class="fc" id="L486">                MD[i] = new MultDecode();</span>
+            }
+        }
+<span class="fc" id="L489">    }</span>
+
+    protected void ReadLastTables() throws IOException, RarException {
+<span class="pc bpc" id="L492" title="1 of 2 branches missed.">        if (readTop &gt;= inAddr + 5) {</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">            if (UnpAudioBlock != 0) {</span>
+<span class="nc bnc" id="L494" title="All 2 branches missed.">                if (decodeNumber(MD[UnpCurChannel]) == 256) {</span>
+<span class="nc" id="L495">                    ReadTables20();</span>
+                }
+            } else {
+<span class="nc bnc" id="L498" title="All 2 branches missed.">                if (decodeNumber(LD) == 269) {</span>
+<span class="nc" id="L499">                    ReadTables20();</span>
+                }
+            }
+        }
+<span class="fc" id="L503">    }</span>
+
+    protected byte DecodeAudio(int Delta) {
+<span class="fc" id="L506">        AudioVariables v = AudV[UnpCurChannel];</span>
+<span class="fc" id="L507">        v.setByteCount(v.getByteCount() + 1);</span>
+<span class="fc" id="L508">        v.setD4(v.getD3());</span>
+<span class="fc" id="L509">        v.setD3(v.getD2()); // -&gt;D3=V-&gt;D2;</span>
+<span class="fc" id="L510">        v.setD2(v.getLastDelta() - v.getD1()); // -&gt;D2=V-&gt;LastDelta-V-&gt;D1;</span>
+<span class="fc" id="L511">        v.setD1(v.getLastDelta()); // V-&gt;D1=V-&gt;LastDelta;</span>
+        // int PCh=8*V-&gt;LastChar+V-&gt;K1*V-&gt;D1 +V-&gt;K2*V-&gt;D2 +V-&gt;K3*V-&gt;D3
+        // +V-&gt;K4*V-&gt;D4+ V-&gt;K5*UnpChannelDelta;
+<span class="fc" id="L514">        int PCh = 8 * v.getLastChar() + v.getK1() * v.getD1();</span>
+<span class="fc" id="L515">        PCh += v.getK2() * v.getD2() + v.getK3() * v.getD3();</span>
+<span class="fc" id="L516">        PCh += v.getK4() * v.getD4() + v.getK5() * UnpChannelDelta;</span>
+<span class="fc" id="L517">        PCh = (PCh &gt;&gt;&gt; 3) &amp; 0xFF;</span>
+
+<span class="fc" id="L519">        int Ch = PCh - Delta;</span>
+
+<span class="fc" id="L521">        int D = ((byte) Delta) &lt;&lt; 3;</span>
+
+<span class="fc" id="L523">        v.getDif()[0] += Math.abs(D); // V-&gt;Dif[0]+=abs(D);</span>
+<span class="fc" id="L524">        v.getDif()[1] += Math.abs(D - v.getD1()); // V-&gt;Dif[1]+=abs(D-V-&gt;D1);</span>
+<span class="fc" id="L525">        v.getDif()[2] += Math.abs(D + v.getD1()); // V-&gt;Dif[2]+=abs(D+V-&gt;D1);</span>
+<span class="fc" id="L526">        v.getDif()[3] += Math.abs(D - v.getD2()); // V-&gt;Dif[3]+=abs(D-V-&gt;D2);</span>
+<span class="fc" id="L527">        v.getDif()[4] += Math.abs(D + v.getD2()); // V-&gt;Dif[4]+=abs(D+V-&gt;D2);</span>
+<span class="fc" id="L528">        v.getDif()[5] += Math.abs(D - v.getD3()); // V-&gt;Dif[5]+=abs(D-V-&gt;D3);</span>
+<span class="fc" id="L529">        v.getDif()[6] += Math.abs(D + v.getD3()); // V-&gt;Dif[6]+=abs(D+V-&gt;D3);</span>
+<span class="fc" id="L530">        v.getDif()[7] += Math.abs(D - v.getD4()); // V-&gt;Dif[7]+=abs(D-V-&gt;D4);</span>
+<span class="fc" id="L531">        v.getDif()[8] += Math.abs(D + v.getD4()); // V-&gt;Dif[8]+=abs(D+V-&gt;D4);</span>
+<span class="fc" id="L532">        v.getDif()[9] += Math.abs(D - UnpChannelDelta); // V-&gt;Dif[9]+=abs(D-UnpChannelDelta);</span>
+<span class="fc" id="L533">        v.getDif()[10] += Math.abs(D + UnpChannelDelta); // V-&gt;Dif[10]+=abs(D+UnpChannelDelta);</span>
+
+<span class="fc" id="L535">        v.setLastDelta((byte) (Ch - v.getLastChar()));</span>
+<span class="fc" id="L536">        UnpChannelDelta = v.getLastDelta();</span>
+<span class="fc" id="L537">        v.setLastChar(Ch); // V-&gt;LastChar=Ch;</span>
+
+<span class="fc bfc" id="L539" title="All 2 branches covered.">        if ((v.getByteCount() &amp; 0x1F) == 0) {</span>
+<span class="fc" id="L540">            int MinDif = v.getDif()[0], NumMinDif = 0;</span>
+<span class="fc" id="L541">            v.getDif()[0] = 0; // -&gt;Dif[0]=0;</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">            for (int I = 1; I &lt; v.getDif().length; I++) {</span>
+<span class="fc bfc" id="L543" title="All 2 branches covered.">                if (v.getDif()[I] &lt; MinDif) {</span>
+<span class="fc" id="L544">                    MinDif = v.getDif()[I];</span>
+<span class="fc" id="L545">                    NumMinDif = I;</span>
+                }
+<span class="fc" id="L547">                v.getDif()[I] = 0;</span>
+            }
+<span class="fc bfc" id="L549" title="All 11 branches covered.">            switch (NumMinDif) {</span>
+                case 1:
+<span class="pc bpc" id="L551" title="1 of 2 branches missed.">                    if (v.getK1() &gt;= -16) {</span>
+<span class="fc" id="L552">                        v.setK1(v.getK1() - 1); // V-&gt;K1--;</span>
+                    }
+                    break;
+                case 2:
+<span class="pc bpc" id="L556" title="1 of 2 branches missed.">                    if (v.getK1() &lt; 16) {</span>
+<span class="fc" id="L557">                        v.setK1(v.getK1() + 1); // V-&gt;K1++;</span>
+                    }
+                    break;
+                case 3:
+<span class="pc bpc" id="L561" title="1 of 2 branches missed.">                    if (v.getK2() &gt;= -16) {</span>
+<span class="fc" id="L562">                        v.setK2(v.getK2() - 1); // V-&gt;K2--;</span>
+                    }
+                    break;
+                case 4:
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">                    if (v.getK2() &lt; 16) {</span>
+<span class="fc" id="L567">                        v.setK2(v.getK2() + 1); // V-&gt;K2++;</span>
+                    }
+                    break;
+                case 5:
+<span class="pc bpc" id="L571" title="1 of 2 branches missed.">                    if (v.getK3() &gt;= -16) {</span>
+<span class="fc" id="L572">                        v.setK3(v.getK3() - 1);</span>
+                    }
+                    break;
+                case 6:
+<span class="pc bpc" id="L576" title="1 of 2 branches missed.">                    if (v.getK3() &lt; 16) {</span>
+<span class="fc" id="L577">                        v.setK3(v.getK3() + 1);</span>
+                    }
+                    break;
+                case 7:
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">                    if (v.getK4() &gt;= -16) {</span>
+<span class="fc" id="L582">                        v.setK4(v.getK4() - 1);</span>
+                    }
+                    break;
+                case 8:
+<span class="pc bpc" id="L586" title="1 of 2 branches missed.">                    if (v.getK4() &lt; 16) {</span>
+<span class="fc" id="L587">                        v.setK4(v.getK4() + 1);</span>
+                    }
+                    break;
+                case 9:
+<span class="pc bpc" id="L591" title="1 of 2 branches missed.">                    if (v.getK5() &gt;= -16) {</span>
+<span class="fc" id="L592">                        v.setK5(v.getK5() - 1);</span>
+                    }
+                    break;
+                case 10:
+<span class="pc bpc" id="L596" title="1 of 2 branches missed.">                    if (v.getK5() &lt; 16) {</span>
+<span class="fc" id="L597">                        v.setK5(v.getK5() + 1);</span>
+                    }
+                    break;
+            }
+        }
+<span class="fc" id="L602">        return ((byte) Ch);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

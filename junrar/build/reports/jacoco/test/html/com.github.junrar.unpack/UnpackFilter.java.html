@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnpackFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack</a> &gt; <span class="el_source">UnpackFilter.java</span></div><h1>UnpackFilter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 01.06.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack;
+
+import com.github.junrar.unpack.vm.VMPreparedProgram;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="fc" id="L28">public class UnpackFilter {</span>
+
+    private int BlockStart;
+
+    private int BlockLength;
+
+    private int ExecCount;
+
+    private boolean NextWindow;
+
+    // position of parent filter in Filters array used as prototype for filter
+    // in PrgStack array. Not defined for filters in Filters array.
+    private int ParentFilter;
+
+<span class="fc" id="L42">    private VMPreparedProgram Prg  = new VMPreparedProgram();</span>
+
+    public int getBlockLength() {
+<span class="fc" id="L45">        return BlockLength;</span>
+    }
+
+    public void setBlockLength(int blockLength) {
+<span class="fc" id="L49">        BlockLength = blockLength;</span>
+<span class="fc" id="L50">    }</span>
+
+    public int getBlockStart() {
+<span class="fc" id="L53">        return BlockStart;</span>
+    }
+
+    public void setBlockStart(int blockStart) {
+<span class="fc" id="L57">        BlockStart = blockStart;</span>
+<span class="fc" id="L58">    }</span>
+
+    public int getExecCount() {
+<span class="fc" id="L61">        return ExecCount;</span>
+    }
+
+    public void setExecCount(int execCount) {
+<span class="fc" id="L65">        ExecCount = execCount;</span>
+<span class="fc" id="L66">    }</span>
+
+    public boolean isNextWindow() {
+<span class="fc" id="L69">        return NextWindow;</span>
+    }
+
+    public void setNextWindow(boolean nextWindow) {
+<span class="fc" id="L73">        NextWindow = nextWindow;</span>
+<span class="fc" id="L74">    }</span>
+
+    public int getParentFilter() {
+<span class="fc" id="L77">        return ParentFilter;</span>
+    }
+
+    public void setParentFilter(int parentFilter) {
+<span class="fc" id="L81">        ParentFilter = parentFilter;</span>
+<span class="fc" id="L82">    }</span>
+
+    public VMPreparedProgram getPrg() {
+<span class="fc" id="L85">        return Prg;</span>
+    }
+
+    public void setPrg(VMPreparedProgram prg) {
+<span class="nc" id="L89">        Prg = prg;</span>
+<span class="nc" id="L90">    }</span>
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

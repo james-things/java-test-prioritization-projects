@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SignHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">SignHeader.java</span></div><h1>SignHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 24.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+
+/**
+ * sign header
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class SignHeader extends BaseBlock {
+
+    public static final short signHeaderSize = 8;
+
+<span class="nc" id="L33">    private int creationTime = 0;</span>
+<span class="nc" id="L34">    private short arcNameSize = 0;</span>
+<span class="nc" id="L35">    private short userNameSize = 0;</span>
+
+
+    public SignHeader(BaseBlock bb, byte[] signHeader) {
+<span class="nc" id="L39">        super(bb);</span>
+
+<span class="nc" id="L41">        int pos = 0;</span>
+<span class="nc" id="L42">        creationTime = Raw.readIntLittleEndian(signHeader, pos);</span>
+<span class="nc" id="L43">        pos += 4;</span>
+<span class="nc" id="L44">        arcNameSize = Raw.readShortLittleEndian(signHeader, pos);</span>
+<span class="nc" id="L45">        pos += 2;</span>
+<span class="nc" id="L46">        userNameSize = Raw.readShortLittleEndian(signHeader, pos);</span>
+<span class="nc" id="L47">    }</span>
+
+    public short getArcNameSize() {
+<span class="nc" id="L50">        return arcNameSize;</span>
+    }
+
+    public int getCreationTime() {
+<span class="nc" id="L54">        return creationTime;</span>
+    }
+
+    public short getUserNameSize() {
+<span class="nc" id="L58">        return userNameSize;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

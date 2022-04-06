@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TNoise.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.random</a> &gt; <span class="el_source">TNoise.java</span></div><h1>TNoise.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.random;
+
+
+import com.telek.telekmath.core.geometry.vectors.TVector2D;
+import com.telek.telekmath.core.geometry.vectors.TVector3D;
+
+public class TNoise {
+
+    /* No constructor */
+    private TNoise(){}
+
+
+
+    /**
+     * A class ONLY used in TNoise class any nowhere else.
+     * This class is intentionally left small and kinda unfinished for optimization purposes.
+     * If you want to save your x,y datas in a vector use TVector2D or TVector3D.
+     * You don't have to use this class since all TNoise methods will have a variant like func(float, float).
+     * @see TVector2D
+     * @see TVector3D
+     */
+    public static class Vec2 {
+        public float x, y;
+<span class="fc" id="L24">        public Vec2(float x, float y){</span>
+<span class="fc" id="L25">            this.x = x;</span>
+<span class="fc" id="L26">            this.y = y;</span>
+<span class="fc" id="L27">        }</span>
+        public float dot(Vec2 another){
+<span class="nc" id="L29">            return (this.x * another.x) + (this.y * another.y);</span>
+        }
+        public Vec2 add(float _x, float _y){
+<span class="fc" id="L32">            return new Vec2( this.x + _x, this.y + _y );</span>
+        }
+<span class="nc" id="L34">        public Vec2 add(Vec2 another){ return new Vec2( this.x + another.x, this.y + another.y ); }</span>
+    }
+
+
+
+    /**
+     * Returns a random number in range (0,1) using a 'one liner I found on the internet' for point (x,y).
+     * This method has been known by the shader community for a long time.
+     * @param x any float
+     * @param y any float
+     * @return a random number using the x,y values, returns a number in range (0, 1)
+     */
+    public static float canonicalRandom(float x, float y){
+<span class="fc" id="L47">        return fract( (( (float) Math.sin( 12.9898f * x + 78.233 * y ) ) * 43758.5453f) );</span>
+    }
+
+
+    /**
+     * Returns a random number in range (0,1) using a 'one liner I found on the internet' for a vector.
+     * This method has been known by the shader community for a long time.
+     * @param vec x,y values
+     * @return a random number using the x,y values, returns a number in range (0, 1)
+     */
+    public static float canonicalRandom(Vec2 vec){
+<span class="fc" id="L58">        return canonicalRandom(vec.x, vec.y);</span>
+    }
+
+
+    /**
+     * Returns a random value in range (0,1) using the point (x,y). This noise will look blocky and grid-like. Use perlin noise
+     * if you want it to look smooth.
+     * @param x any float
+     * @param y any float
+     * @return valueNoise(x,y), returns a number in range (0, 1)
+     */
+    public static float valueNoise(float x, float y){
+<span class="fc" id="L70">        Vec2 i = floor(x,y);</span>
+<span class="fc" id="L71">        Vec2 fvec = fract(x, y);</span>
+<span class="fc" id="L72">        Vec2 cubic = new Vec2(fvec.x * fvec.x * ( 3.0f - 2.0f * fvec.x), fvec.y * fvec.y * ( 3.0f - 2.0f * fvec.y));</span>
+
+<span class="fc" id="L74">        float topmix = (canonicalRandom(i) * (1-cubic.x)) + (canonicalRandom( i.add(1.0f, 0.0f) ) * cubic.x);</span>
+<span class="fc" id="L75">        float botmix = (canonicalRandom( i.add(0.0f, 1.0f) ) * (1-cubic.x)) + (canonicalRandom( i.add(1.0f, 1.0f) ) * cubic.x);</span>
+
+<span class="fc" id="L77">        return ( (topmix * (1-cubic.y)) + (botmix * cubic.y) );</span>
+    }
+
+
+
+    /**
+     * Returns a random value in range (0,1) using the vector. This noise will look blocky and grid-like. Use perlin noise
+     * if you want it to look smooth.
+     * @param vec x,y values
+     * @return valueNoise(x,y), returns a number in range (0, 1)
+     */
+    public static float valueNoise(Vec2 vec){
+<span class="nc" id="L89">        return valueNoise( vec.x, vec.y );</span>
+    }
+
+
+
+    /**
+     * Returns a 2D noise value in range (0,1) based on Morgan Mcguire's shader:  &lt;a&gt;https://www.shadertoy.com/view/4dS3Wd&lt;/a&gt;
+     * @param x any float
+     * @param y any float
+     * @return morganMcguireNoise(x,y), returns a number in range (0, 1)
+     */
+    public static float morganMcguireNoise(float x, float y){
+<span class="nc" id="L101">        Vec2 i = floor(x, y);</span>
+<span class="nc" id="L102">        Vec2 fvec = fract(x, y);</span>
+<span class="nc" id="L103">        float a = canonicalRandom(i);</span>
+<span class="nc" id="L104">        float b = canonicalRandom(i.add(1.0f, 0.0f));</span>
+<span class="nc" id="L105">        float c = canonicalRandom(i.add(0.0f, 1.0f));</span>
+<span class="nc" id="L106">        float d = canonicalRandom(i.add(1.0f, 1.0f));</span>
+<span class="nc" id="L107">        Vec2 u = new Vec2(fvec.x * fvec.x * (3f - 2f * fvec.x), fvec.y * fvec.y * (3f - 2f * fvec.y));</span>
+<span class="nc" id="L108">        return (mix(a, b, u.x) + (c - a) * u.y * (1f - u.x) + (d - b) * u.x * u.y);</span>
+    }
+
+
+    /**
+     * Returns perlin noise value in range (-1, 1) for point (x,y). This is the default perlin noise.
+     * @param x any float
+     * @param y any float
+     * @return perlinNoise(x,y), returns a number in range (-1, 1)
+     */
+    public static float perlinNoise(float x, float y) {
+<span class="nc" id="L119">        int x0 = (int) x;</span>
+<span class="nc" id="L120">        int x1 = x0 + 1;</span>
+<span class="nc" id="L121">        int y0 = (int) y;</span>
+<span class="nc" id="L122">        int y1 = y0 + 1;</span>
+<span class="nc" id="L123">        float sx = x - (float)x0;</span>
+
+<span class="nc" id="L125">        return perlinInterpolate(</span>
+<span class="nc" id="L126">                perlinInterpolate( perlinDotGridGradient(x0, y0, x, y), perlinDotGridGradient(x1, y0, x, y), sx ),</span>
+<span class="nc" id="L127">                perlinInterpolate( perlinDotGridGradient(x0, y1, x, y), perlinDotGridGradient(x1, y1, x, y), sx ),</span>
+                y - (float) y0
+        );
+    }
+
+
+    /**
+     * Returns perlin noise value in range (-1, 1) for point (x,y). This is the default perlin noise.
+     * @param vec any cev
+     * @return perlinNoise(x,y), returns a number in range (-1, 1)
+     */
+<span class="nc" id="L138">    public static float perlinNoise(Vec2 vec){ return perlinNoise(vec.x, vec.y); }</span>
+
+
+
+    /**
+     * Returns a Fractional Brownian motion value for perlin noise with the specified octaves for point (x,y).
+     * This value is in range (-1, 1)
+     * @param x any float for perlinNoise
+     * @param y any float for perlinNoise
+     * @param octaves how many times this filter will be used
+     * @return 'octaves times' filtered perlinNoise(x,y) with fbm, returns a number in range (-1, 1)
+     */
+    public static float fbmFilteredPerlinNoise(float x, float y, int octaves){
+<span class="nc" id="L151">        float normFactor = 0.0f, value = 0.0f, scale = 0.5f;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        for(int i = 0; i &lt; octaves; i++){</span>
+<span class="nc" id="L153">            value += perlinNoise(x, y) * scale;</span>
+<span class="nc" id="L154">            normFactor += scale;</span>
+<span class="nc" id="L155">            x *= 2.0;</span>
+<span class="nc" id="L156">            y *= 2.0;</span>
+<span class="nc" id="L157">            scale *= 0.5;</span>
+        }
+<span class="nc" id="L159">        return value / normFactor;</span>
+    }
+
+
+
+    /**
+     * Returns a Fractional Brownian motion value for perlin noise with the specified octaves for point (x,y).
+     * This value is in range (-1, 1).
+     * This method does {@link #fbmFilteredPerlinNoise(float, float, int)} with 4 octaves, returns a number in range (-1, 1).
+     * @param x any float for perlinNoise
+     * @param y any float for perlinNoise
+     * @return fbm filtered noise
+     */
+<span class="nc" id="L172">    public static float fbmFilteredPerlinNoise(float x, float y){ return fbmFilteredPerlinNoise(x, y, 4); }</span>
+
+
+
+    /**
+     * Returns a Fractional Brownian motion value for perlin noise with the specified octaves for a vector.
+     * This value is in range (-1, 1)
+     * @param vec any vector for perlinNoise
+     * @param octaves how many times this filter will be used
+     * @return 'octaves times' filtered perlinNoise(x,y) with fbm, returns a number in range (-1, 1)
+     */
+<span class="nc" id="L183">    public static float fbmFilteredPerlinNoise(Vec2 vec, int octaves){ return fbmFilteredPerlinNoise(vec.x, vec.y, octaves); }</span>
+
+
+
+
+    /**
+     * Returns a Fractional Brownian motion value for perlin noise with the specified octaves for a vector.
+     * This value is in range (-1, 1).
+     * This method does {@link #fbmFilteredPerlinNoise(Vec2, int)} with 4 octaves, returns a number in range (-1, 1).
+     * @param vec any x,y values for perlinNoise
+     * @return fbm filtered noise
+     */
+<span class="nc" id="L195">    public static float fbmFilteredPerlinNoise(Vec2 vec){ return fbmFilteredPerlinNoise(vec.x, vec.y); }</span>
+
+
+
+
+    /**
+     * Returns a ridge filtered noise value.
+     * This filter will make for example a mountain have sharper ridges.
+     * This value is in range (0, 1).
+     * @param noiseValue any noise value that is returned from any noise function
+     * @return noiseValue with ridge filter in range (0, 1)
+     */
+    public static float ridgeFilteredNoise(float noiseValue) {
+<span class="nc" id="L208">        return 2f * (0.5f - Math.abs(0.5f - noiseValue));</span>
+    }
+
+
+    /**
+     * Returns the noise value ^ exponential. Will return in range (0,1) as long as noise value is in range (0,1).
+     * @param noiseValueBetweenZeroAndOne any noise value in range (0,1)
+     * @param exponent an integer specifying how many times this filter will be applied
+     * @return 'exponent times' filtered noiseValueBetweenZeroAndOne, in range (0,1) if noiseValue is in (0,1)
+     */
+    public static float exponentiallyFilteredNoise(float noiseValueBetweenZeroAndOne, int exponent) {
+<span class="nc" id="L219">        float result = 1;</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        for (int i = 0; i &lt; exponent; i++)</span>
+<span class="nc" id="L221">            result *= noiseValueBetweenZeroAndOne;</span>
+<span class="nc" id="L222">        return result;</span>
+    }
+
+
+
+    /**
+     * This method is a not-working or alternatively weirdly-working perlin noise that I've wrote. I didn't delete this
+     * method because it looks weird and sometimes very random. You can set isInterestion boolean to any value
+     * to get a different effect as well. This method returns a number in [0, 1) interval
+     * @param x any float
+     * @param y any float
+     * @param isInteresting set it to anything you want just be consistent
+     * @return a number in [0, 1) interval
+     */
+    public static float brokenPerlinNoise(float x, float y, boolean isInteresting){
+<span class="nc" id="L237">        Vec2 i = floor(x,y);</span>
+<span class="nc" id="L238">        Vec2 f = fract(x,y);</span>
+
+        // 4 corners of a rectangle surrounding our point
+        // must be up to 2pi radians to allow the random vectors to face all directions
+<span class="nc" id="L242">        float tl = canonicalRandom(i) * 6.283f;</span>
+<span class="nc" id="L243">        float tr = canonicalRandom(i.add(1.0f, 0.0f)) * 6.283f;</span>
+<span class="nc" id="L244">        float bl = canonicalRandom(i.add(0.0f, 1.0f)) * 6.283f;</span>
+<span class="nc" id="L245">        float br = canonicalRandom(i.add(1.0f, 1.0f)) * 6.283f;</span>
+
+        // original unit vector = (0, 1) which points downwards
+<span class="nc" id="L248">        Vec2 tlvec = new Vec2( (float) -Math.sin(tl), (float) Math.cos(tl) );</span>
+<span class="nc" id="L249">        Vec2 trvec = new Vec2( (float) -Math.sin(tr), (float) Math.cos(tr) );</span>
+<span class="nc" id="L250">        Vec2 blvec = new Vec2( (float) -Math.sin(bl), (float) Math.cos(bl) );</span>
+<span class="nc" id="L251">        Vec2 brvec = new Vec2( (float) -Math.sin(br), (float) Math.cos(br) );</span>
+
+        // getting dot product of each corner's vector and its distance vector to current point
+<span class="nc" id="L254">        float tldot = tlvec.dot(f);</span>
+<span class="nc" id="L255">        float trdot = trvec.dot(f.add(-1f, 0f));</span>
+<span class="nc" id="L256">        float bldot = blvec.dot(f.add(0f, -1f));</span>
+<span class="nc" id="L257">        float brdot = brvec.dot(f.add(-1f, -1f));</span>
+
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if(isInteresting){</span>
+<span class="nc" id="L260">            tldot = Math.abs(tldot);</span>
+<span class="nc" id="L261">            trdot = Math.abs(trdot);</span>
+<span class="nc" id="L262">            bldot = Math.abs(bldot);</span>
+<span class="nc" id="L263">            brdot = Math.abs(brdot);</span>
+        }
+
+<span class="nc" id="L266">        Vec2 cubic = new Vec2(f.x * f.x * ( 3f - 2f * f.x ), f.y * f.y * ( 3f - 2f * f.y ));</span>
+
+<span class="nc" id="L268">        return fract(0.5f + mix( mix(tldot, trdot, cubic.x), mix(bldot, brdot, cubic.x), cubic.y));</span>
+    }
+
+
+
+
+    /*  HELPER FUNCTIONS  */
+
+    private static Vec2 perlinRandGradient(int ix, int iy) {
+<span class="nc" id="L277">        float random = (float) (2920f * Math.sin(ix * 21942f + iy * 171324f + 8912f) * Math.cos( ix * 23157f * iy * 217832f + 9758f));</span>
+<span class="nc" id="L278">        return new Vec2( (float) Math.cos(random), (float) Math.sin(random) );</span>
+    }
+
+    private static float perlinDotGridGradient(int ix, int iy, float x, float y) {
+<span class="nc" id="L282">        Vec2 gradient = perlinRandGradient(ix, iy);</span>
+<span class="nc" id="L283">        return ( (x - (float) ix) * gradient.x + (y - (float) iy) * gradient.y);</span>
+    }
+
+    private static float perlinInterpolate(float a0, float a1, float w) {
+<span class="nc" id="L287">        return ((a1 - a0) * ((w * (w * 6f - 15f) + 10f) * w * w * w) + a0);</span>
+    }
+
+    private static int floor(double x) {
+<span class="fc" id="L291">        int xi = (int) x;</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        return (x &lt; xi) ? (xi - 1) : xi;</span>
+    }
+<span class="fc" id="L294">    private static Vec2 floor(float x, float y) { return new Vec2( floor(x), floor(y) ); }</span>
+
+<span class="fc" id="L296">    private static float fract(float x) { return x - floor(x); }</span>
+<span class="fc" id="L297">    private static Vec2 fract(float x, float y) { return new Vec2( fract(x), fract(y) ); }</span>
+
+    private static float mix(float x, float y, float a){
+<span class="nc" id="L300">        return (x * (1-a)) + (y * a);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

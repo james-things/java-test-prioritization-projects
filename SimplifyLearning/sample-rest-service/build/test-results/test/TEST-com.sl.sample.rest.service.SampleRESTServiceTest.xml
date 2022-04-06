@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.sample.rest.service.SampleRESTServiceTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:28:15" hostname="LAPTOP-0DNPIBQS" time="2.095">
+  <properties/>
+  <testcase name="testSayHelloPostNotSupported" classname="com.sl.sample.rest.service.SampleRESTServiceTest" time="0.844"/>
+  <testcase name="testSayHello" classname="com.sl.sample.rest.service.SampleRESTServiceTest" time="1.091"/>
+  <testcase name="testSayHelloWithParam" classname="com.sl.sample.rest.service.SampleRESTServiceTest" time="0.102"/>
+  <testcase name="testSearchBinary" classname="com.sl.sample.rest.service.SampleRESTServiceTest" time="0.055"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

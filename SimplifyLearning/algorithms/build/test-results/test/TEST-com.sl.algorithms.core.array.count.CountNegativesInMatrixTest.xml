@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.core.array.count.CountNegativesInMatrixTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:31" hostname="LAPTOP-0DNPIBQS" time="0.002">
+  <properties/>
+  <testcase name="testFindNegativeCountHasZeroes" classname="com.sl.algorithms.core.array.count.CountNegativesInMatrixTest" time="0.0"/>
+  <testcase name="testFindNegativeCountRectangle" classname="com.sl.algorithms.core.array.count.CountNegativesInMatrixTest" time="0.0"/>
+  <testcase name="testFindNegativeCountAllPositive" classname="com.sl.algorithms.core.array.count.CountNegativesInMatrixTest" time="0.0"/>
+  <testcase name="testFindNegativeCountMix" classname="com.sl.algorithms.core.array.count.CountNegativesInMatrixTest" time="0.0"/>
+  <testcase name="testFindNegativeCountAllNegative" classname="com.sl.algorithms.core.array.count.CountNegativesInMatrixTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

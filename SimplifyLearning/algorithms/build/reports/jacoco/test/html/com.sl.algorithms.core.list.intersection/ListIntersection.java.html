@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListIntersection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.list.intersection</a> &gt; <span class="el_source">ListIntersection.java</span></div><h1>ListIntersection.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.list.intersection;
+
+import com.sl.algorithms.core.interfaces.search.IntersectionFinder;
+import com.sl.algorithms.core.list.ListNode;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/intersection-of-two-linked-lists/description/&quot;&gt;Problem
+ * Reference&lt;/a&gt;&lt;br&gt; &lt;br&gt;Requirement: O(m+n) time and O(1) space
+ */
+<span class="fc" id="L14">public class ListIntersection&lt;T extends Comparable&gt; implements IntersectionFinder&lt;T&gt; {</span>
+
+  @Override
+  public ListNode&lt;T&gt; getIntersectionPoint(ListNode&lt;T&gt; list1, ListNode&lt;T&gt; list2) {
+<span class="fc bfc" id="L18" title="All 4 branches covered.">    if (list1 == null || list2 == null) {</span>
+<span class="fc" id="L19">      return null;</span>
+    }
+<span class="fc" id="L21">    int d = list1.size() - list2.size();</span>
+<span class="fc" id="L22">    ListNode&lt;T&gt; ptr1 = travelDelta(list1, d);</span>
+<span class="fc" id="L23">    ListNode&lt;T&gt; ptr2 = travelDelta(list2, -d);</span>
+    // at this point, ptr1 &amp; ptr2 are equidistant from the end
+<span class="pc bpc" id="L25" title="1 of 6 branches missed.">    while (ptr1 != null &amp;&amp; ptr2 != null &amp;&amp; ptr1.compareTo(ptr2) != 0) {</span>
+<span class="fc" id="L26">      ptr1 = ptr1.next;</span>
+<span class="fc" id="L27">      ptr2 = ptr2.next;</span>
+    }
+<span class="fc" id="L29">    return ptr1;</span>
+  }
+
+  private ListNode&lt;T&gt; travelDelta(ListNode&lt;T&gt; list, int d) {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">    if (d &lt;= 0) {</span>
+<span class="fc" id="L34">      return list;</span>
+    }
+<span class="fc" id="L36">    ListNode&lt;T&gt; ptr = list;</span>
+<span class="pc bpc" id="L37" title="1 of 4 branches missed.">    while (d &gt; 0 &amp;&amp; ptr != null) {</span>
+<span class="fc" id="L38">      ptr = ptr.next;</span>
+<span class="fc" id="L39">      d--;</span>
+    }
+<span class="fc" id="L41">    return ptr;</span>
+  }
+
+  @Override
+  public List&lt;T&gt; getIntersection(List&lt;T&gt; list1, List&lt;T&gt; list2) {
+<span class="fc" id="L46">    List&lt;T&gt; outputList = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L47" title="1 of 8 branches missed.">    if (list1 == null || list2 == null || list1.size() == 0 || list2.size() == 0) {</span>
+<span class="fc" id="L48">      return outputList;</span>
+    }
+<span class="fc" id="L50">    Set&lt;T&gt; hashSet = new HashSet&lt;&gt;(list1);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">    for (T obj : list2) {</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">      if (hashSet.contains(obj)) {</span>
+<span class="fc" id="L53">        outputList.add(obj);</span>
+      }
+<span class="fc" id="L55">    }</span>
+<span class="fc" id="L56">    return outputList;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

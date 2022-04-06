@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelPPM.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.ppm</a> &gt; <span class="el_source">ModelPPM.java</span></div><h1>ModelPPM.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.ppm;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.unpack.Unpack;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class ModelPPM {
+    public static final int MAX_O = 64; /* maximum allowed model order */
+
+    public static final int INT_BITS = 7;
+
+    public static final int PERIOD_BITS = 7;
+
+    public static final int TOT_BITS = INT_BITS + PERIOD_BITS;
+
+    public static final int INTERVAL = 1 &lt;&lt; INT_BITS;
+
+    public static final int BIN_SCALE = 1 &lt;&lt; TOT_BITS;
+
+    public static final int MAX_FREQ = 124;
+
+<span class="fc" id="L48">    private final SEE2Context[][] SEE2Cont = new SEE2Context[25][16];</span>
+
+    private SEE2Context dummySEE2Cont;
+
+    private PPMContext minContext, maxContext;
+
+    private State foundState; // found next state transition
+
+    private int numMasked, initEsc, orderFall, maxOrder, runLength, initRL;
+
+<span class="fc" id="L58">    private final int[] charMask = new int[256];</span>
+
+<span class="fc" id="L60">    private final int[] NS2Indx = new int[256];</span>
+
+<span class="fc" id="L62">    private final int[] NS2BSIndx = new int[256];</span>
+
+<span class="fc" id="L64">    private final int[] HB2Flag = new int[256];</span>
+
+    // byte EscCount, PrevSuccess, HiBitsFlag;
+    private int escCount, prevSuccess, hiBitsFlag;
+
+<span class="fc" id="L69">    private final int[][] binSumm = new int[128][64]; // binary SEE-contexts</span>
+
+<span class="fc" id="L71">    private final RangeCoder coder = new RangeCoder();</span>
+
+<span class="fc" id="L73">    private final SubAllocator subAlloc = new SubAllocator();</span>
+
+<span class="fc" id="L75">    private static final int[] InitBinEsc = {0x3CDD, 0x1F3F, 0x59BF, 0x48F3, 0x64A1, 0x5ABC, 0x6632, 0x6051};</span>
+
+    // Temp fields
+<span class="fc" id="L78">    private final State tempState1 = new State(null);</span>
+<span class="fc" id="L79">    private final State tempState2 = new State(null);</span>
+<span class="fc" id="L80">    private final State tempState3 = new State(null);</span>
+<span class="fc" id="L81">    private final State tempState4 = new State(null);</span>
+<span class="fc" id="L82">    private final StateRef tempStateRef1 = new StateRef();</span>
+<span class="fc" id="L83">    private final StateRef tempStateRef2 = new StateRef();</span>
+<span class="fc" id="L84">    private final PPMContext tempPPMContext1 = new PPMContext(null);</span>
+<span class="fc" id="L85">    private final PPMContext tempPPMContext2 = new PPMContext(null);</span>
+<span class="fc" id="L86">    private final PPMContext tempPPMContext3 = new PPMContext(null);</span>
+<span class="fc" id="L87">    private final PPMContext tempPPMContext4 = new PPMContext(null);</span>
+<span class="fc" id="L88">    private final int[] ps = new int[MAX_O];</span>
+
+<span class="fc" id="L90">    public ModelPPM() {</span>
+<span class="fc" id="L91">        minContext = null;</span>
+<span class="fc" id="L92">        maxContext = null;</span>
+<span class="fc" id="L93">    }</span>
+
+    public SubAllocator getSubAlloc() {
+<span class="fc" id="L96">        return subAlloc;</span>
+    }
+
+    private void restartModelRare() {
+<span class="fc" id="L100">        Arrays.fill(charMask, 0);</span>
+<span class="fc" id="L101">        subAlloc.initSubAllocator();</span>
+<span class="fc" id="L102">        initRL = -(Math.min(maxOrder, 12)) - 1;</span>
+<span class="fc" id="L103">        int addr = subAlloc.allocContext();</span>
+<span class="fc" id="L104">        minContext.setAddress(addr);</span>
+<span class="fc" id="L105">        maxContext.setAddress(addr);</span>
+<span class="fc" id="L106">        minContext.setSuffix(0);</span>
+<span class="fc" id="L107">        orderFall = maxOrder;</span>
+<span class="fc" id="L108">        minContext.setNumStats(256);</span>
+<span class="fc" id="L109">        minContext.getFreqData().setSummFreq(minContext.getNumStats() + 1);</span>
+
+<span class="fc" id="L111">        addr = subAlloc.allocUnits(256 / 2);</span>
+<span class="fc" id="L112">        foundState.setAddress(addr);</span>
+<span class="fc" id="L113">        minContext.getFreqData().setStats(addr);</span>
+
+<span class="fc" id="L115">        State state = new State(subAlloc.getHeap());</span>
+<span class="fc" id="L116">        addr = minContext.getFreqData().getStats();</span>
+<span class="fc" id="L117">        runLength = initRL;</span>
+<span class="fc" id="L118">        prevSuccess = 0;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (int i = 0; i &lt; 256; i++) {</span>
+<span class="fc" id="L120">            state.setAddress(addr + i * State.size);</span>
+<span class="fc" id="L121">            state.setSymbol(i);</span>
+<span class="fc" id="L122">            state.setFreq(1);</span>
+<span class="fc" id="L123">            state.setSuccessor(0);</span>
+        }
+
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int i = 0; i &lt; 128; i++) {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            for (int k = 0; k &lt; 8; k++) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">                for (int m = 0; m &lt; 64; m += 8) {</span>
+<span class="fc" id="L129">                    binSumm[i][k + m] = BIN_SCALE - InitBinEsc[k] / (i + 2);</span>
+                }
+            }
+        }
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (int i = 0; i &lt; 25; i++) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            for (int k = 0; k &lt; 16; k++) {</span>
+<span class="fc" id="L135">                SEE2Cont[i][k].init(5 * i + 10);</span>
+            }
+        }
+<span class="fc" id="L138">    }</span>
+
+    private void startModelRare(int MaxOrder) {
+        int i, k, m, Step;
+<span class="fc" id="L142">        escCount = 1;</span>
+<span class="fc" id="L143">        this.maxOrder = MaxOrder;</span>
+<span class="fc" id="L144">        restartModelRare();</span>
+        // Bug Fixed
+<span class="fc" id="L146">        NS2BSIndx[0] = 0;</span>
+<span class="fc" id="L147">        NS2BSIndx[1] = 2;</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (int j = 0; j &lt; 9; j++) {</span>
+<span class="fc" id="L149">            NS2BSIndx[2 + j] = 4;</span>
+        }
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (int j = 0; j &lt; 256 - 11; j++) {</span>
+<span class="fc" id="L152">            NS2BSIndx[11 + j] = 6;</span>
+        }
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        for (i = 0; i &lt; 3; i++) {</span>
+<span class="fc" id="L155">            NS2Indx[i] = i;</span>
+        }
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (m = i, k = 1, Step = 1; i &lt; 256; i++) {</span>
+<span class="fc" id="L158">            NS2Indx[i] = m;</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            if ((--k) == 0) {</span>
+<span class="fc" id="L160">                k = ++Step;</span>
+<span class="fc" id="L161">                m++;</span>
+            }
+        }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        for (int j = 0; j &lt; 0x40; j++) {</span>
+<span class="fc" id="L165">            HB2Flag[j] = 0;</span>
+        }
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        for (int j = 0; j &lt; 0x100 - 0x40; j++) {</span>
+<span class="fc" id="L168">            HB2Flag[0x40 + j] = 0x08;</span>
+        }
+<span class="fc" id="L170">        dummySEE2Cont.setShift(PERIOD_BITS);</span>
+
+<span class="fc" id="L172">    }</span>
+
+    private void clearMask() {
+<span class="nc" id="L175">        escCount = 1;</span>
+<span class="nc" id="L176">        Arrays.fill(charMask, 0);</span>
+<span class="nc" id="L177">    }</span>
+
+    public boolean decodeInit(Unpack unpackRead, int escChar/* ref */)
+            throws IOException, RarException {
+
+<span class="fc" id="L182">        int MaxOrder = unpackRead.getChar() &amp; 0xff;</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        boolean reset = ((MaxOrder &amp; 0x20) != 0);</span>
+
+<span class="fc" id="L185">        int MaxMB = 0;</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        if (reset) {</span>
+<span class="fc" id="L187">            MaxMB = unpackRead.getChar();</span>
+<span class="fc" id="L188">            final int MaxMBLimit = 1;</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">            if (MaxMB &gt; MaxMBLimit) MaxMB = MaxMBLimit;</span>
+<span class="fc" id="L190">        } else {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (subAlloc.GetAllocatedMemory() == 0) {</span>
+<span class="nc" id="L192">                return (false);</span>
+            }
+        }
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if ((MaxOrder &amp; 0x40) != 0) {</span>
+<span class="fc" id="L196">            escChar = unpackRead.getChar();</span>
+<span class="fc" id="L197">            unpackRead.setPpmEscChar(escChar);</span>
+        }
+<span class="fc" id="L199">        coder.initDecoder(unpackRead);</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (reset) {</span>
+<span class="fc" id="L201">            MaxOrder = (MaxOrder &amp; 0x1f) + 1;</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">            if (MaxOrder &gt; 16) {</span>
+<span class="nc" id="L203">                MaxOrder = 16 + (MaxOrder - 16) * 3;</span>
+            }
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">            if (MaxOrder == 1) {</span>
+<span class="nc" id="L206">                subAlloc.stopSubAllocator();</span>
+<span class="nc" id="L207">                return (false);</span>
+            }
+<span class="fc" id="L209">            subAlloc.startSubAllocator(MaxMB + 1);</span>
+<span class="fc" id="L210">            minContext = new PPMContext(getHeap());</span>
+<span class="fc" id="L211">            maxContext = new PPMContext(getHeap());</span>
+<span class="fc" id="L212">            foundState = new State(getHeap());</span>
+<span class="fc" id="L213">            dummySEE2Cont = new SEE2Context();</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">            for (int i = 0; i &lt; 25; i++) {</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">                for (int j = 0; j &lt; 16; j++) {</span>
+<span class="fc" id="L216">                    SEE2Cont[i][j] = new SEE2Context();</span>
+                }
+            }
+<span class="fc" id="L219">            startModelRare(MaxOrder);</span>
+        }
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">        return (minContext.getAddress() != 0);</span>
+    }
+
+    public int decodeChar() throws IOException, RarException {
+        // Debug
+        //subAlloc.dumpHeap();
+
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        if (minContext.getAddress() &lt;= subAlloc.getPText()</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">                || minContext.getAddress() &gt; subAlloc.getHeapEnd()) {</span>
+<span class="nc" id="L230">            return (-1);</span>
+        }
+
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (minContext.getNumStats() != 1) {</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">            if (minContext.getFreqData().getStats() &lt;= subAlloc.getPText()</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">                    || minContext.getFreqData().getStats() &gt; subAlloc.getHeapEnd()) {</span>
+<span class="nc" id="L236">                return (-1);</span>
+            }
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">            if (!minContext.decodeSymbol1(this)) {</span>
+<span class="nc" id="L239">                return (-1);</span>
+            }
+        } else {
+<span class="fc" id="L242">            minContext.decodeBinSymbol(this);</span>
+        }
+<span class="fc" id="L244">        coder.decode();</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        while (foundState.getAddress() == 0) {</span>
+<span class="fc" id="L246">            coder.ariDecNormalize();</span>
+            do {
+<span class="fc" id="L248">                orderFall++;</span>
+<span class="fc" id="L249">                minContext.setAddress(minContext.getSuffix()); // =MinContext-&gt;Suffix;</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">                if (minContext.getAddress() &lt;= subAlloc.getPText()</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">                        || minContext.getAddress() &gt; subAlloc.getHeapEnd()) {</span>
+<span class="nc" id="L252">                    return (-1);</span>
+                }
+<span class="fc bfc" id="L254" title="All 2 branches covered.">            } while (minContext.getNumStats() == numMasked);</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">            if (!minContext.decodeSymbol2(this)) {</span>
+<span class="nc" id="L256">                return (-1);</span>
+            }
+<span class="fc" id="L258">            coder.decode();</span>
+        }
+<span class="fc" id="L260">        int Symbol = foundState.getSymbol();</span>
+<span class="pc bpc" id="L261" title="1 of 4 branches missed.">        if ((orderFall == 0) &amp;&amp; foundState.getSuccessor() &gt; subAlloc.getPText()) {</span>
+            // MinContext=MaxContext=FoundState-&gt;Successor;
+<span class="nc" id="L263">            int addr = foundState.getSuccessor();</span>
+<span class="nc" id="L264">            minContext.setAddress(addr);</span>
+<span class="nc" id="L265">            maxContext.setAddress(addr);</span>
+<span class="nc" id="L266">        } else {</span>
+<span class="fc" id="L267">            updateModel();</span>
+            //this.foundState.setAddress(foundState.getAddress());//TODO just 4 debugging
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">            if (escCount == 0) {</span>
+<span class="nc" id="L270">                clearMask();</span>
+            }
+        }
+<span class="fc" id="L273">        coder.ariDecNormalize(); // ARI_DEC_NORMALIZE(Coder.code,Coder.low,Coder.range,Coder.UnpackRead);</span>
+<span class="fc" id="L274">        return (Symbol);</span>
+    }
+
+    public SEE2Context[][] getSEE2Cont() {
+<span class="fc" id="L278">        return SEE2Cont;</span>
+    }
+
+    public SEE2Context getDummySEE2Cont() {
+<span class="fc" id="L282">        return dummySEE2Cont;</span>
+    }
+
+    public int getInitRL() {
+<span class="fc" id="L286">        return initRL;</span>
+    }
+
+    public void setEscCount(int escCount) {
+<span class="fc" id="L290">        this.escCount = escCount &amp; 0xff;</span>
+<span class="fc" id="L291">    }</span>
+
+    public int getEscCount() {
+<span class="fc" id="L294">        return escCount;</span>
+    }
+
+    public void incEscCount(int dEscCount) {
+<span class="fc" id="L298">        setEscCount(getEscCount() + dEscCount);</span>
+<span class="fc" id="L299">    }</span>
+
+    public int[] getCharMask() {
+<span class="fc" id="L302">        return charMask;</span>
+    }
+
+    public int getNumMasked() {
+<span class="fc" id="L306">        return numMasked;</span>
+    }
+
+    public void setNumMasked(int numMasked) {
+<span class="fc" id="L310">        this.numMasked = numMasked;</span>
+<span class="fc" id="L311">    }</span>
+
+    public void setPrevSuccess(int prevSuccess) {
+<span class="fc" id="L314">        this.prevSuccess = prevSuccess &amp; 0xff;</span>
+<span class="fc" id="L315">    }</span>
+
+    public int getInitEsc() {
+<span class="nc" id="L318">        return initEsc;</span>
+    }
+
+    public void setInitEsc(int initEsc) {
+<span class="fc" id="L322">        this.initEsc = initEsc;</span>
+<span class="fc" id="L323">    }</span>
+
+    public void setRunLength(int runLength) {
+<span class="fc" id="L326">        this.runLength = runLength;</span>
+<span class="fc" id="L327">    }</span>
+
+    public int getRunLength() {
+<span class="fc" id="L330">        return runLength;</span>
+    }
+
+    public void incRunLength(int dRunLength) {
+<span class="fc" id="L334">        setRunLength(getRunLength() + dRunLength);</span>
+<span class="fc" id="L335">    }</span>
+
+    public int getPrevSuccess() {
+<span class="fc" id="L338">        return prevSuccess;</span>
+    }
+
+    public int getHiBitsFlag() {
+<span class="fc" id="L342">        return hiBitsFlag;</span>
+    }
+
+    public void setHiBitsFlag(int hiBitsFlag) {
+<span class="fc" id="L346">        this.hiBitsFlag = hiBitsFlag &amp; 0xff;</span>
+<span class="fc" id="L347">    }</span>
+
+    public int[][] getBinSumm() {
+<span class="fc" id="L350">        return binSumm;</span>
+    }
+
+    public RangeCoder getCoder() {
+<span class="fc" id="L354">        return coder;</span>
+    }
+
+    public int[] getHB2Flag() {
+<span class="fc" id="L358">        return HB2Flag;</span>
+    }
+
+    public int[] getNS2BSIndx() {
+<span class="fc" id="L362">        return NS2BSIndx;</span>
+    }
+
+    public int[] getNS2Indx() {
+<span class="fc" id="L366">        return NS2Indx;</span>
+    }
+
+    public State getFoundState() {
+<span class="fc" id="L370">        return foundState;</span>
+    }
+
+    public byte[] getHeap() {
+<span class="fc" id="L374">        return subAlloc.getHeap();</span>
+    }
+
+    public int getOrderFall() {
+<span class="nc" id="L378">        return orderFall;</span>
+    }
+
+    private int /* ppmcontext ptr */createSuccessors(boolean Skip,
+            State p1 /* state ptr */) {
+        //State upState = tempState1.init(null);
+<span class="fc" id="L384">        StateRef upState = tempStateRef2;</span>
+<span class="fc" id="L385">        State tempState = tempState1.init(getHeap());</span>
+
+        // PPM_CONTEXT* pc=MinContext, * UpBranch=FoundState-&gt;Successor;
+<span class="fc" id="L388">        PPMContext pc = tempPPMContext1.init(getHeap());</span>
+<span class="fc" id="L389">        pc.setAddress(minContext.getAddress());</span>
+<span class="fc" id="L390">        PPMContext upBranch = tempPPMContext2.init(getHeap());</span>
+<span class="fc" id="L391">        upBranch.setAddress(foundState.getSuccessor());</span>
+
+        // STATE * p, * ps[MAX_O], ** pps=ps;
+<span class="fc" id="L394">        State p = tempState2.init(getHeap());</span>
+<span class="fc" id="L395">        int pps = 0;</span>
+
+<span class="fc" id="L397">        boolean noLoop = false;</span>
+
+<span class="fc bfc" id="L399" title="All 2 branches covered.">        if (!Skip) {</span>
+<span class="fc" id="L400">            ps[pps++] = foundState.getAddress(); // *pps++ = FoundState;</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">            if (pc.getSuffix() == 0) {</span>
+<span class="fc" id="L402">                noLoop = true;</span>
+            }
+        }
+<span class="fc bfc" id="L405" title="All 2 branches covered.">        if (!noLoop) {</span>
+<span class="fc" id="L406">            boolean loopEntry = false;</span>
+<span class="pc bpc" id="L407" title="1 of 2 branches missed.">            if (p1.getAddress() != 0) {</span>
+<span class="fc" id="L408">                p.setAddress(p1.getAddress());</span>
+<span class="fc" id="L409">                pc.setAddress(pc.getSuffix()); // =pc-&gt;Suffix;</span>
+<span class="fc" id="L410">                loopEntry = true;</span>
+            }
+            do {
+<span class="fc bfc" id="L413" title="All 2 branches covered.">                if (!loopEntry) {</span>
+<span class="fc" id="L414">                    pc.setAddress(pc.getSuffix()); // pc=pc-&gt;Suffix;</span>
+<span class="fc bfc" id="L415" title="All 2 branches covered.">                    if (pc.getNumStats() != 1) {</span>
+<span class="fc" id="L416">                        p.setAddress(pc.getFreqData().getStats()); // p=pc-&gt;U.Stats</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">                        if (p.getSymbol() != foundState.getSymbol()) {</span>
+                            do {
+<span class="fc" id="L419">                                p.incAddress();</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">                            } while (p.getSymbol() != foundState.getSymbol());</span>
+                        }
+                    } else {
+<span class="fc" id="L423">                        p.setAddress(pc.getOneState().getAddress()); // p=&amp;(pc-&gt;OneState);</span>
+                    }
+                } // LOOP_ENTRY:
+<span class="fc" id="L426">                loopEntry = false;</span>
+<span class="fc bfc" id="L427" title="All 2 branches covered.">                if (p.getSuccessor() != upBranch.getAddress()) {</span>
+<span class="fc" id="L428">                    pc.setAddress(p.getSuccessor()); // =p-&gt;Successor;</span>
+<span class="fc" id="L429">                    break;</span>
+                }
+<span class="fc" id="L431">                ps[pps++] = p.getAddress();</span>
+<span class="fc bfc" id="L432" title="All 2 branches covered.">            } while (pc.getSuffix() != 0);</span>
+
+        } // NO_LOOP:
+<span class="pc bpc" id="L435" title="1 of 2 branches missed.">        if (pps == 0) {</span>
+<span class="nc" id="L436">            return pc.getAddress();</span>
+        }
+<span class="fc" id="L438">        upState.setSymbol(getHeap()[upBranch.getAddress()]); // UpState.Symbol=*(byte*)</span>
+                                                             // UpBranch;
+        // UpState.Successor=(PPM_CONTEXT*) (((byte*) UpBranch)+1);
+<span class="fc" id="L441">        upState.setSuccessor(upBranch.getAddress() + 1); //TODO check if +1 necessary</span>
+<span class="pc bpc" id="L442" title="1 of 2 branches missed.">        if (pc.getNumStats() != 1) {</span>
+<span class="pc bpc" id="L443" title="1 of 2 branches missed.">            if (pc.getAddress() &lt;= subAlloc.getPText()) {</span>
+<span class="nc" id="L444">                return (0);</span>
+            }
+<span class="fc" id="L446">            p.setAddress(pc.getFreqData().getStats());</span>
+<span class="fc bfc" id="L447" title="All 2 branches covered.">            if (p.getSymbol() != upState.getSymbol()) {</span>
+                do {
+<span class="fc" id="L449">                    p.incAddress();</span>
+<span class="fc bfc" id="L450" title="All 2 branches covered.">                } while (p.getSymbol() != upState.getSymbol());</span>
+            }
+<span class="fc" id="L452">            int cf = p.getFreq() - 1;</span>
+<span class="fc" id="L453">            int s0 = pc.getFreqData().getSummFreq() - pc.getNumStats() - cf;</span>
+            // UpState.Freq=1+((2*cf &lt;= s0)?(5*cf &gt; s0):((2*cf+3*s0-1)/(2*s0)));
+<span class="pc bpc" id="L455" title="1 of 4 branches missed.">            upState.setFreq(1 + ((2 * cf &lt;= s0) ? (5 * cf &gt; s0 ? 1 : 0)</span>
+<span class="pc" id="L456">                    : ((2 * cf + 3 * s0 - 1) / (2 * s0))));</span>
+<span class="fc" id="L457">        } else {</span>
+<span class="nc" id="L458">            upState.setFreq(pc.getOneState().getFreq()); // UpState.Freq=pc-&gt;OneState.Freq;</span>
+        }
+        do {
+            // pc = pc-&gt;createChild(this,*--pps,UpState);
+<span class="fc" id="L462">            tempState.setAddress(ps[--pps]);</span>
+<span class="fc" id="L463">            pc.setAddress(pc.createChild(this, tempState, upState));</span>
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">            if (pc.getAddress() == 0) {</span>
+<span class="nc" id="L465">                return 0;</span>
+            }
+<span class="fc bfc" id="L467" title="All 2 branches covered.">        } while (pps != 0);</span>
+<span class="fc" id="L468">        return pc.getAddress();</span>
+    }
+
+    private void updateModelRestart() {
+<span class="nc" id="L472">        restartModelRare();</span>
+<span class="nc" id="L473">        escCount = 0;</span>
+<span class="nc" id="L474">    }</span>
+
+    private void updateModel() {
+        //System.out.println(&quot;ModelPPM.updateModel()&quot;);
+        // STATE fs = *FoundState, *p = NULL;
+<span class="fc" id="L479">        StateRef fs = tempStateRef1;</span>
+<span class="fc" id="L480">        fs.setValues(foundState);</span>
+<span class="fc" id="L481">        State p = tempState3.init(getHeap());</span>
+<span class="fc" id="L482">        State tempState = tempState4.init(getHeap());</span>
+
+<span class="fc" id="L484">        PPMContext pc = tempPPMContext3.init(getHeap());</span>
+<span class="fc" id="L485">        PPMContext successor = tempPPMContext4.init(getHeap());</span>
+
+        int ns1, ns, cf, sf, s0;
+<span class="fc" id="L488">        pc.setAddress(minContext.getSuffix());</span>
+<span class="fc bfc" id="L489" title="All 4 branches covered.">        if (fs.getFreq() &lt; MAX_FREQ / 4 &amp;&amp; pc.getAddress() != 0) {</span>
+<span class="fc bfc" id="L490" title="All 2 branches covered.">            if (pc.getNumStats() != 1) {</span>
+<span class="fc" id="L491">                p.setAddress(pc.getFreqData().getStats());</span>
+<span class="fc bfc" id="L492" title="All 2 branches covered.">                if (p.getSymbol() != fs.getSymbol()) {</span>
+                    do {
+<span class="fc" id="L494">                        p.incAddress();</span>
+<span class="fc bfc" id="L495" title="All 2 branches covered.">                    } while (p.getSymbol() != fs.getSymbol());</span>
+<span class="fc" id="L496">                    tempState.setAddress(p.getAddress() - State.size);</span>
+<span class="fc bfc" id="L497" title="All 2 branches covered.">                    if (p.getFreq() &gt;= tempState.getFreq()) {</span>
+<span class="fc" id="L498">                        State.ppmdSwap(p, tempState);</span>
+<span class="fc" id="L499">                        p.decAddress();</span>
+                    }
+                }
+<span class="pc bpc" id="L502" title="1 of 2 branches missed.">                if (p.getFreq() &lt; MAX_FREQ - 9) {</span>
+<span class="fc" id="L503">                    p.incFreq(2);</span>
+<span class="fc" id="L504">                    pc.getFreqData().incSummFreq(2);</span>
+                }
+            } else {
+<span class="fc" id="L507">                p.setAddress(pc.getOneState().getAddress());</span>
+<span class="pc bpc" id="L508" title="1 of 2 branches missed.">                if (p.getFreq() &lt; 32) {</span>
+<span class="fc" id="L509">                    p.incFreq(1);</span>
+                }
+            }
+        }
+<span class="fc bfc" id="L513" title="All 2 branches covered.">        if (orderFall == 0) {</span>
+<span class="fc" id="L514">            foundState.setSuccessor(createSuccessors(true, p));</span>
+<span class="fc" id="L515">            minContext.setAddress(foundState.getSuccessor());</span>
+<span class="fc" id="L516">            maxContext.setAddress(foundState.getSuccessor());</span>
+<span class="pc bpc" id="L517" title="1 of 2 branches missed.">            if (minContext.getAddress() == 0) {</span>
+<span class="nc" id="L518">                updateModelRestart();</span>
+<span class="nc" id="L519">                return;</span>
+            }
+<span class="fc" id="L521">            return;</span>
+        }
+<span class="fc" id="L523">        subAlloc.getHeap()[subAlloc.getPText()] = (byte) fs.getSymbol();</span>
+<span class="fc" id="L524">        subAlloc.incPText();</span>
+<span class="fc" id="L525">        successor.setAddress(subAlloc.getPText());</span>
+<span class="pc bpc" id="L526" title="1 of 2 branches missed.">        if (subAlloc.getPText() &gt;= subAlloc.getFakeUnitsStart()) {</span>
+<span class="nc" id="L527">            updateModelRestart();</span>
+<span class="nc" id="L528">            return;</span>
+        }
+//        // Debug
+//        subAlloc.dumpHeap();
+<span class="fc bfc" id="L532" title="All 2 branches covered.">        if (fs.getSuccessor() != 0) {</span>
+<span class="fc bfc" id="L533" title="All 2 branches covered.">            if (fs.getSuccessor() &lt;= subAlloc.getPText()) {</span>
+<span class="fc" id="L534">                fs.setSuccessor(createSuccessors(false, p));</span>
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">                if (fs.getSuccessor() == 0) {</span>
+<span class="nc" id="L536">                    updateModelRestart();</span>
+<span class="nc" id="L537">                    return;</span>
+                }
+            }
+<span class="fc bfc" id="L540" title="All 2 branches covered.">            if (--orderFall == 0) {</span>
+<span class="fc" id="L541">                successor.setAddress(fs.getSuccessor());</span>
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">                if (maxContext.getAddress() != minContext.getAddress()) {</span>
+<span class="nc" id="L543">                    subAlloc.decPText(1);</span>
+                }
+            }
+        } else {
+<span class="fc" id="L547">            foundState.setSuccessor(successor.getAddress());</span>
+<span class="fc" id="L548">            fs.setSuccessor(minContext);</span>
+        }
+//        // Debug
+//        subAlloc.dumpHeap();
+<span class="fc" id="L552">        ns = minContext.getNumStats();</span>
+<span class="fc" id="L553">        s0 = minContext.getFreqData().getSummFreq() - (ns) - (fs.getFreq() - 1);</span>
+<span class="fc" id="L554">        for (pc.setAddress(maxContext.getAddress());</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">                pc.getAddress() != minContext.getAddress();</span>
+<span class="fc" id="L556">                pc.setAddress(pc.getSuffix())) {</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">            if ((ns1 = pc.getNumStats()) != 1) {</span>
+<span class="fc bfc" id="L558" title="All 2 branches covered.">                if ((ns1 &amp; 1) == 0) {</span>
+                    //System.out.println(ns1);
+<span class="fc" id="L560">                    pc.getFreqData().setStats(</span>
+<span class="fc" id="L561">                            subAlloc.expandUnits(pc.getFreqData().getStats(),</span>
+                                    ns1 &gt;&gt;&gt; 1));
+<span class="pc bpc" id="L563" title="1 of 2 branches missed.">                    if (pc.getFreqData().getStats() == 0) {</span>
+<span class="nc" id="L564">                        updateModelRestart();</span>
+<span class="nc" id="L565">                        return;</span>
+                    }
+                }
+                // bug fixed
+//              int sum = ((2 * ns1 &lt; ns) ? 1 : 0) +
+//                        2 * ((4 * ((ns1 &lt;= ns) ? 1 : 0)) &amp; ((pc.getFreqData()
+//                              .getSummFreq() &lt;= 8 * ns1) ? 1 : 0));
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">                int sum = ((2 * ns1 &lt; ns) ? 1 : 0) + 2 * (</span>
+<span class="pc bpc" id="L573" title="1 of 2 branches missed.">                        ((4 * ns1 &lt;= ns) ? 1 : 0)</span>
+<span class="pc bpc" id="L574" title="1 of 2 branches missed.">                        &amp; ((pc.getFreqData().getSummFreq() &lt;= 8 * ns1) ? 1 : 0)</span>
+                        );
+<span class="fc" id="L576">                pc.getFreqData().incSummFreq(sum);</span>
+<span class="fc" id="L577">            } else {</span>
+<span class="fc" id="L578">                p.setAddress(subAlloc.allocUnits(1));</span>
+<span class="pc bpc" id="L579" title="1 of 2 branches missed.">                if (p.getAddress() == 0) {</span>
+<span class="nc" id="L580">                    updateModelRestart();</span>
+<span class="nc" id="L581">                    return;</span>
+                }
+<span class="fc" id="L583">                p.setValues(pc.getOneState());</span>
+<span class="fc" id="L584">                pc.getFreqData().setStats(p);</span>
+<span class="pc bpc" id="L585" title="1 of 2 branches missed.">                if (p.getFreq() &lt; MAX_FREQ / 4 - 1) {</span>
+<span class="fc" id="L586">                    p.incFreq(p.getFreq());</span>
+                } else {
+<span class="nc" id="L588">                    p.setFreq(MAX_FREQ - 4);</span>
+                }
+<span class="fc" id="L590">                pc.getFreqData().setSummFreq(</span>
+<span class="pc bpc" id="L591" title="1 of 2 branches missed.">                        (p.getFreq() + initEsc + (ns &gt; 3 ? 1 : 0)));</span>
+            }
+<span class="fc" id="L593">            cf = 2 * fs.getFreq() * (pc.getFreqData().getSummFreq() + 6);</span>
+<span class="fc" id="L594">            sf = s0 + pc.getFreqData().getSummFreq();</span>
+<span class="fc bfc" id="L595" title="All 2 branches covered.">            if (cf &lt; 6 * sf) {</span>
+<span class="fc bfc" id="L596" title="All 4 branches covered.">                cf = 1 + (cf &gt; sf ? 1 : 0) + (cf &gt;= 4 * sf ? 1 : 0);</span>
+<span class="fc" id="L597">                pc.getFreqData().incSummFreq(3);</span>
+            } else {
+<span class="pc bpc" id="L599" title="2 of 4 branches missed.">                cf = 4 + (cf &gt;= 9 * sf ? 1 : 0) + (cf &gt;= 12 * sf ? 1 : 0)</span>
+<span class="pc bpc" id="L600" title="1 of 2 branches missed.">                        + (cf &gt;= 15 * sf ? 1 : 0);</span>
+<span class="fc" id="L601">                pc.getFreqData().incSummFreq(cf);</span>
+            }
+<span class="fc" id="L603">            p.setAddress(pc.getFreqData().getStats() + ns1 * State.size);</span>
+<span class="fc" id="L604">            p.setSuccessor(successor);</span>
+<span class="fc" id="L605">            p.setSymbol(fs.getSymbol());</span>
+<span class="fc" id="L606">            p.setFreq(cf);</span>
+<span class="fc" id="L607">            pc.setNumStats(++ns1);</span>
+        }
+
+<span class="fc" id="L610">        int address = fs.getSuccessor();</span>
+<span class="fc" id="L611">        maxContext.setAddress(address);</span>
+<span class="fc" id="L612">        minContext.setAddress(address);</span>
+        //TODO-----debug
+//        int pos = minContext.getFreqData().getStats();
+//        State a = new State(getHeap());
+//        a.setAddress(pos);
+//        pos+=State.size;
+//        a.setAddress(pos);
+        //--dbg end
+<span class="fc" id="L620">    }</span>
+
+    // Debug
+    public String toString() {
+<span class="nc" id="L624">        StringBuilder buffer = new StringBuilder();</span>
+<span class="nc" id="L625">        buffer.append(&quot;ModelPPM[&quot;);</span>
+<span class="nc" id="L626">        buffer.append(&quot;\n  numMasked=&quot;);</span>
+<span class="nc" id="L627">        buffer.append(numMasked);</span>
+<span class="nc" id="L628">        buffer.append(&quot;\n  initEsc=&quot;);</span>
+<span class="nc" id="L629">        buffer.append(initEsc);</span>
+<span class="nc" id="L630">        buffer.append(&quot;\n  orderFall=&quot;);</span>
+<span class="nc" id="L631">        buffer.append(orderFall);</span>
+<span class="nc" id="L632">        buffer.append(&quot;\n  maxOrder=&quot;);</span>
+<span class="nc" id="L633">        buffer.append(maxOrder);</span>
+<span class="nc" id="L634">        buffer.append(&quot;\n  runLength=&quot;);</span>
+<span class="nc" id="L635">        buffer.append(runLength);</span>
+<span class="nc" id="L636">        buffer.append(&quot;\n  initRL=&quot;);</span>
+<span class="nc" id="L637">        buffer.append(initRL);</span>
+<span class="nc" id="L638">        buffer.append(&quot;\n  escCount=&quot;);</span>
+<span class="nc" id="L639">        buffer.append(escCount);</span>
+<span class="nc" id="L640">        buffer.append(&quot;\n  prevSuccess=&quot;);</span>
+<span class="nc" id="L641">        buffer.append(prevSuccess);</span>
+<span class="nc" id="L642">        buffer.append(&quot;\n  foundState=&quot;);</span>
+<span class="nc" id="L643">        buffer.append(foundState);</span>
+<span class="nc" id="L644">        buffer.append(&quot;\n  coder=&quot;);</span>
+<span class="nc" id="L645">        buffer.append(coder);</span>
+<span class="nc" id="L646">        buffer.append(&quot;\n  subAlloc=&quot;);</span>
+<span class="nc" id="L647">        buffer.append(subAlloc);</span>
+<span class="nc" id="L648">        buffer.append(&quot;\n]&quot;);</span>
+<span class="nc" id="L649">        return buffer.toString();</span>
+    }
+
+    // Debug
+//    public void dumpHeap() {
+//        subAlloc.dumpHeap();
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

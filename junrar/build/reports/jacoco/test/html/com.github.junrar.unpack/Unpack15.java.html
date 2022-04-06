@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Unpack15.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack</a> &gt; <span class="el_source">Unpack15.java</span></div><h1>Unpack15.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 21.06.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.unpack.decode.Compress;
+import com.github.junrar.unpack.vm.BitInput;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="fc" id="L34">public abstract class Unpack15 extends BitInput {</span>
+
+    protected int readBorder;
+
+    protected boolean suspended;
+
+    protected boolean unpAllBuf;
+
+    protected ComprDataIO unpIO;
+
+    protected boolean unpSomeRead;
+
+    protected int readTop;
+
+    protected long destUnpSize;
+
+    protected byte[] window;
+
+<span class="fc" id="L52">    protected int[] oldDist = new int[4];</span>
+
+    protected int unpPtr, wrPtr;
+
+    protected int oldDistPtr;
+
+<span class="fc" id="L58">    protected int[] ChSet = new int[256], ChSetA = new int[256],</span>
+            ChSetB = new int[256], ChSetC = new int[256];
+
+<span class="fc" id="L61">    protected int[] Place = new int[256], PlaceA = new int[256],</span>
+            PlaceB = new int[256], PlaceC = new int[256];
+
+<span class="fc" id="L64">    protected int[] NToPl = new int[256], NToPlB = new int[256],</span>
+            NToPlC = new int[256];
+
+    protected int FlagBuf, AvrPlc, AvrPlcB, AvrLn1, AvrLn2, AvrLn3;
+
+    protected int Buf60, NumHuf, StMode, LCount, FlagsCnt;
+
+    protected int Nhfb, Nlzb, MaxDist3;
+
+    protected int lastDist, lastLength;
+
+    private static final int STARTL1 = 2;
+
+<span class="fc" id="L77">    private static final int[] DecL1 = {0x8000, 0xa000, 0xc000, 0xd000, 0xe000,</span>
+        0xea00, 0xee00, 0xf000, 0xf200, 0xf200, 0xffff};
+
+<span class="fc" id="L80">    private static final int[] PosL1 = {0, 0, 0, 2, 3, 5, 7, 11, 16, 20, 24, 32, 32};</span>
+
+    private static final int STARTL2 = 3;
+
+<span class="fc" id="L84">    private static final int[] DecL2 = {0xa000, 0xc000, 0xd000, 0xe000, 0xea00,</span>
+        0xee00, 0xf000, 0xf200, 0xf240, 0xffff};
+
+<span class="fc" id="L87">    private static final int[] PosL2 = {0, 0, 0, 0, 5, 7, 9, 13, 18, 22, 26, 34, 36};</span>
+
+    private static final int STARTHF0 = 4;
+
+<span class="fc" id="L91">    private static final int[] DecHf0 = {0x8000, 0xc000, 0xe000, 0xf200, 0xf200,</span>
+        0xf200, 0xf200, 0xf200, 0xffff};
+
+<span class="fc" id="L94">    private static final int[] PosHf0 = {0, 0, 0, 0, 0, 8, 16, 24, 33, 33, 33, 33,</span>
+        33};
+
+    private static final int STARTHF1 = 5;
+
+<span class="fc" id="L99">    private static final int[] DecHf1 = {0x2000, 0xc000, 0xe000, 0xf000, 0xf200,</span>
+        0xf200, 0xf7e0, 0xffff};
+
+<span class="fc" id="L102">    private static final int[] PosHf1 = {0, 0, 0, 0, 0, 0, 4, 44, 60, 76, 80, 80,</span>
+        127};
+
+    private static final int STARTHF2 = 5;
+
+<span class="fc" id="L107">    private static final int[] DecHf2 = {0x1000, 0x2400, 0x8000, 0xc000, 0xfa00,</span>
+        0xffff, 0xffff, 0xffff};
+
+<span class="fc" id="L110">    private static final int[] PosHf2 = {0, 0, 0, 0, 0, 0, 2, 7, 53, 117, 233, 0, 0};</span>
+
+    private static final int STARTHF3 = 6;
+
+<span class="fc" id="L114">    private static final int[] DecHf3 = {0x800, 0x2400, 0xee00, 0xfe80, 0xffff,</span>
+        0xffff, 0xffff};
+
+<span class="fc" id="L117">    private static final int[] PosHf3 = {0, 0, 0, 0, 0, 0, 0, 2, 16, 218, 251, 0, 0};</span>
+
+    private static final int STARTHF4 = 8;
+
+<span class="fc" id="L121">    private static final int[] DecHf4 = {0xff00, 0xffff, 0xffff, 0xffff, 0xffff,</span>
+        0xffff};
+
+<span class="fc" id="L124">    private static final int[] PosHf4 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0};</span>
+
+<span class="fc" id="L126">    static int[] ShortLen1 = {1, 3, 4, 4, 5, 6, 7, 8, 8, 4, 4, 5, 6, 6, 4, 0 };</span>
+
+<span class="fc" id="L128">    static int[] ShortXor1 = {0, 0xa0, 0xd0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe,</span>
+            0xff, 0xc0, 0x80, 0x90, 0x98, 0x9c, 0xb0 };
+
+<span class="fc" id="L131">    static int[] ShortLen2 = {2, 3, 3, 3, 4, 4, 5, 6, 6, 4, 4, 5, 6, 6, 4, 0 };</span>
+
+<span class="fc" id="L133">    static int[] ShortXor2 = {0, 0x40, 0x60, 0xa0, 0xd0, 0xe0, 0xf0, 0xf8,</span>
+            0xfc, 0xc0, 0x80, 0x90, 0x98, 0x9c, 0xb0 };
+
+    protected abstract void unpInitData(boolean solid);
+
+    protected void unpack15(boolean solid) throws IOException, RarException {
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (suspended) {</span>
+<span class="nc" id="L140">            unpPtr = wrPtr;</span>
+        } else {
+<span class="fc" id="L142">            unpInitData(solid);</span>
+<span class="fc" id="L143">            oldUnpInitData(solid);</span>
+<span class="fc" id="L144">            unpReadBuf();</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (!solid) {</span>
+<span class="fc" id="L146">                initHuff();</span>
+<span class="fc" id="L147">                unpPtr = 0;</span>
+            } else {
+<span class="nc" id="L149">                unpPtr = wrPtr;</span>
+            }
+<span class="fc" id="L151">            --destUnpSize;</span>
+        }
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (destUnpSize &gt;= 0) {</span>
+<span class="fc" id="L154">            getFlagsBuf();</span>
+<span class="fc" id="L155">            FlagsCnt = 8;</span>
+        }
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        while (destUnpSize &gt;= 0) {</span>
+<span class="fc" id="L159">            unpPtr &amp;= Compress.MAXWINMASK;</span>
+
+<span class="pc bpc" id="L161" title="1 of 4 branches missed.">            if (inAddr &gt; readTop - 30 &amp;&amp; !unpReadBuf()) {</span>
+<span class="nc" id="L162">                break;</span>
+            }
+<span class="pc bpc" id="L164" title="1 of 4 branches missed.">            if (((wrPtr - unpPtr) &amp; Compress.MAXWINMASK) &lt; 270</span>
+                    &amp;&amp; wrPtr != unpPtr) {
+<span class="nc" id="L166">                oldUnpWriteBuf();</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                if (suspended) {</span>
+<span class="nc" id="L168">                    return;</span>
+                }
+            }
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            if (StMode != 0) {</span>
+<span class="fc" id="L172">                huffDecode();</span>
+<span class="fc" id="L173">                continue;</span>
+            }
+
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            if (--FlagsCnt &lt; 0) {</span>
+<span class="fc" id="L177">                getFlagsBuf();</span>
+<span class="fc" id="L178">                FlagsCnt = 7;</span>
+            }
+
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if ((FlagBuf &amp; 0x80) != 0) {</span>
+<span class="fc" id="L182">                FlagBuf &lt;&lt;= 1;</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                if (Nlzb &gt; Nhfb) {</span>
+<span class="fc" id="L184">                    longLZ();</span>
+                } else {
+<span class="fc" id="L186">                    huffDecode();</span>
+                }
+            } else {
+<span class="fc" id="L189">                FlagBuf &lt;&lt;= 1;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">                if (--FlagsCnt &lt; 0) {</span>
+<span class="fc" id="L191">                    getFlagsBuf();</span>
+<span class="fc" id="L192">                    FlagsCnt = 7;</span>
+                }
+<span class="fc bfc" id="L194" title="All 2 branches covered.">                if ((FlagBuf &amp; 0x80) != 0) {</span>
+<span class="fc" id="L195">                    FlagBuf &lt;&lt;= 1;</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">                    if (Nlzb &gt; Nhfb) {</span>
+<span class="fc" id="L197">                        huffDecode();</span>
+                    } else {
+<span class="fc" id="L199">                        longLZ();</span>
+                    }
+                } else {
+<span class="fc" id="L202">                    FlagBuf &lt;&lt;= 1;</span>
+<span class="fc" id="L203">                    shortLZ();</span>
+                }
+            }
+        }
+<span class="fc" id="L207">        oldUnpWriteBuf();</span>
+<span class="fc" id="L208">    }</span>
+
+
+    protected boolean unpReadBuf() throws IOException, RarException {
+<span class="fc" id="L212">        int dataSize = readTop - inAddr;</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (dataSize &lt; 0) {</span>
+<span class="fc" id="L214">            return (false);</span>
+        }
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (inAddr &gt; BitInput.MAX_SIZE / 2) {</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">            if (dataSize &gt; 0) {</span>
+                //memmove(InBuf,InBuf+InAddr,DataSize);
+//                for (int i = 0; i &lt; dataSize; i++) {
+//                    inBuf[i] = inBuf[inAddr + i];
+//                }
+<span class="fc" id="L222">                System.arraycopy(inBuf, inAddr, inBuf, 0, dataSize);</span>
+            }
+<span class="fc" id="L224">            inAddr = 0;</span>
+<span class="fc" id="L225">            readTop = dataSize;</span>
+        } else {
+<span class="fc" id="L227">            dataSize = readTop;</span>
+        }
+        //int readCode=UnpIO-&gt;UnpRead(InBuf+DataSize,(BitInput::MAX_SIZE-DataSize)&amp;~0xf);
+<span class="fc" id="L230">        int readCode = unpIO.unpRead(inBuf, dataSize, (BitInput.MAX_SIZE - dataSize) &amp; ~0xf);</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (readCode &gt; 0) {</span>
+<span class="fc" id="L232">            readTop += readCode;</span>
+        }
+<span class="fc" id="L234">        readBorder = readTop - 30;</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">        return (readCode != -1);</span>
+    }
+
+    private int getShortLen1(int pos) {
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        return pos == 1 ? Buf60 + 3 : ShortLen1[pos];</span>
+    }
+
+    private int getShortLen2(int pos) {
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        return pos == 3 ? Buf60 + 3 : ShortLen2[pos];</span>
+    }
+
+    protected void shortLZ() {
+        int Length, SaveLength;
+        int LastDistance;
+        int Distance;
+        int DistancePlace;
+<span class="fc" id="L251">        NumHuf = 0;</span>
+
+<span class="fc" id="L253">        int BitField = fgetbits();</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (LCount == 2) {</span>
+<span class="fc" id="L255">            faddbits(1);</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">            if (BitField &gt;= 0x8000) {</span>
+<span class="nc" id="L257">                oldCopyString(lastDist, lastLength);</span>
+<span class="nc" id="L258">                return;</span>
+            }
+<span class="fc" id="L260">            BitField &lt;&lt;= 1;</span>
+<span class="fc" id="L261">            LCount = 0;</span>
+        }
+<span class="fc" id="L263">        BitField &gt;&gt;&gt;= 8;</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">        if (AvrLn1 &lt; 37) {</span>
+<span class="fc" id="L265">            for (Length = 0;; Length++) {</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                if (((BitField ^ ShortXor1[Length]) &amp; (~(0xff &gt;&gt;&gt; getShortLen1(Length)))) == 0) {</span>
+<span class="fc" id="L267">                    break;</span>
+                }
+            }
+<span class="fc" id="L270">            faddbits(getShortLen1(Length));</span>
+        } else {
+<span class="nc" id="L272">            for (Length = 0;; Length++) {</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                if (((BitField ^ ShortXor2[Length]) &amp; (~(0xff &gt;&gt;&gt; getShortLen2(Length)))) == 0) {</span>
+<span class="nc" id="L274">                    break;</span>
+                }
+            }
+<span class="nc" id="L277">            faddbits(getShortLen2(Length));</span>
+        }
+
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        if (Length &gt;= 9) {</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">            if (Length == 9) {</span>
+<span class="fc" id="L282">                LCount++;</span>
+<span class="fc" id="L283">                oldCopyString(lastDist, lastLength);</span>
+<span class="fc" id="L284">                return;</span>
+            }
+<span class="fc bfc" id="L286" title="All 2 branches covered.">            if (Length == 14) {</span>
+<span class="fc" id="L287">                LCount = 0;</span>
+<span class="fc" id="L288">                Length = decodeNum(fgetbits(), STARTL2, DecL2, PosL2) + 5;</span>
+<span class="fc" id="L289">                Distance = (fgetbits() &gt;&gt;&gt; 1) | 0x8000;</span>
+<span class="fc" id="L290">                faddbits(15);</span>
+<span class="fc" id="L291">                lastLength = Length;</span>
+<span class="fc" id="L292">                lastDist = Distance;</span>
+<span class="fc" id="L293">                oldCopyString(Distance, Length);</span>
+<span class="fc" id="L294">                return;</span>
+            }
+
+<span class="fc" id="L297">            LCount = 0;</span>
+<span class="fc" id="L298">            SaveLength = Length;</span>
+<span class="fc" id="L299">            Distance = oldDist[(oldDistPtr - (Length - 9)) &amp; 3];</span>
+<span class="fc" id="L300">            Length = decodeNum(fgetbits(), STARTL1, DecL1, PosL1) + 2;</span>
+<span class="pc bpc" id="L301" title="1 of 4 branches missed.">            if (Length == 0x101 &amp;&amp; SaveLength == 10) {</span>
+<span class="fc" id="L302">                Buf60 ^= 1;</span>
+<span class="fc" id="L303">                return;</span>
+            }
+<span class="fc bfc" id="L305" title="All 2 branches covered.">            if (Distance &gt; 256) {</span>
+<span class="fc" id="L306">                Length++;</span>
+            }
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">            if (Distance &gt;= MaxDist3) {</span>
+<span class="nc" id="L309">                Length++;</span>
+            }
+
+<span class="fc" id="L312">            oldDist[oldDistPtr++] = Distance;</span>
+<span class="fc" id="L313">            oldDistPtr = oldDistPtr &amp; 3;</span>
+<span class="fc" id="L314">            lastLength = Length;</span>
+<span class="fc" id="L315">            lastDist = Distance;</span>
+<span class="fc" id="L316">            oldCopyString(Distance, Length);</span>
+<span class="fc" id="L317">            return;</span>
+        }
+
+<span class="fc" id="L320">        LCount = 0;</span>
+<span class="fc" id="L321">        AvrLn1 += Length;</span>
+<span class="fc" id="L322">        AvrLn1 -= AvrLn1 &gt;&gt;&gt; 4;</span>
+
+<span class="fc" id="L324">        DistancePlace = decodeNum(fgetbits(), STARTHF2, DecHf2, PosHf2) &amp; 0xff;</span>
+<span class="fc" id="L325">        Distance = ChSetA[DistancePlace];</span>
+<span class="fc bfc" id="L326" title="All 2 branches covered.">        if (--DistancePlace != -1) {</span>
+<span class="fc" id="L327">            PlaceA[Distance]--;</span>
+<span class="fc" id="L328">            LastDistance = ChSetA[DistancePlace];</span>
+<span class="fc" id="L329">            PlaceA[LastDistance]++;</span>
+<span class="fc" id="L330">            ChSetA[DistancePlace + 1] = LastDistance;</span>
+<span class="fc" id="L331">            ChSetA[DistancePlace] = Distance;</span>
+        }
+<span class="fc" id="L333">        Length += 2;</span>
+<span class="fc" id="L334">        oldDist[oldDistPtr++] = ++Distance;</span>
+<span class="fc" id="L335">        oldDistPtr = oldDistPtr &amp; 3;</span>
+<span class="fc" id="L336">        lastLength = Length;</span>
+<span class="fc" id="L337">        lastDist = Distance;</span>
+<span class="fc" id="L338">        oldCopyString(Distance, Length);</span>
+<span class="fc" id="L339">    }</span>
+
+    protected void longLZ() {
+        int Length;
+        int Distance;
+        int DistancePlace, NewDistancePlace;
+        int OldAvr2, OldAvr3;
+
+<span class="fc" id="L347">        NumHuf = 0;</span>
+<span class="fc" id="L348">        Nlzb += 16;</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        if (Nlzb &gt; 0xff) {</span>
+<span class="fc" id="L350">            Nlzb = 0x90;</span>
+<span class="fc" id="L351">            Nhfb &gt;&gt;&gt;= 1;</span>
+        }
+<span class="fc" id="L353">        OldAvr2 = AvrLn2;</span>
+
+<span class="fc" id="L355">        int BitField = fgetbits();</span>
+<span class="pc bpc" id="L356" title="1 of 2 branches missed.">        if (AvrLn2 &gt;= 122) {</span>
+<span class="nc" id="L357">            Length = decodeNum(BitField, STARTL2, DecL2, PosL2);</span>
+        } else {
+<span class="fc bfc" id="L359" title="All 2 branches covered.">            if (AvrLn2 &gt;= 64) {</span>
+<span class="fc" id="L360">                Length = decodeNum(BitField, STARTL1, DecL1, PosL1);</span>
+            } else {
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">                if (BitField &lt; 0x100) {</span>
+<span class="nc" id="L363">                    Length = BitField;</span>
+<span class="nc" id="L364">                    faddbits(16);</span>
+                } else {
+<span class="fc" id="L366">                    Length = 0;</span>
+<span class="fc bfc" id="L367" title="All 2 branches covered.">                    while (((BitField &lt;&lt; Length) &amp; 0x8000) == 0) {</span>
+<span class="fc" id="L368">                        Length++;</span>
+                    }
+<span class="fc" id="L370">                    faddbits(Length + 1);</span>
+                }
+            }
+        }
+<span class="fc" id="L374">        AvrLn2 += Length;</span>
+<span class="fc" id="L375">        AvrLn2 -= AvrLn2 &gt;&gt;&gt; 5;</span>
+
+<span class="fc" id="L377">        BitField = fgetbits();</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">        if (AvrPlcB &gt; 0x28ff) {</span>
+<span class="fc" id="L379">            DistancePlace = decodeNum(BitField, STARTHF2, DecHf2, PosHf2);</span>
+        } else {
+<span class="fc bfc" id="L381" title="All 2 branches covered.">            if (AvrPlcB &gt; 0x6ff) {</span>
+<span class="fc" id="L382">                DistancePlace = decodeNum(BitField, STARTHF1, DecHf1, PosHf1);</span>
+            } else {
+<span class="fc" id="L384">                DistancePlace = decodeNum(BitField, STARTHF0, DecHf0, PosHf0);</span>
+            }
+        }
+<span class="fc" id="L387">        AvrPlcB += DistancePlace;</span>
+<span class="fc" id="L388">        AvrPlcB -= AvrPlcB &gt;&gt;&gt; 8;</span>
+        while (true) {
+<span class="fc" id="L390">            Distance = ChSetB[DistancePlace &amp; 0xff];</span>
+<span class="fc" id="L391">            NewDistancePlace = NToPlB[Distance++ &amp; 0xff]++;</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">            if ((Distance &amp; 0xff) == 0) {</span>
+<span class="fc" id="L393">                corrHuff(ChSetB, NToPlB);</span>
+            } else {
+                break;
+            }
+        }
+
+<span class="fc" id="L399">        ChSetB[DistancePlace] = ChSetB[NewDistancePlace];</span>
+<span class="fc" id="L400">        ChSetB[NewDistancePlace] = Distance;</span>
+
+<span class="fc" id="L402">        Distance = ((Distance &amp; 0xff00) | (fgetbits() &gt;&gt;&gt; 8)) &gt;&gt;&gt; 1;</span>
+<span class="fc" id="L403">        faddbits(7);</span>
+
+<span class="fc" id="L405">        OldAvr3 = AvrLn3;</span>
+<span class="fc bfc" id="L406" title="All 4 branches covered.">        if (Length != 1 &amp;&amp; Length != 4) {</span>
+<span class="pc bpc" id="L407" title="1 of 4 branches missed.">            if (Length == 0 &amp;&amp; Distance &lt;= MaxDist3) {</span>
+<span class="fc" id="L408">                AvrLn3++;</span>
+<span class="fc" id="L409">                AvrLn3 -= AvrLn3 &gt;&gt;&gt; 8;</span>
+            } else {
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">                if (AvrLn3 &gt; 0) {</span>
+<span class="fc" id="L412">                    AvrLn3--;</span>
+                }
+            }
+        }
+<span class="fc" id="L416">        Length += 3;</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">        if (Distance &gt;= MaxDist3) {</span>
+<span class="fc" id="L418">            Length++;</span>
+        }
+<span class="pc bpc" id="L420" title="1 of 2 branches missed.">        if (Distance &lt;= 256) {</span>
+<span class="nc" id="L421">            Length += 8;</span>
+        }
+<span class="pc bpc" id="L423" title="1 of 6 branches missed.">        if (OldAvr3 &gt; 0xb0 || AvrPlc &gt;= 0x2a00 &amp;&amp; OldAvr2 &lt; 0x40) {</span>
+<span class="fc" id="L424">            MaxDist3 = 0x7f00;</span>
+        } else {
+<span class="fc" id="L426">            MaxDist3 = 0x2001;</span>
+        }
+<span class="fc" id="L428">        oldDist[oldDistPtr++] = Distance;</span>
+<span class="fc" id="L429">        oldDistPtr = oldDistPtr &amp; 3;</span>
+<span class="fc" id="L430">        lastLength = Length;</span>
+<span class="fc" id="L431">        lastDist = Distance;</span>
+<span class="fc" id="L432">        oldCopyString(Distance, Length);</span>
+<span class="fc" id="L433">    }</span>
+
+    protected void huffDecode() {
+        int CurByte, NewBytePlace;
+        int Length;
+        int Distance;
+        int BytePlace;
+
+<span class="fc" id="L441">        int BitField = fgetbits();</span>
+
+<span class="fc bfc" id="L443" title="All 2 branches covered.">        if (AvrPlc &gt; 0x75ff) {</span>
+<span class="fc" id="L444">            BytePlace = decodeNum(BitField, STARTHF4, DecHf4, PosHf4);</span>
+        } else {
+<span class="fc bfc" id="L446" title="All 2 branches covered.">            if (AvrPlc &gt; 0x5dff) {</span>
+<span class="fc" id="L447">                BytePlace = decodeNum(BitField, STARTHF3, DecHf3, PosHf3);</span>
+            } else {
+<span class="fc bfc" id="L449" title="All 2 branches covered.">                if (AvrPlc &gt; 0x35ff) {</span>
+<span class="fc" id="L450">                    BytePlace = decodeNum(BitField, STARTHF2, DecHf2, PosHf2);</span>
+                } else {
+<span class="pc bpc" id="L452" title="1 of 2 branches missed.">                    if (AvrPlc &gt; 0x0dff) {</span>
+<span class="fc" id="L453">                        BytePlace = decodeNum(BitField, STARTHF1, DecHf1,</span>
+                                PosHf1);
+                    } else {
+<span class="nc" id="L456">                        BytePlace = decodeNum(BitField, STARTHF0, DecHf0,</span>
+                                PosHf0);
+                    }
+                }
+            }
+        }
+<span class="fc" id="L462">        BytePlace &amp;= 0xff;</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">        if (StMode != 0) {</span>
+<span class="fc bfc" id="L464" title="All 4 branches covered.">            if (BytePlace == 0 &amp;&amp; BitField &gt; 0xfff) {</span>
+<span class="fc" id="L465">                BytePlace = 0x100;</span>
+            }
+<span class="fc bfc" id="L467" title="All 2 branches covered.">            if (--BytePlace == -1) {</span>
+<span class="fc" id="L468">                BitField = fgetbits();</span>
+<span class="fc" id="L469">                faddbits(1);</span>
+<span class="fc bfc" id="L470" title="All 2 branches covered.">                if ((BitField &amp; 0x8000) != 0) {</span>
+<span class="fc" id="L471">                    NumHuf = StMode = 0;</span>
+<span class="fc" id="L472">                    return;</span>
+                } else {
+<span class="fc bfc" id="L474" title="All 2 branches covered.">                    Length = (BitField &amp; 0x4000) != 0 ? 4 : 3;</span>
+<span class="fc" id="L475">                    faddbits(1);</span>
+<span class="fc" id="L476">                    Distance = decodeNum(fgetbits(), STARTHF2, DecHf2, PosHf2);</span>
+<span class="fc" id="L477">                    Distance = (Distance &lt;&lt; 5) | (fgetbits() &gt;&gt;&gt; 11);</span>
+<span class="fc" id="L478">                    faddbits(5);</span>
+<span class="fc" id="L479">                    oldCopyString(Distance, Length);</span>
+<span class="fc" id="L480">                    return;</span>
+                }
+            }
+        } else {
+<span class="fc bfc" id="L484" title="All 4 branches covered.">            if (NumHuf++ &gt;= 16 &amp;&amp; FlagsCnt == 0) {</span>
+<span class="fc" id="L485">                StMode = 1;</span>
+            }
+        }
+<span class="fc" id="L488">        AvrPlc += BytePlace;</span>
+<span class="fc" id="L489">        AvrPlc -= AvrPlc &gt;&gt;&gt; 8;</span>
+<span class="fc" id="L490">        Nhfb += 16;</span>
+<span class="fc bfc" id="L491" title="All 2 branches covered.">        if (Nhfb &gt; 0xff) {</span>
+<span class="fc" id="L492">            Nhfb = 0x90;</span>
+<span class="fc" id="L493">            Nlzb &gt;&gt;&gt;= 1;</span>
+        }
+
+<span class="fc" id="L496">        window[unpPtr++] = (byte) (ChSet[BytePlace] &gt;&gt;&gt; 8);</span>
+<span class="fc" id="L497">        --destUnpSize;</span>
+
+        while (true) {
+<span class="fc" id="L500">            CurByte = ChSet[BytePlace];</span>
+<span class="fc" id="L501">            NewBytePlace = NToPl[CurByte++ &amp; 0xff]++;</span>
+<span class="fc bfc" id="L502" title="All 2 branches covered.">            if ((CurByte &amp; 0xff) &gt; 0xa1) {</span>
+<span class="fc" id="L503">                corrHuff(ChSet, NToPl);</span>
+            } else {
+                break;
+            }
+        }
+
+<span class="fc" id="L509">        ChSet[BytePlace] = ChSet[NewBytePlace];</span>
+<span class="fc" id="L510">        ChSet[NewBytePlace] = CurByte;</span>
+<span class="fc" id="L511">    }</span>
+
+    protected void getFlagsBuf() {
+        int Flags, NewFlagsPlace;
+<span class="fc" id="L515">        int FlagsPlace = decodeNum(fgetbits(), STARTHF2, DecHf2, PosHf2);</span>
+
+        while (true) {
+<span class="fc" id="L518">            Flags = ChSetC[FlagsPlace];</span>
+<span class="fc" id="L519">            FlagBuf = Flags &gt;&gt;&gt; 8;</span>
+<span class="fc" id="L520">            NewFlagsPlace = NToPlC[Flags++ &amp; 0xff]++;</span>
+<span class="pc bpc" id="L521" title="1 of 2 branches missed.">            if ((Flags &amp; 0xff) != 0) {</span>
+<span class="fc" id="L522">                break;</span>
+            }
+<span class="nc" id="L524">            corrHuff(ChSetC, NToPlC);</span>
+        }
+
+<span class="fc" id="L527">        ChSetC[FlagsPlace] = ChSetC[NewFlagsPlace];</span>
+<span class="fc" id="L528">        ChSetC[NewFlagsPlace] = Flags;</span>
+<span class="fc" id="L529">    }</span>
+
+    protected void oldUnpInitData(boolean Solid) {
+<span class="pc bpc" id="L532" title="1 of 2 branches missed.">        if (!Solid) {</span>
+<span class="fc" id="L533">            AvrPlcB = AvrLn1 = AvrLn2 = AvrLn3 = NumHuf = Buf60 = 0;</span>
+<span class="fc" id="L534">            AvrPlc = 0x3500;</span>
+<span class="fc" id="L535">            MaxDist3 = 0x2001;</span>
+<span class="fc" id="L536">            Nhfb = Nlzb = 0x80;</span>
+        }
+<span class="fc" id="L538">        FlagsCnt = 0;</span>
+<span class="fc" id="L539">        FlagBuf = 0;</span>
+<span class="fc" id="L540">        StMode = 0;</span>
+<span class="fc" id="L541">        LCount = 0;</span>
+<span class="fc" id="L542">        readTop = 0;</span>
+<span class="fc" id="L543">    }</span>
+
+    protected void initHuff() {
+<span class="fc bfc" id="L546" title="All 2 branches covered.">        for (int I = 0; I &lt; 256; I++) {</span>
+<span class="fc" id="L547">            Place[I] = PlaceA[I] = PlaceB[I] = I;</span>
+<span class="fc" id="L548">            PlaceC[I] = (~I + 1) &amp; 0xff;</span>
+<span class="fc" id="L549">            ChSet[I] = ChSetB[I] = I &lt;&lt; 8;</span>
+<span class="fc" id="L550">            ChSetA[I] = I;</span>
+<span class="fc" id="L551">            ChSetC[I] = ((~I + 1) &amp; 0xff) &lt;&lt; 8;</span>
+        }
+
+<span class="fc" id="L554">        Arrays.fill(NToPl, 0); // memset(NToPl,0,sizeof(NToPl));</span>
+<span class="fc" id="L555">        Arrays.fill(NToPlB, 0); // memset(NToPlB,0,sizeof(NToPlB));</span>
+<span class="fc" id="L556">        Arrays.fill(NToPlC, 0); // memset(NToPlC,0,sizeof(NToPlC));</span>
+<span class="fc" id="L557">        corrHuff(ChSetB, NToPlB);</span>
+<span class="fc" id="L558">    }</span>
+
+    protected void corrHuff(int[] CharSet, int[] NumToPlace) {
+<span class="fc" id="L561">        int I, J, pos = 0;</span>
+<span class="fc bfc" id="L562" title="All 2 branches covered.">        for (I = 7; I &gt;= 0; I--) {</span>
+<span class="fc bfc" id="L563" title="All 2 branches covered.">            for (J = 0; J &lt; 32; J++, pos++) {</span>
+<span class="fc" id="L564">                CharSet[pos] = ((CharSet[pos] &amp; ~0xff) | I); // *CharSet=(*CharSet</span>
+                // &amp; ~0xff) | I;
+            }
+        }
+<span class="fc" id="L568">        Arrays.fill(NumToPlace, 0); // memset(NumToPlace,0,sizeof(NToPl));</span>
+<span class="fc bfc" id="L569" title="All 2 branches covered.">        for (I = 6; I &gt;= 0; I--) {</span>
+<span class="fc" id="L570">            NumToPlace[I] = (7 - I) * 32;</span>
+        }
+<span class="fc" id="L572">    }</span>
+
+    protected void oldCopyString(int Distance, int Length) {
+<span class="fc" id="L575">        destUnpSize -= Length;</span>
+<span class="fc bfc" id="L576" title="All 2 branches covered.">        while ((Length--) != 0) {</span>
+<span class="fc" id="L577">            window[unpPtr] = window[(unpPtr - Distance) &amp; Compress.MAXWINMASK];</span>
+<span class="fc" id="L578">            unpPtr = (unpPtr + 1) &amp; Compress.MAXWINMASK;</span>
+        }
+<span class="fc" id="L580">    }</span>
+
+    protected int decodeNum(int Num, int StartPos, int[] DecTab, int[] PosTab) {
+        int I;
+<span class="fc bfc" id="L584" title="All 2 branches covered.">        for (Num &amp;= 0xfff0, I = 0; DecTab[I] &lt;= Num; I++) {</span>
+<span class="fc" id="L585">            StartPos++;</span>
+        }
+<span class="fc" id="L587">        faddbits(StartPos);</span>
+<span class="fc bfc" id="L588" title="All 2 branches covered.">        return (((Num - (I != 0 ? DecTab[I - 1] : 0)) &gt;&gt;&gt; (16 - StartPos)) + PosTab[StartPos]);</span>
+    }
+
+    protected void oldUnpWriteBuf() throws IOException {
+<span class="pc bpc" id="L592" title="1 of 2 branches missed.">        if (unpPtr != wrPtr) {</span>
+<span class="fc" id="L593">            unpSomeRead = true;</span>
+        }
+<span class="pc bpc" id="L595" title="1 of 2 branches missed.">        if (unpPtr &lt; wrPtr) {</span>
+<span class="nc" id="L596">            unpIO.unpWrite(window, wrPtr, -wrPtr &amp; Compress.MAXWINMASK);</span>
+<span class="nc" id="L597">            unpIO.unpWrite(window, 0, unpPtr);</span>
+<span class="nc" id="L598">            unpAllBuf = true;</span>
+        } else {
+<span class="fc" id="L600">            unpIO.unpWrite(window, wrPtr, unpPtr - wrPtr);</span>
+        }
+<span class="fc" id="L602">        wrPtr = unpPtr;</span>
+<span class="fc" id="L603">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

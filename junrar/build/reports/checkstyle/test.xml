@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="8.29">
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\AbnormalFilesTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\ArchiveTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\JunrarTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\LocalFolderExtractorTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\RarVersionTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\ResourceReleasedTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\TestCommons.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\VolumeExtractorTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\architecture\CodingRulesTest.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\test\java\com\github\junrar\unsigned\UnsignedByteTest.java">
+</file>
+</checkstyle>

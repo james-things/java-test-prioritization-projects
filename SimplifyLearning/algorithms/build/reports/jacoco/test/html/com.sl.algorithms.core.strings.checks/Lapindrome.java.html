@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Lapindrome.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.strings.checks</a> &gt; <span class="el_source">Lapindrome.java</span></div><h1>Lapindrome.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.strings.checks;
+
+import com.sl.algorithms.core.interfaces.strings.checks.CharSymmetryChecker;
+
+<span class="fc" id="L5">public class Lapindrome implements CharSymmetryChecker {</span>
+
+  // O(n)
+  @Override
+  public boolean isLapindrome(String str) {
+    // base conditions
+<span class="pc bpc" id="L11" title="1 of 4 branches missed.">    if (str == null || str.length() == 0) {</span>
+<span class="fc" id="L12">      return false;</span>
+    }
+<span class="fc bfc" id="L14" title="All 2 branches covered.">    if (str.length() == 1) {</span>
+<span class="fc" id="L15">      return true;</span>
+    }
+    // main algo
+<span class="fc" id="L18">    int[] charSet = new int[26];</span>
+<span class="fc" id="L19">    int midIndex = str.length() / 2;</span>
+<span class="fc" id="L20">    int skipIndex = 0;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">    if (str.length() % 2 == 1) {</span>
+<span class="fc" id="L22">      skipIndex = midIndex;</span>
+    }
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    for (int i = 0; i &lt; midIndex; i++) {</span>
+<span class="fc" id="L25">      charSet[str.charAt(i) - 'a']++;</span>
+    }
+<span class="fc bfc" id="L27" title="All 2 branches covered.">    for (int i = str.length() - 1; i &gt;= midIndex; i--) {</span>
+<span class="fc" id="L28">      int charIndex = str.charAt(i) - 'a';</span>
+<span class="fc" id="L29">      charSet[charIndex]--;</span>
+<span class="fc bfc" id="L30" title="All 4 branches covered.">      if (charSet[charIndex] &lt; 0 &amp;&amp; i != skipIndex) {</span>
+<span class="fc" id="L31">        return false;</span>
+      }
+    }
+<span class="fc" id="L34">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

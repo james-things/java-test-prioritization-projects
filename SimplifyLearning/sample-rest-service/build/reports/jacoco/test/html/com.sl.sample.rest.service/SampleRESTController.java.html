@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SampleRESTController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sample-rest-service</a> &gt; <a href="index.source.html" class="el_package">com.sl.sample.rest.service</a> &gt; <span class="el_source">SampleRESTController.java</span></div><h1>SampleRESTController.java</h1><pre class="source lang-java linenums">package com.sl.sample.rest.service;
+
+import com.sl.algorithms.core.interfaces.search.Search;
+import com.sl.algorithms.search.binarysearch.GenericBinarySearch;
+import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+<span class="fc" id="L13">public class SampleRESTController {</span>
+
+  private static final String HELLO_STR = &quot;Hello %s!&quot;;
+<span class="fc" id="L16">  private final AtomicLong counter = new AtomicLong();</span>
+<span class="fc" id="L17">  private final Search&lt;Integer&gt; binarySearch = new GenericBinarySearch&lt;&gt;();</span>
+
+  /**
+   * For a given input 'name', output the JSON form of &quot;Hello 'name'&quot;.
+   *
+   * @param name input
+   * @return SampleRESTResource
+   */
+  @RequestMapping(method = RequestMethod.GET, path = &quot;/hello&quot;)
+  public SampleRESTResource sayHello(
+      @RequestParam(value = &quot;name&quot;, required = true, defaultValue = &quot;World&quot;) String name) {
+<span class="fc" id="L28">    return new SampleRESTResource(counter.incrementAndGet(), String.format(HELLO_STR, name));</span>
+  }
+
+  /**
+   * Apply Binary Search to find the position of a number in a sorted linear.
+   *
+   * @param sortedInput input array e.g. [1,2,3,4,5]
+   * @param numberToSearch integer to search
+   * @return BinarySearchResult
+   */
+  @RequestMapping(method = RequestMethod.GET, path = &quot;/binarySearch/[{sortedInput}]&quot;)
+  public BinarySearchResult searchBinary(@PathVariable Integer[] sortedInput,
+      @RequestParam(value = &quot;numberToSearch&quot;, required = true) Integer numberToSearch) {
+<span class="fc" id="L41">    return new BinarySearchResult(binarySearch.findIndex(sortedInput, numberToSearch),</span>
+        numberToSearch);
+  }
+
+  static class BinarySearchResult {
+
+    private final int index;
+    private final Integer value;
+
+<span class="fc" id="L50">    public BinarySearchResult(int _index, Integer _value) {</span>
+<span class="fc" id="L51">      index = _index;</span>
+<span class="fc" id="L52">      value = _value;</span>
+<span class="fc" id="L53">    }</span>
+
+    public int getIndex() {
+<span class="fc" id="L56">      return index;</span>
+    }
+
+    public Integer getValue() {
+<span class="fc" id="L60">      return value;</span>
+    }
+  }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

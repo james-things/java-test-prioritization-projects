@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubBlockHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">SubBlockHeader.java</span></div><h1>SubBlockHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 21.11.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+public class SubBlockHeader extends BlockHeader {
+<span class="fc" id="L27">    private static final Logger logger = LoggerFactory.getLogger(SubBlockHeader.class);</span>
+
+    public static final short SubBlockHeaderSize = 3;
+
+    private final short subType;
+    private byte level;
+
+    public SubBlockHeader(SubBlockHeader sb) {
+<span class="nc" id="L35">        super(sb);</span>
+<span class="nc" id="L36">        subType = sb.getSubType().getSubblocktype();</span>
+<span class="nc" id="L37">        level = sb.getLevel();</span>
+<span class="nc" id="L38">    }</span>
+
+    public SubBlockHeader(BlockHeader bh, byte[] subblock) {
+<span class="fc" id="L41">        super(bh);</span>
+<span class="fc" id="L42">        int position = 0;</span>
+<span class="fc" id="L43">        subType = Raw.readShortLittleEndian(subblock, position);</span>
+<span class="fc" id="L44">        position += 2;</span>
+<span class="fc" id="L45">        level |= subblock[position] &amp; 0xff;</span>
+<span class="fc" id="L46">    }</span>
+
+    public byte getLevel() {
+<span class="nc" id="L49">        return level;</span>
+    }
+
+    public SubBlockHeaderType getSubType() {
+<span class="fc" id="L53">        return SubBlockHeaderType.findSubblockHeaderType(subType);</span>
+    }
+
+    public void print() {
+<span class="fc" id="L57">        super.print();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="fc" id="L59">            logger.info(&quot;subtype: {}&quot;, getSubType());</span>
+<span class="fc" id="L60">            logger.info(&quot;level: {}&quot;, level);</span>
+        }
+<span class="fc" id="L62">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NaiveShuffle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.shuffle</a> &gt; <span class="el_source">NaiveShuffle.java</span></div><h1>NaiveShuffle.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.shuffle;
+
+import static com.sl.algorithms.core.utils.ArrayOps.swap;
+
+import com.sl.algorithms.core.interfaces.shuffle.ShufflingEngine;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * &lt;p&gt;In-place algorithm to shuffle the input data. I've used the Naive prefix, simply because the
+ * algorithm works on a constant range [0 to n-1] for random-number generation, which implies same
+ * number could be chosen again, hence all numbers do not have equal probability.&lt;/p&gt;
+ */
+<span class="fc" id="L14">public class NaiveShuffle&lt;T extends Comparable&gt; implements ShufflingEngine&lt;T&gt; {</span>
+
+  @Override
+  public void shuffle(T[] objects) {
+<span class="fc" id="L18">    checkArray(objects);</span>
+<span class="fc" id="L19">    Random random = ThreadLocalRandom.current();</span>
+<span class="fc" id="L20">    int n = objects.length;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">    for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L22">      swap(objects, i, random.nextInt(n));</span>
+    }
+<span class="fc" id="L24">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

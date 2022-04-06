@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WildCharParenthesisValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.strings.checks.parenthesis</a> &gt; <span class="el_source">WildCharParenthesisValidator.java</span></div><h1>WildCharParenthesisValidator.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.strings.checks.parenthesis;
+
+import static com.sl.algorithms.core.interfaces.strings.checks.ParenthesisValidator.ParenthesisEnum.CLOSE;
+import static com.sl.algorithms.core.interfaces.strings.checks.ParenthesisValidator.ParenthesisEnum.OPEN;
+import static com.sl.algorithms.core.interfaces.strings.checks.ParenthesisValidator.ParenthesisEnum.WILDCHAR;
+
+import com.sl.algorithms.core.interfaces.strings.checks.ParenthesisValidator;
+
+/**
+ * &lt;u&gt;Validations&lt;/u&gt;: &lt;ul&gt; &lt;li&gt;Any left parenthesis '(' must have a corresponding right parenthesis
+ * ')'&lt;/li&gt; &lt;li&gt;Any right parenthesis ')' must have a corresponding left parenthesis '('&lt;/li&gt;
+ * &lt;li&gt;Left parenthesis '(' must go before the corresponding right parenthesis ')'&lt;/li&gt; &lt;li&gt;'*'
+ * could be treated as a single right parenthesis ')' or a single left parenthesis '(' or an empty
+ * string&lt;/li&gt; &lt;li&gt;An empty string is also valid.&lt;/li&gt; &lt;/ul&gt;
+ */
+<span class="fc" id="L16">public class WildCharParenthesisValidator implements ParenthesisValidator {</span>
+
+  /**
+   * Solve in O(n) time and O(1) space.&lt;br&gt;
+   *
+   * @param str contains '(', ')' and '*' characters only.
+   * @return true, if input string adheres to the stated parenthesis rules.
+   */
+  @Override
+  public boolean isValidParenthesis(String str) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (isEmptyOrNull(str)) {</span>
+<span class="fc" id="L27">      return true;</span>
+    }
+<span class="fc" id="L29">    int counter = 0;</span>
+<span class="fc" id="L30">    int maxCounter = 0;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">    for (char c : str.toCharArray()) {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">      if (c == OPEN.getExpr()) {</span>
+<span class="fc" id="L33">        ++counter;</span>
+<span class="fc" id="L34">        ++maxCounter;</span>
+      }
+<span class="fc bfc" id="L36" title="All 2 branches covered.">      if (c == CLOSE.getExpr()) {</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (counter &gt; 0) {</span>
+<span class="fc" id="L38">          --counter;</span>
+        }
+<span class="fc" id="L40">        --maxCounter;</span>
+      }
+<span class="fc bfc" id="L42" title="All 2 branches covered.">      if (c == WILDCHAR.getExpr()) {</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (counter &gt; 0) {</span>
+<span class="fc" id="L44">          --counter;</span>
+        }
+<span class="fc" id="L46">        ++maxCounter;</span>
+      }
+<span class="fc bfc" id="L48" title="All 2 branches covered.">      if (maxCounter &lt; 0) {</span>
+<span class="fc" id="L49">        return false; // too many CLOSE</span>
+      }
+    }
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    return (counter == 0);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

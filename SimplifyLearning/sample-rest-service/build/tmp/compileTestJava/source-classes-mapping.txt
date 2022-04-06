@@ -1,0 +1,4 @@
+com/sl/sample/rest/service/SampleRESTServiceTest.java
+ com.sl.sample.rest.service.SampleRESTServiceTest
+com/sl/sample/rest/service/predicate/MonkPredicatesTest.java
+ com.sl.sample.rest.service.predicate.MonkPredicatesTest

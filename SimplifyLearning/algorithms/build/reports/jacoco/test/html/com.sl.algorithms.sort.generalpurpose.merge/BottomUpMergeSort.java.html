@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BottomUpMergeSort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.sort.generalpurpose.merge</a> &gt; <span class="el_source">BottomUpMergeSort.java</span></div><h1>BottomUpMergeSort.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.sort.generalpurpose.merge;
+
+import com.sl.algorithms.core.interfaces.merge.MergeEngine;
+import com.sl.algorithms.core.list.ListNode;
+import com.sl.algorithms.core.list.merge.LinkedListMergeIterative;
+
+/**
+ * &lt;p&gt;BottomUpMergeSort treats the input array as a cluster of sub-lists and iteratively merges them
+ * back and forth b/n 2 buffers to produce a sorted list.&lt;/p&gt;
+ *
+ * @see MergeSort
+ */
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L14">public class BottomUpMergeSort&lt;T extends Comparable&gt; extends MergeSort&lt;T&gt; {</span>
+
+<span class="fc" id="L16">  private static final MergeEngine mergeEngine = new LinkedListMergeIterative();</span>
+
+  /**
+   * &lt;br&gt;&lt;u&gt;Steps&lt;/u&gt;: &lt;br&gt;(0) if list is of size=1, return as is (i.e. base case). &lt;br&gt;(1) pick
+   * sub-lists of size 1 and build bottom-up with width increasing in multiples of 2. &lt;br&gt;(2) sort
+   * adjacent units as a pair (conquer). &lt;br&gt;(3) iterate till entire width is sorted.&lt;br&gt;
+   * &lt;br&gt;&lt;u&gt;Note&lt;/u&gt;: The copy-back step is explicitly required in each iteration to incrementally
+   * sort the input array.&lt;br&gt;
+   */
+  @Override
+  public void sort(T[] objects) {
+<span class="fc" id="L27">    checkArray(objects);</span>
+<span class="fc" id="L28">    int n = objects.length;</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">    if (n == 1) {</span>
+<span class="fc" id="L30">      return;</span>
+    }
+<span class="fc" id="L32">    T[] aux = (T[]) new Comparable[n];</span>
+<span class="fc" id="L33">    System.arraycopy(objects, 0, aux, 0, n);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    for (int w = 1; w &lt; n; w &lt;&lt;= 1) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">      for (int i = 0; i &lt; n; i += w &lt;&lt; 1) {</span>
+<span class="fc" id="L36">        int m = Math.min(n, i + w);</span>
+<span class="fc" id="L37">        int e = Math.min(n, i + (w &lt;&lt; 1));</span>
+<span class="fc" id="L38">        merge(objects, i, m, e, aux);</span>
+      }
+<span class="fc" id="L40">      System.arraycopy(aux, 0, objects, 0, n);</span>
+    }
+<span class="fc" id="L42">  }</span>
+
+  @Override
+  public ListNode&lt;T&gt; sortList(ListNode&lt;T&gt; head) {
+<span class="fc" id="L46">    checkList(head);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (head.next == null) {</span>
+<span class="fc" id="L48">      return head;</span>
+    }
+<span class="fc" id="L50">    int sizeLimit = 8;</span>
+<span class="fc" id="L51">    ListNode&lt;T&gt;[] auxList = new ListNode[sizeLimit];</span>
+<span class="fc" id="L52">    ListNode&lt;T&gt; result = head;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    while (result != null) {</span>
+<span class="fc" id="L54">      ListNode&lt;T&gt; next = result.next;</span>
+<span class="fc" id="L55">      result.next = null;</span>
+<span class="fc" id="L56">      int i = 0;</span>
+<span class="fc bfc" id="L57" title="All 4 branches covered.">      for (; i &lt; sizeLimit &amp;&amp; auxList[i] != null; i++) {</span>
+<span class="fc" id="L58">        result = mergeEngine.merge2SortedLists(auxList[i], result);</span>
+<span class="fc" id="L59">        auxList[i] = null;</span>
+      }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">      if (i == sizeLimit) {</span>
+<span class="fc" id="L62">        i--;</span>
+      }
+<span class="fc" id="L64">      auxList[i] = result;</span>
+<span class="fc" id="L65">      result = next;</span>
+<span class="fc" id="L66">    }</span>
+<span class="fc" id="L67">    result = null;</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">    for (int i = 0; i &lt; sizeLimit; i++) {</span>
+<span class="fc" id="L69">      result = mergeEngine.merge2SortedLists(auxList[i], result);</span>
+    }
+<span class="fc" id="L71">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

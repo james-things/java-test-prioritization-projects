@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BucketSort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.sort.finitegroups.bucketsort</a> &gt; <span class="el_source">BucketSort.java</span></div><h1>BucketSort.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.sort.finitegroups.bucketsort;
+
+import com.sl.algorithms.core.interfaces.sort.SortingEngine;
+import com.sl.algorithms.core.list.ListNode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * &lt;p&gt;A sort algorithm (non-stable, out-of-place) that uses O(n) space and provides O(n) best-case
+ * and O(n^2) average/worst-case time-complexity.&lt;/p&gt; &lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Bucket_sort&quot;&gt;Reference
+ * Reading&lt;/a&gt; &lt;br&gt;&lt;a href=&quot;https://www.cs.usfca.edu/~galles/visualization/BucketSort.html&quot;&gt;Visualization&lt;/a&gt;
+ */
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L15">public abstract class BucketSort&lt;T extends Comparable&gt; implements SortingEngine&lt;T&gt; {</span>
+
+  @Override
+  public void sort(T[] objects) {
+<span class="fc" id="L19">    checkArray(objects);</span>
+<span class="fc" id="L20">    int n = objects.length;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">    if (n == 1) {</span>
+<span class="fc" id="L22">      return;</span>
+    }
+<span class="fc" id="L24">    bucketSort(objects, n);</span>
+<span class="fc" id="L25">  }</span>
+
+  /**
+   * &lt;br&gt;&lt;u&gt;Steps&lt;/u&gt;:&lt;br&gt; &lt;br&gt;0. Create n buckets. &lt;br&gt;1. Put elements in their respective 'range'
+   * buckets: &lt;br&gt;e.g. for {0.4, 0.6, 0.9}, buckets : {b0, b1, b2, b3}, and then b0:{}, b1:{0.4,
+   * 0.6}, b2:{0.9}, b3:{}. &lt;br&gt;2. Sort each bucket, using insertion sort. &lt;br&gt;3. Concatenate the
+   * buckets to produce the resultant sorted list.
+   */
+  private void bucketSort(T[] objects, int n) {
+<span class="fc" id="L34">    List&lt;T&gt;[] bucketList = new ArrayList[n + 1];</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L36">      T obj = objects[i];</span>
+<span class="fc" id="L37">      int bi = bucketIndex(obj, n);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">      if (bucketList[bi] == null) {</span>
+<span class="fc" id="L39">        bucketList[bi] = new ArrayList&lt;&gt;();</span>
+      }
+<span class="fc" id="L41">      bucketList[bi].add(obj);</span>
+    }
+<span class="fc" id="L43">    int index = 0;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">    for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L45">      List&lt;T&gt; bucket = bucketList[i];</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">      if (bucket != null) {</span>
+<span class="fc" id="L47">        Collections.sort(bucket);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        for (T obj : bucket) {</span>
+<span class="fc" id="L49">          objects[index++] = obj;</span>
+<span class="fc" id="L50">        }</span>
+      }
+    }
+<span class="fc" id="L53">  }</span>
+
+  public abstract int bucketIndex(T obj, int n);
+
+  @Override
+  public ListNode&lt;T&gt; sortList(ListNode&lt;T&gt; head) {
+<span class="fc" id="L59">    throw new UnsupportedOperationException();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

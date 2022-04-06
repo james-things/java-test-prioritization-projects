@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.search.binarysearch.BinarySearchTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:32" hostname="LAPTOP-0DNPIBQS" time="0.018">
+  <properties/>
+  <testcase name="testBinarySearchRecursive" classname="com.sl.algorithms.search.binarysearch.BinarySearchTest" time="0.002"/>
+  <testcase name="testBinarySearchIterative" classname="com.sl.algorithms.search.binarysearch.BinarySearchTest" time="0.002"/>
+  <testcase name="testFindStartOfRotation" classname="com.sl.algorithms.search.binarysearch.BinarySearchTest" time="0.002"/>
+  <testcase name="testBinarySearchGeneric" classname="com.sl.algorithms.search.binarysearch.BinarySearchTest" time="0.011"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

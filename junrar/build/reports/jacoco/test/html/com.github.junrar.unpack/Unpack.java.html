@@ -1,0 +1,1042 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Unpack.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack</a> &gt; <span class="el_source">Unpack.java</span></div><h1>Unpack.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.unpack.decode.Compress;
+import com.github.junrar.unpack.ppm.BlockTypes;
+import com.github.junrar.unpack.ppm.ModelPPM;
+import com.github.junrar.unpack.ppm.SubAllocator;
+import com.github.junrar.unpack.vm.BitInput;
+import com.github.junrar.unpack.vm.RarVM;
+import com.github.junrar.unpack.vm.VMPreparedProgram;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public final class Unpack extends Unpack20 {
+
+<span class="fc" id="L44">    private final ModelPPM ppm = new ModelPPM();</span>
+
+    private int ppmEscChar;
+
+<span class="fc" id="L48">    private final RarVM rarVM = new RarVM();</span>
+
+    /* Filters code, one entry per filter */
+<span class="fc" id="L51">    private final List&lt;UnpackFilter&gt; filters = new ArrayList&lt;&gt;();</span>
+
+    /* Filters stack, several entrances of same filter are possible */
+<span class="fc" id="L54">    private final List&lt;UnpackFilter&gt; prgStack = new ArrayList&lt;&gt;();</span>
+
+    /*
+     * lengths of preceding blocks, one length per filter. Used to reduce size
+     * required to write block length if lengths are repeating
+     */
+<span class="fc" id="L60">    private final List&lt;Integer&gt; oldFilterLengths = new ArrayList&lt;&gt;();</span>
+
+    private int lastFilter;
+
+    private boolean tablesRead;
+
+<span class="fc" id="L66">    private final byte[] unpOldTable = new byte[Compress.HUFF_TABLE_SIZE];</span>
+
+    private BlockTypes unpBlockType;
+
+    private long writtenFileSize;
+
+    private boolean fileExtracted;
+
+    private boolean ppmError;
+
+    private int prevLowDist;
+
+    private int lowDistRepCount;
+
+<span class="fc" id="L80">    public static int[] DBitLengthCounts = {4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,</span>
+        2, 2, 2, 2, 2, 14, 0, 12 };
+
+<span class="fc" id="L83">    public Unpack(ComprDataIO DataIO) {</span>
+<span class="fc" id="L84">        unpIO = DataIO;</span>
+<span class="fc" id="L85">        window = null;</span>
+<span class="fc" id="L86">        suspended = false;</span>
+<span class="fc" id="L87">        unpAllBuf = false;</span>
+<span class="fc" id="L88">        unpSomeRead = false;</span>
+<span class="fc" id="L89">    }</span>
+
+    public void init(byte[] window) {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (window == null) {</span>
+<span class="fc" id="L93">            this.window = new byte[Compress.MAXWINSIZE];</span>
+        } else {
+<span class="nc" id="L95">            this.window = window;</span>
+        }
+<span class="fc" id="L97">        inAddr = 0;</span>
+<span class="fc" id="L98">        unpInitData(false);</span>
+<span class="fc" id="L99">    }</span>
+
+    public void doUnpack(int method, boolean solid) throws IOException,
+            RarException {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (unpIO.getSubHeader().getUnpMethod() == 0x30) {</span>
+<span class="fc" id="L104">            unstoreFile();</span>
+        }
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">        switch (method) {</span>
+            case 15: // rar 1.5 compression
+<span class="fc" id="L108">                unpack15(solid);</span>
+<span class="fc" id="L109">                break;</span>
+            case 20: // rar 2.x compression
+            case 26: // files larger than 2GB
+<span class="fc" id="L112">                unpack20(solid);</span>
+<span class="fc" id="L113">                break;</span>
+            case 29: // rar 3.x compression
+            case 36: // alternative hash
+<span class="fc" id="L116">                unpack29(solid);</span>
+                break;
+        }
+<span class="fc" id="L119">    }</span>
+
+    private void unstoreFile() throws IOException, RarException {
+<span class="fc" id="L122">        byte[] buffer = new byte[0x10000];</span>
+        while (true) {
+<span class="fc" id="L124">            int code = unpIO.unpRead(buffer, 0, (int) Math.min(buffer.length,</span>
+                    destUnpSize));
+<span class="pc bpc" id="L126" title="1 of 4 branches missed.">            if (code == 0 || code == -1) {</span>
+<span class="nc" id="L127">                break;</span>
+            }
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">            code = code &lt; destUnpSize ? code : (int) destUnpSize;</span>
+<span class="fc" id="L130">            unpIO.unpWrite(buffer, 0, code);</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            if (destUnpSize &gt;= 0) {</span>
+<span class="fc" id="L132">                destUnpSize -= code;</span>
+            }
+<span class="fc" id="L134">        }</span>
+
+<span class="fc" id="L136">    }</span>
+
+    private void unpack29(boolean solid) throws IOException, RarException {
+
+<span class="fc" id="L140">        int[] DDecode = new int[Compress.DC];</span>
+<span class="fc" id="L141">        byte[] DBits = new byte[Compress.DC];</span>
+
+        int Bits;
+
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (DDecode[1] == 0) {</span>
+<span class="fc" id="L146">            int Dist = 0, BitLength = 0, Slot = 0;</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">            for (int I = 0; I &lt; DBitLengthCounts.length; I++, BitLength++) {</span>
+<span class="fc" id="L148">                int count = DBitLengthCounts[I];</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">                for (int J = 0; J &lt; count; J++, Slot++, Dist += (1 &lt;&lt; BitLength)) {</span>
+<span class="fc" id="L150">                    DDecode[Slot] = Dist;</span>
+<span class="fc" id="L151">                    DBits[Slot] = (byte) BitLength;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L156">        fileExtracted = true;</span>
+
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (!suspended) {</span>
+<span class="fc" id="L159">            unpInitData(solid);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">            if (!unpReadBuf()) {</span>
+<span class="nc" id="L161">                return;</span>
+            }
+<span class="fc bfc" id="L163" title="All 6 branches covered.">            if ((!solid || !tablesRead) &amp;&amp; !readTables()) {</span>
+<span class="fc" id="L164">                return;</span>
+            }
+        }
+
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (ppmError) {</span>
+<span class="nc" id="L169">            return;</span>
+        }
+
+        while (true) {
+<span class="fc" id="L173">            unpPtr &amp;= Compress.MAXWINMASK;</span>
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            if (inAddr &gt; readBorder) {</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">                if (!unpReadBuf()) {</span>
+<span class="nc" id="L177">                    break;</span>
+                }
+            }
+            // System.out.println(((wrPtr - unpPtr) &amp;
+            // Compress.MAXWINMASK)+&quot;:&quot;+wrPtr+&quot;:&quot;+unpPtr);
+<span class="pc bpc" id="L182" title="1 of 4 branches missed.">            if (((wrPtr - unpPtr) &amp; Compress.MAXWINMASK) &lt; 260</span>
+                    &amp;&amp; wrPtr != unpPtr) {
+
+<span class="nc" id="L185">                UnpWriteBuf();</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                if (writtenFileSize &gt; destUnpSize) {</span>
+<span class="nc" id="L187">                    return;</span>
+                }
+<span class="nc bnc" id="L189" title="All 2 branches missed.">                if (suspended) {</span>
+<span class="nc" id="L190">                    fileExtracted = false;</span>
+<span class="nc" id="L191">                    return;</span>
+                }
+            }
+<span class="fc bfc" id="L194" title="All 2 branches covered.">            if (unpBlockType == BlockTypes.BLOCK_PPM) {</span>
+<span class="fc" id="L195">                int Ch = ppm.decodeChar();</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if (Ch == -1) {</span>
+<span class="nc" id="L197">                    ppmError = true;</span>
+<span class="nc" id="L198">                    break;</span>
+                }
+<span class="fc bfc" id="L200" title="All 2 branches covered.">                if (Ch == ppmEscChar) {</span>
+<span class="fc" id="L201">                    int NextCh = ppm.decodeChar();</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">                    if (NextCh == 0) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                        if (!readTables()) {</span>
+<span class="nc" id="L204">                            break;</span>
+                        }
+                        continue;
+                    }
+<span class="pc bpc" id="L208" title="3 of 4 branches missed.">                    if (NextCh == 2 || NextCh == -1) {</span>
+<span class="nc" id="L209">                        break;</span>
+                    }
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                    if (NextCh == 3) {</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">                        if (!readVMCodePPM()) {</span>
+<span class="nc" id="L213">                            break;</span>
+                        }
+                        continue;
+                    }
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                    if (NextCh == 4) {</span>
+<span class="nc" id="L218">                        int Distance = 0, Length = 0;</span>
+<span class="nc" id="L219">                        boolean failed = false;</span>
+<span class="nc bnc" id="L220" title="All 4 branches missed.">                        for (int I = 0; I &lt; 4 &amp;&amp; !failed; I++) {</span>
+<span class="nc" id="L221">                            int ch = ppm.decodeChar();</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">                            if (ch == -1) {</span>
+<span class="nc" id="L223">                                failed = true;</span>
+                            } else {
+<span class="nc bnc" id="L225" title="All 2 branches missed.">                                if (I == 3) {</span>
+                                    // Bug fixed
+<span class="nc" id="L227">                                    Length = ch &amp; 0xff;</span>
+                                } else {
+                                    // Bug fixed
+<span class="nc" id="L230">                                    Distance = (Distance &lt;&lt; 8) + (ch &amp; 0xff);</span>
+                                }
+                            }
+                        }
+<span class="nc bnc" id="L234" title="All 2 branches missed.">                        if (failed) {</span>
+<span class="nc" id="L235">                            break;</span>
+                        }
+<span class="nc" id="L237">                        copyString(Length + 32, Distance + 2);</span>
+<span class="nc" id="L238">                        continue;</span>
+                    }
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                    if (NextCh == 5) {</span>
+<span class="nc" id="L241">                        int Length = ppm.decodeChar();</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                        if (Length == -1) {</span>
+<span class="nc" id="L243">                            break;</span>
+                        }
+<span class="nc" id="L245">                        copyString(Length + 4, 1);</span>
+<span class="nc" id="L246">                        continue;</span>
+                    }
+                }
+<span class="fc" id="L249">                window[unpPtr++] = (byte) Ch;</span>
+<span class="fc" id="L250">                continue;</span>
+            }
+
+<span class="fc" id="L253">            int Number = decodeNumber(LD);</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">            if (Number &lt; 256) {</span>
+<span class="fc" id="L255">                window[unpPtr++] = (byte) Number;</span>
+<span class="fc" id="L256">                continue;</span>
+            }
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if (Number &gt;= 271) {</span>
+<span class="fc" id="L259">                int Length = LDecode[Number -= 271] + 3;</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">                if ((Bits = LBits[Number]) &gt; 0) {</span>
+<span class="fc" id="L261">                    Length += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="fc" id="L262">                    addbits(Bits);</span>
+                }
+
+<span class="fc" id="L265">                int DistNumber = decodeNumber(DD);</span>
+<span class="fc" id="L266">                int Distance = DDecode[DistNumber] + 1;</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">                if ((Bits = DBits[DistNumber]) &gt; 0) {</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">                    if (DistNumber &gt; 9) {</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">                        if (Bits &gt; 4) {</span>
+<span class="fc" id="L270">                            Distance += ((getbits() &gt;&gt;&gt; (20 - Bits)) &lt;&lt; 4);</span>
+<span class="fc" id="L271">                            addbits(Bits - 4);</span>
+                        }
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">                        if (lowDistRepCount &gt; 0) {</span>
+<span class="nc" id="L274">                            lowDistRepCount--;</span>
+<span class="nc" id="L275">                            Distance += prevLowDist;</span>
+                        } else {
+<span class="fc" id="L277">                            int LowDist = decodeNumber(LDD);</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">                            if (LowDist == 16) {</span>
+<span class="nc" id="L279">                                lowDistRepCount = Compress.LOW_DIST_REP_COUNT - 1;</span>
+<span class="nc" id="L280">                                Distance += prevLowDist;</span>
+                            } else {
+<span class="fc" id="L282">                                Distance += LowDist;</span>
+<span class="fc" id="L283">                                prevLowDist = LowDist;</span>
+                            }
+<span class="fc" id="L285">                        }</span>
+                    } else {
+<span class="fc" id="L287">                        Distance += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="fc" id="L288">                        addbits(Bits);</span>
+                    }
+                }
+
+<span class="fc bfc" id="L292" title="All 2 branches covered.">                if (Distance &gt;= 0x2000) {</span>
+<span class="fc" id="L293">                    Length++;</span>
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">                    if (Distance &gt;= 0x40000L) {</span>
+<span class="nc" id="L295">                        Length++;</span>
+                    }
+                }
+
+<span class="fc" id="L299">                insertOldDist(Distance);</span>
+<span class="fc" id="L300">                insertLastMatch(Length, Distance);</span>
+
+<span class="fc" id="L302">                copyString(Length, Distance);</span>
+<span class="fc" id="L303">                continue;</span>
+            }
+<span class="fc bfc" id="L305" title="All 2 branches covered.">            if (Number == 256) {</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">                if (!readEndOfBlock()) {</span>
+<span class="fc" id="L307">                    break;</span>
+                }
+                continue;
+            }
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            if (Number == 257) {</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">                if (!readVMCode()) {</span>
+<span class="nc" id="L313">                    break;</span>
+                }
+                continue;
+            }
+<span class="fc bfc" id="L317" title="All 2 branches covered.">            if (Number == 258) {</span>
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">                if (lastLength != 0) {</span>
+<span class="fc" id="L319">                    copyString(lastLength, lastDist);</span>
+                }
+                continue;
+            }
+<span class="fc bfc" id="L323" title="All 2 branches covered.">            if (Number &lt; 263) {</span>
+<span class="fc" id="L324">                int DistNum = Number - 259;</span>
+<span class="fc" id="L325">                int Distance = oldDist[DistNum];</span>
+<span class="fc" id="L326">                System.arraycopy(oldDist, 0, oldDist, 1, DistNum);</span>
+<span class="fc" id="L327">                oldDist[0] = Distance;</span>
+
+<span class="fc" id="L329">                int LengthNumber = decodeNumber(RD);</span>
+<span class="fc" id="L330">                int Length = LDecode[LengthNumber] + 2;</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">                if ((Bits = LBits[LengthNumber]) &gt; 0) {</span>
+<span class="fc" id="L332">                    Length += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="fc" id="L333">                    addbits(Bits);</span>
+                }
+<span class="fc" id="L335">                insertLastMatch(Length, Distance);</span>
+<span class="fc" id="L336">                copyString(Length, Distance);</span>
+<span class="fc" id="L337">                continue;</span>
+            }
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">            if (Number &lt; 272) {</span>
+<span class="fc" id="L340">                int Distance = SDDecode[Number -= 263] + 1;</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">                if ((Bits = SDBits[Number]) &gt; 0) {</span>
+<span class="fc" id="L342">                    Distance += getbits() &gt;&gt;&gt; (16 - Bits);</span>
+<span class="fc" id="L343">                    addbits(Bits);</span>
+                }
+<span class="fc" id="L345">                insertOldDist(Distance);</span>
+<span class="fc" id="L346">                insertLastMatch(2, Distance);</span>
+<span class="fc" id="L347">                copyString(2, Distance);</span>
+<span class="fc" id="L348">                continue;</span>
+            }
+<span class="nc" id="L350">        }</span>
+<span class="fc" id="L351">        UnpWriteBuf();</span>
+
+<span class="fc" id="L353">    }</span>
+
+    private void UnpWriteBuf() throws IOException {
+<span class="fc" id="L356">        int WrittenBorder = wrPtr;</span>
+<span class="fc" id="L357">        int WriteSize = (unpPtr - WrittenBorder) &amp; Compress.MAXWINMASK;</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">        for (int I = 0; I &lt; prgStack.size(); I++) {</span>
+<span class="fc" id="L359">            UnpackFilter flt = prgStack.get(I);</span>
+<span class="pc bpc" id="L360" title="1 of 2 branches missed.">            if (flt == null) {</span>
+<span class="nc" id="L361">                continue;</span>
+            }
+<span class="pc bpc" id="L363" title="1 of 2 branches missed.">            if (flt.isNextWindow()) {</span>
+<span class="nc" id="L364">                flt.setNextWindow(false); // -&gt;NextWindow=false;</span>
+<span class="nc" id="L365">                continue;</span>
+            }
+<span class="fc" id="L367">            int BlockStart = flt.getBlockStart(); // -&gt;BlockStart;</span>
+<span class="fc" id="L368">            int BlockLength = flt.getBlockLength(); // -&gt;BlockLength;</span>
+<span class="pc bpc" id="L369" title="1 of 2 branches missed.">            if (((BlockStart - WrittenBorder) &amp; Compress.MAXWINMASK) &lt; WriteSize) {</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">                if (WrittenBorder != BlockStart) {</span>
+<span class="fc" id="L371">                    UnpWriteArea(WrittenBorder, BlockStart);</span>
+<span class="fc" id="L372">                    WrittenBorder = BlockStart;</span>
+<span class="fc" id="L373">                    WriteSize = (unpPtr - WrittenBorder) &amp; Compress.MAXWINMASK;</span>
+                }
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">                if (BlockLength &lt;= WriteSize) {</span>
+<span class="fc" id="L376">                    int BlockEnd = (BlockStart + BlockLength)</span>
+                            &amp; Compress.MAXWINMASK;
+<span class="pc bpc" id="L378" title="3 of 4 branches missed.">                    if (BlockStart &lt; BlockEnd || BlockEnd == 0) {</span>
+                        // VM.SetMemory(0,Window+BlockStart,BlockLength);
+<span class="fc" id="L380">                        rarVM.setMemory(0, window, BlockStart, BlockLength);</span>
+                    } else {
+<span class="nc" id="L382">                        int FirstPartLength = Compress.MAXWINSIZE - BlockStart;</span>
+                        // VM.SetMemory(0,Window+BlockStart,FirstPartLength);
+<span class="nc" id="L384">                        rarVM.setMemory(0, window, BlockStart, FirstPartLength);</span>
+                        // VM.SetMemory(FirstPartLength,Window,BlockEnd);
+<span class="nc" id="L386">                        rarVM.setMemory(FirstPartLength, window, 0, BlockEnd);</span>
+
+                    }
+
+<span class="fc" id="L390">                    VMPreparedProgram ParentPrg = filters.get(</span>
+<span class="fc" id="L391">                            flt.getParentFilter()).getPrg();</span>
+<span class="fc" id="L392">                    VMPreparedProgram Prg = flt.getPrg();</span>
+
+<span class="pc bpc" id="L394" title="1 of 2 branches missed.">                    if (ParentPrg.getGlobalData().size() &gt; RarVM.VM_FIXEDGLOBALSIZE) {</span>
+                        // copy global data from previous script execution if
+                        // any
+                        // Prg-&gt;GlobalData.Alloc(ParentPrg-&gt;GlobalData.Size());
+                        // memcpy(&amp;Prg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],&amp;ParentPrg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],ParentPrg-&gt;GlobalData.Size()-VM_FIXEDGLOBALSIZE);
+<span class="nc" id="L399">                        Prg.getGlobalData().setSize(</span>
+<span class="nc" id="L400">                                ParentPrg.getGlobalData().size());</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">                        for (int i = 0; i &lt; ParentPrg.getGlobalData().size()</span>
+<span class="nc" id="L402">                                - RarVM.VM_FIXEDGLOBALSIZE; i++) {</span>
+<span class="nc" id="L403">                            Prg.getGlobalData().set(</span>
+                                    RarVM.VM_FIXEDGLOBALSIZE + i,
+<span class="nc" id="L405">                                    ParentPrg.getGlobalData().get(</span>
+                                            RarVM.VM_FIXEDGLOBALSIZE + i));
+                        }
+                    }
+
+<span class="fc" id="L410">                    ExecuteCode(Prg);</span>
+
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">                    if (Prg.getGlobalData().size() &gt; RarVM.VM_FIXEDGLOBALSIZE) {</span>
+                        // save global data for next script execution
+<span class="nc" id="L414">                        if (ParentPrg.getGlobalData().size() &lt; Prg</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">                                .getGlobalData().size()) {</span>
+<span class="nc" id="L416">                            ParentPrg.getGlobalData().setSize(</span>
+<span class="nc" id="L417">                                    Prg.getGlobalData().size()); // -&gt;GlobalData.Alloc(Prg-&gt;GlobalData.Size());</span>
+                        }
+                        // memcpy(&amp;ParentPrg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],&amp;Prg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],Prg-&gt;GlobalData.Size()-VM_FIXEDGLOBALSIZE);
+<span class="nc bnc" id="L420" title="All 2 branches missed.">                        for (int i = 0; i &lt; Prg.getGlobalData().size()</span>
+<span class="nc" id="L421">                                - RarVM.VM_FIXEDGLOBALSIZE; i++) {</span>
+<span class="nc" id="L422">                            ParentPrg.getGlobalData().set(</span>
+                                    RarVM.VM_FIXEDGLOBALSIZE + i,
+<span class="nc" id="L424">                                    Prg.getGlobalData().get(</span>
+                                            RarVM.VM_FIXEDGLOBALSIZE + i));
+                        }
+                    } else {
+<span class="fc" id="L428">                        ParentPrg.getGlobalData().clear();</span>
+                    }
+
+<span class="fc" id="L431">                    int FilteredDataOffset = Prg.getFilteredDataOffset();</span>
+<span class="fc" id="L432">                    int FilteredDataSize = Prg.getFilteredDataSize();</span>
+<span class="fc" id="L433">                    byte[] FilteredData = new byte[FilteredDataSize];</span>
+
+<span class="fc bfc" id="L435" title="All 2 branches covered.">                    for (int i = 0; i &lt; FilteredDataSize; i++) {</span>
+<span class="fc" id="L436">                        FilteredData[i] = rarVM.getMem()[FilteredDataOffset + i]; // Prg.getGlobalData().get(FilteredDataOffset</span>
+                        // +
+                        // i);
+                    }
+
+<span class="fc" id="L441">                    prgStack.set(I, null);</span>
+<span class="pc bpc" id="L442" title="1 of 2 branches missed.">                    while (I + 1 &lt; prgStack.size()) {</span>
+<span class="nc" id="L443">                        UnpackFilter NextFilter = prgStack.get(I + 1);</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">                        if (NextFilter == null</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">                                || NextFilter.getBlockStart() != BlockStart</span>
+<span class="nc bnc" id="L446" title="All 2 branches missed.">                                || NextFilter.getBlockLength() != FilteredDataSize</span>
+<span class="nc bnc" id="L447" title="All 2 branches missed.">                                || NextFilter.isNextWindow()) {</span>
+<span class="nc" id="L448">                            break;</span>
+                        }
+                        // apply several filters to same data block
+
+<span class="nc" id="L452">                        rarVM.setMemory(0, FilteredData, 0, FilteredDataSize); // .SetMemory(0,FilteredData,FilteredDataSize);</span>
+
+<span class="nc" id="L454">                        VMPreparedProgram pPrg = filters.get(</span>
+<span class="nc" id="L455">                                NextFilter.getParentFilter()).getPrg();</span>
+<span class="nc" id="L456">                        VMPreparedProgram NextPrg = NextFilter.getPrg();</span>
+
+<span class="nc bnc" id="L458" title="All 2 branches missed.">                        if (pPrg.getGlobalData().size() &gt; RarVM.VM_FIXEDGLOBALSIZE) {</span>
+                            // copy global data from previous script execution
+                            // if any
+                            // NextPrg-&gt;GlobalData.Alloc(ParentPrg-&gt;GlobalData.Size());
+<span class="nc" id="L462">                            NextPrg.getGlobalData().setSize(</span>
+<span class="nc" id="L463">                                    pPrg.getGlobalData().size());</span>
+                            // memcpy(&amp;NextPrg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],&amp;ParentPrg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],ParentPrg-&gt;GlobalData.Size()-VM_FIXEDGLOBALSIZE);
+<span class="nc bnc" id="L465" title="All 2 branches missed.">                            for (int i = 0; i &lt; pPrg.getGlobalData().size()</span>
+<span class="nc" id="L466">                                    - RarVM.VM_FIXEDGLOBALSIZE; i++) {</span>
+<span class="nc" id="L467">                                NextPrg.getGlobalData().set(</span>
+                                        RarVM.VM_FIXEDGLOBALSIZE + i,
+<span class="nc" id="L469">                                        pPrg.getGlobalData().get(</span>
+                                                RarVM.VM_FIXEDGLOBALSIZE + i));
+                            }
+                        }
+
+<span class="nc" id="L474">                        ExecuteCode(NextPrg);</span>
+
+<span class="nc bnc" id="L476" title="All 2 branches missed.">                        if (NextPrg.getGlobalData().size() &gt; RarVM.VM_FIXEDGLOBALSIZE) {</span>
+                            // save global data for next script execution
+<span class="nc" id="L478">                            if (pPrg.getGlobalData().size() &lt; NextPrg</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">                                    .getGlobalData().size()) {</span>
+<span class="nc" id="L480">                                pPrg.getGlobalData().setSize(</span>
+<span class="nc" id="L481">                                        NextPrg.getGlobalData().size());</span>
+                            }
+                            // memcpy(&amp;ParentPrg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],&amp;NextPrg-&gt;GlobalData[VM_FIXEDGLOBALSIZE],NextPrg-&gt;GlobalData.Size()-VM_FIXEDGLOBALSIZE);
+<span class="nc bnc" id="L484" title="All 2 branches missed.">                            for (int i = 0; i &lt; NextPrg.getGlobalData().size()</span>
+<span class="nc" id="L485">                                    - RarVM.VM_FIXEDGLOBALSIZE; i++) {</span>
+<span class="nc" id="L486">                                pPrg.getGlobalData().set(</span>
+                                        RarVM.VM_FIXEDGLOBALSIZE + i,
+<span class="nc" id="L488">                                        NextPrg.getGlobalData().get(</span>
+                                                RarVM.VM_FIXEDGLOBALSIZE + i));
+                            }
+                        } else {
+<span class="nc" id="L492">                            pPrg.getGlobalData().clear();</span>
+                        }
+<span class="nc" id="L494">                        FilteredDataOffset = NextPrg.getFilteredDataOffset();</span>
+<span class="nc" id="L495">                        FilteredDataSize = NextPrg.getFilteredDataSize();</span>
+
+<span class="nc" id="L497">                        FilteredData = new byte[FilteredDataSize];</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">                        for (int i = 0; i &lt; FilteredDataSize; i++) {</span>
+<span class="nc" id="L499">                            FilteredData[i] = NextPrg.getGlobalData().get(</span>
+                                    FilteredDataOffset + i);
+                        }
+
+<span class="nc" id="L503">                        I++;</span>
+<span class="nc" id="L504">                        prgStack.set(I, null);</span>
+<span class="nc" id="L505">                    }</span>
+<span class="fc" id="L506">                    unpIO.unpWrite(FilteredData, 0, FilteredDataSize);</span>
+<span class="fc" id="L507">                    unpSomeRead = true;</span>
+<span class="fc" id="L508">                    writtenFileSize += FilteredDataSize;</span>
+<span class="fc" id="L509">                    WrittenBorder = BlockEnd;</span>
+<span class="fc" id="L510">                    WriteSize = (unpPtr - WrittenBorder) &amp; Compress.MAXWINMASK;</span>
+<span class="fc" id="L511">                } else {</span>
+<span class="nc bnc" id="L512" title="All 2 branches missed.">                    for (int J = I; J &lt; prgStack.size(); J++) {</span>
+<span class="nc" id="L513">                        UnpackFilter filt = prgStack.get(J);</span>
+<span class="nc bnc" id="L514" title="All 4 branches missed.">                        if (filt != null &amp;&amp; filt.isNextWindow()) {</span>
+<span class="nc" id="L515">                            filt.setNextWindow(false);</span>
+                        }
+                    }
+<span class="nc" id="L518">                    wrPtr = WrittenBorder;</span>
+<span class="nc" id="L519">                    return;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L524">        UnpWriteArea(WrittenBorder, unpPtr);</span>
+<span class="fc" id="L525">        wrPtr = unpPtr;</span>
+
+<span class="fc" id="L527">    }</span>
+
+    private void UnpWriteArea(int startPtr, int endPtr) throws IOException {
+<span class="pc bpc" id="L530" title="1 of 2 branches missed.">        if (endPtr != startPtr) {</span>
+<span class="fc" id="L531">            unpSomeRead = true;</span>
+        }
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">        if (endPtr &lt; startPtr) {</span>
+<span class="nc" id="L534">            UnpWriteData(window, startPtr, -startPtr &amp; Compress.MAXWINMASK);</span>
+<span class="nc" id="L535">            UnpWriteData(window, 0, endPtr);</span>
+<span class="nc" id="L536">            unpAllBuf = true;</span>
+        } else {
+<span class="fc" id="L538">            UnpWriteData(window, startPtr, endPtr - startPtr);</span>
+        }
+<span class="fc" id="L540">    }</span>
+
+    private void UnpWriteData(byte[] data, int offset, int size) throws IOException {
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">        if (writtenFileSize &gt;= destUnpSize) {</span>
+<span class="nc" id="L544">            return;</span>
+        }
+<span class="fc" id="L546">        int writeSize = size;</span>
+<span class="fc" id="L547">        long leftToWrite = destUnpSize - writtenFileSize;</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">        if (writeSize &gt; leftToWrite) {</span>
+<span class="nc" id="L549">            writeSize = (int) leftToWrite;</span>
+        }
+<span class="fc" id="L551">        unpIO.unpWrite(data, offset, writeSize);</span>
+
+<span class="fc" id="L553">        writtenFileSize += size;</span>
+
+<span class="fc" id="L555">    }</span>
+
+    private void insertOldDist(int distance) {
+<span class="fc" id="L558">        oldDist[3] = oldDist[2];</span>
+<span class="fc" id="L559">        oldDist[2] = oldDist[1];</span>
+<span class="fc" id="L560">        oldDist[1] = oldDist[0];</span>
+<span class="fc" id="L561">        oldDist[0] = distance;</span>
+<span class="fc" id="L562">    }</span>
+
+    private void insertLastMatch(int length, int distance) {
+<span class="fc" id="L565">        lastDist = distance;</span>
+<span class="fc" id="L566">        lastLength = length;</span>
+<span class="fc" id="L567">    }</span>
+
+    private void copyString(int length, int distance) {
+        // System.out.println(&quot;copyString(&quot; + length + &quot;, &quot; + distance + &quot;)&quot;);
+
+<span class="fc" id="L572">        int destPtr = unpPtr - distance;</span>
+        // System.out.println(unpPtr+&quot;:&quot;+distance);
+<span class="pc bpc" id="L574" title="3 of 6 branches missed.">        if (destPtr &gt;= 0 &amp;&amp; destPtr &lt; Compress.MAXWINSIZE - 260</span>
+                &amp;&amp; unpPtr &lt; Compress.MAXWINSIZE - 260) {
+
+<span class="fc" id="L577">            window[unpPtr++] = window[destPtr++];</span>
+
+<span class="fc bfc" id="L579" title="All 2 branches covered.">            while (--length &gt; 0) {</span>
+<span class="fc" id="L580">                window[unpPtr++] = window[destPtr++];</span>
+            }
+        } else {
+<span class="nc bnc" id="L583" title="All 2 branches missed.">            while (length-- != 0) {</span>
+<span class="nc" id="L584">                window[unpPtr] = window[destPtr++ &amp; Compress.MAXWINMASK];</span>
+<span class="nc" id="L585">                unpPtr = (unpPtr + 1) &amp; Compress.MAXWINMASK;</span>
+            }
+        }
+<span class="fc" id="L588">    }</span>
+
+    protected void unpInitData(boolean solid) {
+<span class="fc bfc" id="L591" title="All 2 branches covered.">        if (!solid) {</span>
+<span class="fc" id="L592">            tablesRead = false;</span>
+<span class="fc" id="L593">            Arrays.fill(oldDist, 0); // memset(oldDist,0,sizeof(OldDist));</span>
+
+<span class="fc" id="L595">            oldDistPtr = 0;</span>
+<span class="fc" id="L596">            lastDist = 0;</span>
+<span class="fc" id="L597">            lastLength = 0;</span>
+
+<span class="fc" id="L599">            Arrays.fill(unpOldTable, (byte) 0); // memset(UnpOldTable,0,sizeof(UnpOldTable));</span>
+
+<span class="fc" id="L601">            unpPtr = 0;</span>
+<span class="fc" id="L602">            wrPtr = 0;</span>
+<span class="fc" id="L603">            ppmEscChar = 2;</span>
+
+<span class="fc" id="L605">            initFilters();</span>
+        }
+<span class="fc" id="L607">        InitBitInput();</span>
+<span class="fc" id="L608">        ppmError = false;</span>
+<span class="fc" id="L609">        writtenFileSize = 0;</span>
+<span class="fc" id="L610">        readTop = 0;</span>
+<span class="fc" id="L611">        readBorder = 0;</span>
+<span class="fc" id="L612">        unpInitData20(solid);</span>
+<span class="fc" id="L613">    }</span>
+
+    private void initFilters() {
+<span class="fc" id="L616">        oldFilterLengths.clear();</span>
+<span class="fc" id="L617">        lastFilter = 0;</span>
+
+<span class="fc" id="L619">        filters.clear();</span>
+
+<span class="fc" id="L621">        prgStack.clear();</span>
+<span class="fc" id="L622">    }</span>
+
+    private boolean readEndOfBlock() throws IOException, RarException {
+<span class="fc" id="L625">        int BitField = getbits();</span>
+<span class="fc" id="L626">        boolean NewTable, NewFile = false;</span>
+<span class="fc bfc" id="L627" title="All 2 branches covered.">        if ((BitField &amp; 0x8000) != 0) {</span>
+<span class="fc" id="L628">            NewTable = true;</span>
+<span class="fc" id="L629">            addbits(1);</span>
+        } else {
+<span class="fc" id="L631">            NewFile = true;</span>
+<span class="fc bfc" id="L632" title="All 2 branches covered.">            NewTable = (BitField &amp; 0x4000) != 0 ? true : false;</span>
+<span class="fc" id="L633">            addbits(2);</span>
+        }
+<span class="fc bfc" id="L635" title="All 2 branches covered.">        tablesRead = !NewTable;</span>
+<span class="pc bpc" id="L636" title="2 of 6 branches missed.">        return !(NewFile || NewTable &amp;&amp; !readTables());</span>
+    }
+
+    private boolean readTables() throws IOException, RarException {
+<span class="fc" id="L640">        byte[] bitLength = new byte[Compress.BC];</span>
+
+<span class="fc" id="L642">        byte[] table = new byte[Compress.HUFF_TABLE_SIZE];</span>
+<span class="fc bfc" id="L643" title="All 2 branches covered.">        if (inAddr &gt; readTop - 25) {</span>
+<span class="pc bpc" id="L644" title="1 of 2 branches missed.">            if (!unpReadBuf()) {</span>
+<span class="nc" id="L645">                return (false);</span>
+            }
+        }
+<span class="fc" id="L648">        faddbits((8 - inBit) &amp; 7);</span>
+<span class="fc" id="L649">        long bitField = fgetbits() &amp; 0xffFFffFF;</span>
+<span class="fc bfc" id="L650" title="All 2 branches covered.">        if ((bitField &amp; 0x8000) != 0) {</span>
+<span class="fc" id="L651">            unpBlockType = BlockTypes.BLOCK_PPM;</span>
+<span class="fc" id="L652">            return (ppm.decodeInit(this, ppmEscChar));</span>
+        }
+<span class="fc" id="L654">        unpBlockType = BlockTypes.BLOCK_LZ;</span>
+
+<span class="fc" id="L656">        prevLowDist = 0;</span>
+<span class="fc" id="L657">        lowDistRepCount = 0;</span>
+
+<span class="fc bfc" id="L659" title="All 2 branches covered.">        if ((bitField &amp; 0x4000) == 0) {</span>
+<span class="fc" id="L660">            Arrays.fill(unpOldTable, (byte) 0); // memset(UnpOldTable,0,sizeof(UnpOldTable));</span>
+        }
+<span class="fc" id="L662">        faddbits(2);</span>
+
+<span class="fc bfc" id="L664" title="All 2 branches covered.">        for (int i = 0; i &lt; Compress.BC; i++) {</span>
+<span class="fc" id="L665">            int length = (fgetbits() &gt;&gt;&gt; 12) &amp; 0xFF;</span>
+<span class="fc" id="L666">            faddbits(4);</span>
+<span class="fc bfc" id="L667" title="All 2 branches covered.">            if (length == 15) {</span>
+<span class="fc" id="L668">                int zeroCount = (fgetbits() &gt;&gt;&gt; 12) &amp; 0xFF;</span>
+<span class="fc" id="L669">                faddbits(4);</span>
+<span class="fc bfc" id="L670" title="All 2 branches covered.">                if (zeroCount == 0) {</span>
+<span class="fc" id="L671">                    bitLength[i] = 15;</span>
+                } else {
+<span class="fc" id="L673">                    zeroCount += 2;</span>
+<span class="fc bfc" id="L674" title="All 4 branches covered.">                    while (zeroCount-- &gt; 0 &amp;&amp; i &lt; bitLength.length) {</span>
+<span class="fc" id="L675">                        bitLength[i++] = 0;</span>
+                    }
+<span class="fc" id="L677">                    i--;</span>
+                }
+<span class="fc" id="L679">            } else {</span>
+<span class="fc" id="L680">                bitLength[i] = (byte) length;</span>
+            }
+        }
+
+<span class="fc" id="L684">        makeDecodeTables(bitLength, 0, BD, Compress.BC);</span>
+
+<span class="fc" id="L686">        int TableSize = Compress.HUFF_TABLE_SIZE;</span>
+
+<span class="fc bfc" id="L688" title="All 2 branches covered.">        for (int i = 0; i &lt; TableSize;) {</span>
+<span class="fc bfc" id="L689" title="All 2 branches covered.">            if (inAddr &gt; readTop - 5) {</span>
+<span class="fc bfc" id="L690" title="All 2 branches covered.">                if (!unpReadBuf()) {</span>
+<span class="fc" id="L691">                    return (false);</span>
+                }
+            }
+<span class="fc" id="L694">            int Number = decodeNumber(BD);</span>
+<span class="fc bfc" id="L695" title="All 2 branches covered.">            if (Number &lt; 16) {</span>
+<span class="fc" id="L696">                table[i] = (byte) ((Number + unpOldTable[i]) &amp; 0xf);</span>
+<span class="fc" id="L697">                i++;</span>
+<span class="fc bfc" id="L698" title="All 2 branches covered.">            } else if (Number &lt; 18) {</span>
+                int N;
+<span class="fc bfc" id="L700" title="All 2 branches covered.">                if (Number == 16) {</span>
+<span class="fc" id="L701">                    N = (fgetbits() &gt;&gt;&gt; 13) + 3;</span>
+<span class="fc" id="L702">                    faddbits(3);</span>
+                } else {
+<span class="fc" id="L704">                    N = (fgetbits() &gt;&gt;&gt; 9) + 11;</span>
+<span class="fc" id="L705">                    faddbits(7);</span>
+                }
+<span class="pc bpc" id="L707" title="1 of 4 branches missed.">                while (N-- &gt; 0 &amp;&amp; i &lt; TableSize) {</span>
+<span class="fc" id="L708">                    table[i] = table[i - 1];</span>
+<span class="fc" id="L709">                    i++;</span>
+                }
+<span class="fc" id="L711">            } else {</span>
+                int N;
+<span class="fc bfc" id="L713" title="All 2 branches covered.">                if (Number == 18) {</span>
+<span class="fc" id="L714">                    N = (fgetbits() &gt;&gt;&gt; 13) + 3;</span>
+<span class="fc" id="L715">                    faddbits(3);</span>
+                } else {
+<span class="fc" id="L717">                    N = (fgetbits() &gt;&gt;&gt; 9) + 11;</span>
+<span class="fc" id="L718">                    faddbits(7);</span>
+                }
+<span class="pc bpc" id="L720" title="1 of 4 branches missed.">                while (N-- &gt; 0 &amp;&amp; i &lt; TableSize) {</span>
+<span class="fc" id="L721">                    table[i++] = 0;</span>
+                }
+            }
+<span class="fc" id="L724">        }</span>
+<span class="fc" id="L725">        tablesRead = true;</span>
+<span class="pc bpc" id="L726" title="1 of 2 branches missed.">        if (inAddr &gt; readTop) {</span>
+<span class="nc" id="L727">            return (false);</span>
+        }
+<span class="fc" id="L729">        makeDecodeTables(table, 0, LD, Compress.NC);</span>
+<span class="fc" id="L730">        makeDecodeTables(table, Compress.NC, DD, Compress.DC);</span>
+<span class="fc" id="L731">        makeDecodeTables(table, Compress.NC + Compress.DC, LDD, Compress.LDC);</span>
+<span class="fc" id="L732">        makeDecodeTables(table, Compress.NC + Compress.DC + Compress.LDC, RD,</span>
+                Compress.RC);
+
+        // memcpy(unpOldTable,table,sizeof(unpOldTable));
+<span class="fc" id="L736">        System.arraycopy(table, 0, unpOldTable, 0, unpOldTable.length);</span>
+<span class="fc" id="L737">        return (true);</span>
+
+    }
+
+    private boolean readVMCode() throws IOException, RarException {
+<span class="fc" id="L742">        int FirstByte = getbits() &gt;&gt;&gt; 8;</span>
+<span class="fc" id="L743">        addbits(8);</span>
+<span class="fc" id="L744">        int Length = (FirstByte &amp; 7) + 1;</span>
+<span class="pc bpc" id="L745" title="1 of 2 branches missed.">        if (Length == 7) {</span>
+<span class="fc" id="L746">            Length = (getbits() &gt;&gt;&gt; 8) + 7;</span>
+<span class="fc" id="L747">            addbits(8);</span>
+<span class="nc bnc" id="L748" title="All 2 branches missed.">        } else if (Length == 8) {</span>
+<span class="nc" id="L749">            Length = getbits();</span>
+<span class="nc" id="L750">            addbits(16);</span>
+        }
+<span class="fc" id="L752">        List&lt;Byte&gt; vmCode = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L753" title="All 2 branches covered.">        for (int I = 0; I &lt; Length; I++) {</span>
+<span class="pc bpc" id="L754" title="5 of 6 branches missed.">            if (inAddr &gt;= readTop - 1 &amp;&amp; !unpReadBuf() &amp;&amp; I &lt; Length - 1) {</span>
+<span class="nc" id="L755">                return (false);</span>
+            }
+<span class="fc" id="L757">            vmCode.add((byte) (getbits() &gt;&gt;&gt; 8));</span>
+<span class="fc" id="L758">            addbits(8);</span>
+        }
+<span class="fc" id="L760">        return (addVMCode(FirstByte, vmCode, Length));</span>
+    }
+
+    private boolean readVMCodePPM() throws IOException, RarException {
+<span class="nc" id="L764">        int FirstByte = ppm.decodeChar();</span>
+<span class="nc bnc" id="L765" title="All 2 branches missed.">        if (FirstByte == -1) {</span>
+<span class="nc" id="L766">            return (false);</span>
+        }
+<span class="nc" id="L768">        int Length = (FirstByte &amp; 7) + 1;</span>
+<span class="nc bnc" id="L769" title="All 2 branches missed.">        if (Length == 7) {</span>
+<span class="nc" id="L770">            int B1 = ppm.decodeChar();</span>
+<span class="nc bnc" id="L771" title="All 2 branches missed.">            if (B1 == -1) {</span>
+<span class="nc" id="L772">                return (false);</span>
+            }
+<span class="nc" id="L774">            Length = B1 + 7;</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">        } else if (Length == 8) {</span>
+<span class="nc" id="L776">            int B1 = ppm.decodeChar();</span>
+<span class="nc bnc" id="L777" title="All 2 branches missed.">            if (B1 == -1) {</span>
+<span class="nc" id="L778">                return (false);</span>
+            }
+<span class="nc" id="L780">            int B2 = ppm.decodeChar();</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">            if (B2 == -1) {</span>
+<span class="nc" id="L782">                return (false);</span>
+            }
+<span class="nc" id="L784">            Length = B1 * 256 + B2;</span>
+        }
+<span class="nc" id="L786">        List&lt;Byte&gt; vmCode = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L787" title="All 2 branches missed.">        for (int I = 0; I &lt; Length; I++) {</span>
+<span class="nc" id="L788">            int Ch = ppm.decodeChar();</span>
+<span class="nc bnc" id="L789" title="All 2 branches missed.">            if (Ch == -1) {</span>
+<span class="nc" id="L790">                return (false);</span>
+            }
+<span class="nc" id="L792">            vmCode.add((byte) Ch); // VMCode[I]=Ch;</span>
+        }
+<span class="nc" id="L794">        return (addVMCode(FirstByte, vmCode, Length));</span>
+    }
+
+    private boolean addVMCode(int firstByte, List&lt;Byte&gt; vmCode, int length) {
+<span class="fc" id="L798">        BitInput Inp = new BitInput();</span>
+<span class="fc" id="L799">        Inp.InitBitInput();</span>
+        // memcpy(Inp.InBuf,Code,Min(BitInput::MAX_SIZE,CodeSize));
+<span class="fc bfc" id="L801" title="All 2 branches covered.">        for (int i = 0; i &lt; Math.min(BitInput.MAX_SIZE, vmCode.size()); i++) {</span>
+<span class="fc" id="L802">            Inp.getInBuf()[i] = vmCode.get(i);</span>
+        }
+<span class="fc" id="L804">        rarVM.init();</span>
+
+        int FiltPos;
+<span class="pc bpc" id="L807" title="1 of 2 branches missed.">        if ((firstByte &amp; 0x80) != 0) {</span>
+<span class="fc" id="L808">            FiltPos = RarVM.ReadData(Inp);</span>
+<span class="pc bpc" id="L809" title="1 of 2 branches missed.">            if (FiltPos == 0) {</span>
+<span class="fc" id="L810">                initFilters();</span>
+            } else {
+<span class="nc" id="L812">                FiltPos--;</span>
+            }
+        } else {
+<span class="nc" id="L815">            FiltPos = lastFilter; // use the same filter as last time</span>
+        }
+
+<span class="pc bpc" id="L818" title="2 of 4 branches missed.">        if (FiltPos &gt; filters.size() || FiltPos &gt; oldFilterLengths.size()) {</span>
+<span class="nc" id="L819">            return (false);</span>
+        }
+<span class="fc" id="L821">        lastFilter = FiltPos;</span>
+<span class="pc bpc" id="L822" title="1 of 2 branches missed.">        boolean NewFilter = (FiltPos == filters.size());</span>
+
+<span class="fc" id="L824">        UnpackFilter StackFilter = new UnpackFilter(); // new filter for</span>
+        // PrgStack
+
+        UnpackFilter Filter;
+<span class="pc bpc" id="L828" title="1 of 2 branches missed.">        if (NewFilter) { // new filter code, never used before since VM reset</span>
+            // too many different filters, corrupt archive
+<span class="pc bpc" id="L830" title="1 of 2 branches missed.">            if (FiltPos &gt; 1024) {</span>
+<span class="nc" id="L831">                return (false);</span>
+            }
+
+            // Filters[Filters.Size()-1]=Filter=new UnpackFilter;
+<span class="fc" id="L835">            Filter = new UnpackFilter();</span>
+<span class="fc" id="L836">            filters.add(Filter);</span>
+<span class="fc" id="L837">            StackFilter.setParentFilter(filters.size() - 1);</span>
+<span class="fc" id="L838">            oldFilterLengths.add(0);</span>
+<span class="fc" id="L839">            Filter.setExecCount(0);</span>
+        } else { // filter was used in the past
+<span class="nc" id="L841">            Filter = filters.get(FiltPos);</span>
+<span class="nc" id="L842">            StackFilter.setParentFilter(FiltPos);</span>
+<span class="nc" id="L843">            Filter.setExecCount(Filter.getExecCount() + 1); // -&gt;ExecCount++;</span>
+        }
+
+<span class="fc" id="L846">        prgStack.add(StackFilter);</span>
+<span class="fc" id="L847">        StackFilter.setExecCount(Filter.getExecCount()); // -&gt;ExecCount;</span>
+
+<span class="fc" id="L849">        int BlockStart = RarVM.ReadData(Inp);</span>
+<span class="fc bfc" id="L850" title="All 2 branches covered.">        if ((firstByte &amp; 0x40) != 0) {</span>
+<span class="fc" id="L851">            BlockStart += 258;</span>
+        }
+<span class="fc" id="L853">        StackFilter.setBlockStart((BlockStart + unpPtr) &amp; Compress.MAXWINMASK);</span>
+<span class="pc bpc" id="L854" title="1 of 2 branches missed.">        if ((firstByte &amp; 0x20) != 0) {</span>
+<span class="fc" id="L855">            StackFilter.setBlockLength(RarVM.ReadData(Inp));</span>
+        } else {
+<span class="nc" id="L857">            StackFilter</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">                    .setBlockLength(FiltPos &lt; oldFilterLengths.size() ? oldFilterLengths</span>
+<span class="nc" id="L859">                            .get(FiltPos)</span>
+<span class="nc" id="L860">                            : 0);</span>
+        }
+<span class="pc bpc" id="L862" title="3 of 4 branches missed.">        StackFilter.setNextWindow((wrPtr != unpPtr)</span>
+                &amp;&amp; ((wrPtr - unpPtr) &amp; Compress.MAXWINMASK) &lt;= BlockStart);
+
+        // DebugLog(&quot;\nNextWindow: UnpPtr=%08x WrPtr=%08x
+        // BlockStart=%08x&quot;,UnpPtr,WrPtr,BlockStart);
+
+<span class="fc" id="L868">        oldFilterLengths.set(FiltPos, StackFilter.getBlockLength());</span>
+
+        // memset(StackFilter-&gt;Prg.InitR,0,sizeof(StackFilter-&gt;Prg.InitR));
+<span class="fc" id="L871">        Arrays.fill(StackFilter.getPrg().getInitR(), 0);</span>
+<span class="fc" id="L872">        StackFilter.getPrg().getInitR()[3] = RarVM.VM_GLOBALMEMADDR; // StackFilter-&gt;Prg.InitR[3]=VM_GLOBALMEMADDR;</span>
+<span class="fc" id="L873">        StackFilter.getPrg().getInitR()[4] = StackFilter.getBlockLength(); // StackFilter-&gt;Prg.InitR[4]=StackFilter-&gt;BlockLength;</span>
+<span class="fc" id="L874">        StackFilter.getPrg().getInitR()[5] = StackFilter.getExecCount(); // StackFilter-&gt;Prg.InitR[5]=StackFilter-&gt;ExecCount;</span>
+
+<span class="pc bpc" id="L876" title="1 of 2 branches missed.">        if ((firstByte &amp; 0x10) != 0) { // set registers to optional parameters</span>
+            // if any
+<span class="fc" id="L878">            int InitMask = Inp.fgetbits() &gt;&gt;&gt; 9;</span>
+<span class="fc" id="L879">            Inp.faddbits(7);</span>
+<span class="fc bfc" id="L880" title="All 2 branches covered.">            for (int I = 0; I &lt; 7; I++) {</span>
+<span class="fc bfc" id="L881" title="All 2 branches covered.">                if ((InitMask &amp; (1 &lt;&lt; I)) != 0) {</span>
+                    // StackFilter-&gt;Prg.InitR[I]=RarVM::ReadData(Inp);
+<span class="fc" id="L883">                    StackFilter.getPrg().getInitR()[I] = RarVM.ReadData(Inp);</span>
+                }
+            }
+        }
+
+<span class="pc bpc" id="L888" title="1 of 2 branches missed.">        if (NewFilter) {</span>
+<span class="fc" id="L889">            int VMCodeSize = RarVM.ReadData(Inp);</span>
+<span class="pc bpc" id="L890" title="2 of 4 branches missed.">            if (VMCodeSize &gt;= 0x10000 || VMCodeSize == 0) {</span>
+<span class="nc" id="L891">                return (false);</span>
+            }
+<span class="fc" id="L893">            byte[] VMCode = new byte[VMCodeSize];</span>
+<span class="fc bfc" id="L894" title="All 2 branches covered.">            for (int I = 0; I &lt; VMCodeSize; I++) {</span>
+<span class="pc bpc" id="L895" title="1 of 2 branches missed.">                if (Inp.Overflow(3)) {</span>
+<span class="nc" id="L896">                    return (false);</span>
+                }
+<span class="fc" id="L898">                VMCode[I] = (byte) (Inp.fgetbits() &gt;&gt;&gt; 8);</span>
+<span class="fc" id="L899">                Inp.faddbits(8);</span>
+            }
+            // VM.Prepare(&amp;VMCode[0],VMCodeSize,&amp;Filter-&gt;Prg);
+<span class="fc" id="L902">            rarVM.prepare(VMCode, VMCodeSize, Filter.getPrg());</span>
+        }
+<span class="fc" id="L904">        StackFilter.getPrg().setAltCmd(Filter.getPrg().getCmd()); // StackFilter-&gt;Prg.AltCmd=&amp;Filter-&gt;Prg.Cmd[0];</span>
+<span class="fc" id="L905">        StackFilter.getPrg().setCmdCount(Filter.getPrg().getCmdCount()); // StackFilter-&gt;Prg.CmdCount=Filter-&gt;Prg.CmdCount;</span>
+
+<span class="fc" id="L907">        int StaticDataSize = Filter.getPrg().getStaticData().size();</span>
+<span class="pc bpc" id="L908" title="3 of 4 branches missed.">        if (StaticDataSize &gt; 0 &amp;&amp; StaticDataSize &lt; RarVM.VM_GLOBALMEMSIZE) {</span>
+            // read statically defined data contained in DB commands
+            // StackFilter-&gt;Prg.StaticData.Add(StaticDataSize);
+<span class="nc" id="L911">            StackFilter.getPrg().setStaticData(Filter.getPrg().getStaticData());</span>
+            // memcpy(&amp;StackFilter-&gt;Prg.StaticData[0],&amp;Filter-&gt;Prg.StaticData[0],StaticDataSize);
+        }
+
+<span class="pc bpc" id="L915" title="1 of 2 branches missed.">        if (StackFilter.getPrg().getGlobalData().size() &lt; RarVM.VM_FIXEDGLOBALSIZE) {</span>
+            // StackFilter-&gt;Prg.GlobalData.Reset();
+            // StackFilter-&gt;Prg.GlobalData.Add(VM_FIXEDGLOBALSIZE);
+<span class="fc" id="L918">            StackFilter.getPrg().getGlobalData().clear();</span>
+<span class="fc" id="L919">            StackFilter.getPrg().getGlobalData().setSize(</span>
+                    RarVM.VM_FIXEDGLOBALSIZE);
+        }
+
+        // byte *GlobalData=&amp;StackFilter-&gt;Prg.GlobalData[0];
+<span class="fc" id="L924">        Vector&lt;Byte&gt; globalData = StackFilter.getPrg().getGlobalData();</span>
+<span class="fc bfc" id="L925" title="All 2 branches covered.">        for (int I = 0; I &lt; 7; I++) {</span>
+<span class="fc" id="L926">            rarVM.setLowEndianValue(globalData, I * 4, StackFilter.getPrg()</span>
+<span class="fc" id="L927">                    .getInitR()[I]);</span>
+        }
+
+        // VM.SetLowEndianValue((uint
+        // *)&amp;GlobalData[0x1c],StackFilter-&gt;BlockLength);
+<span class="fc" id="L932">        rarVM.setLowEndianValue(globalData, 0x1c, StackFilter.getBlockLength());</span>
+        // VM.SetLowEndianValue((uint *)&amp;GlobalData[0x20],0);
+<span class="fc" id="L934">        rarVM.setLowEndianValue(globalData, 0x20, 0);</span>
+<span class="fc" id="L935">        rarVM.setLowEndianValue(globalData, 0x24, 0);</span>
+<span class="fc" id="L936">        rarVM.setLowEndianValue(globalData, 0x28, 0);</span>
+
+        // VM.SetLowEndianValue((uint
+        // *)&amp;GlobalData[0x2c],StackFilter-&gt;ExecCount);
+<span class="fc" id="L940">        rarVM.setLowEndianValue(globalData, 0x2c, StackFilter.getExecCount());</span>
+        // memset(&amp;GlobalData[0x30],0,16);
+<span class="fc bfc" id="L942" title="All 2 branches covered.">        for (int i = 0; i &lt; 16; i++) {</span>
+<span class="fc" id="L943">            globalData.set(0x30 + i, (byte) (0));</span>
+        }
+<span class="pc bpc" id="L945" title="1 of 2 branches missed.">        if ((firstByte &amp; 8) != 0) { // put data block passed as parameter if any</span>
+<span class="nc bnc" id="L946" title="All 2 branches missed.">            if (Inp.Overflow(3)) {</span>
+<span class="nc" id="L947">                return (false);</span>
+            }
+<span class="nc" id="L949">            int DataSize = RarVM.ReadData(Inp);</span>
+<span class="nc bnc" id="L950" title="All 2 branches missed.">            if (DataSize &gt; RarVM.VM_GLOBALMEMSIZE - RarVM.VM_FIXEDGLOBALSIZE) {</span>
+<span class="nc" id="L951">                return (false);</span>
+            }
+<span class="nc" id="L953">            int CurSize = StackFilter.getPrg().getGlobalData().size();</span>
+<span class="nc bnc" id="L954" title="All 2 branches missed.">            if (CurSize &lt; DataSize + RarVM.VM_FIXEDGLOBALSIZE) {</span>
+                // StackFilter-&gt;Prg.GlobalData.Add(DataSize+VM_FIXEDGLOBALSIZE-CurSize);
+<span class="nc" id="L956">                StackFilter.getPrg().getGlobalData().setSize(</span>
+                        DataSize + RarVM.VM_FIXEDGLOBALSIZE - CurSize);
+            }
+<span class="nc" id="L959">            int offset = RarVM.VM_FIXEDGLOBALSIZE;</span>
+<span class="nc" id="L960">            globalData = StackFilter.getPrg().getGlobalData();</span>
+<span class="nc bnc" id="L961" title="All 2 branches missed.">            for (int I = 0; I &lt; DataSize; I++) {</span>
+<span class="nc bnc" id="L962" title="All 2 branches missed.">                if (Inp.Overflow(3)) {</span>
+<span class="nc" id="L963">                    return (false);</span>
+                }
+<span class="nc" id="L965">                globalData.set(offset + I, (byte) (Inp.fgetbits() &gt;&gt;&gt; 8));</span>
+<span class="nc" id="L966">                Inp.faddbits(8);</span>
+            }
+        }
+<span class="fc" id="L969">        return (true);</span>
+    }
+
+    private void ExecuteCode(VMPreparedProgram Prg) {
+<span class="pc bpc" id="L973" title="1 of 2 branches missed.">        if (Prg.getGlobalData().size() &gt; 0) {</span>
+            // Prg-&gt;InitR[6]=int64to32(WrittenFileSize);
+<span class="fc" id="L975">            Prg.getInitR()[6] = (int) (writtenFileSize);</span>
+            // rarVM.SetLowEndianValue((uint
+            // *)&amp;Prg-&gt;GlobalData[0x24],int64to32(WrittenFileSize));
+<span class="fc" id="L978">            rarVM.setLowEndianValue(Prg.getGlobalData(), 0x24,</span>
+                    (int) writtenFileSize);
+            // rarVM.SetLowEndianValue((uint
+            // *)&amp;Prg-&gt;GlobalData[0x28],int64to32(WrittenFileSize&gt;&gt;32));
+<span class="fc" id="L982">            rarVM.setLowEndianValue(Prg.getGlobalData(), 0x28,</span>
+                    (int) (writtenFileSize &gt;&gt;&gt; 32));
+<span class="fc" id="L984">            rarVM.execute(Prg);</span>
+        }
+<span class="fc" id="L986">    }</span>
+
+    // Duplicate method
+    // private boolean ReadEndOfBlock() throws IOException, RarException
+    // {
+    // int BitField = getbits();
+    // boolean NewTable, NewFile = false;
+    // if ((BitField &amp; 0x8000) != 0) {
+    // NewTable = true;
+    // addbits(1);
+    // } else {
+    // NewFile = true;
+    // NewTable = (BitField &amp; 0x4000) != 0;
+    // addbits(2);
+    // }
+    // tablesRead = !NewTable;
+    // return !(NewFile || NewTable &amp;&amp; !readTables());
+    // }
+
+    public boolean isFileExtracted() {
+<span class="nc" id="L1006">        return fileExtracted;</span>
+    }
+
+    public void setDestSize(long destSize) {
+<span class="fc" id="L1010">        this.destUnpSize = destSize;</span>
+<span class="fc" id="L1011">        this.fileExtracted = false;</span>
+<span class="fc" id="L1012">    }</span>
+
+    public void setSuspended(boolean suspended) {
+<span class="nc" id="L1015">        this.suspended = suspended;</span>
+<span class="nc" id="L1016">    }</span>
+
+    public int getChar() throws IOException, RarException {
+<span class="pc bpc" id="L1019" title="1 of 2 branches missed.">        if (inAddr &gt; BitInput.MAX_SIZE - 30) {</span>
+<span class="nc" id="L1020">            unpReadBuf();</span>
+        }
+<span class="fc" id="L1022">        return (inBuf[inAddr++] &amp; 0xff);</span>
+    }
+
+    public int getPpmEscChar() {
+<span class="nc" id="L1026">        return ppmEscChar;</span>
+    }
+
+    public void setPpmEscChar(int ppmEscChar) {
+<span class="fc" id="L1030">        this.ppmEscChar = ppmEscChar;</span>
+<span class="fc" id="L1031">    }</span>
+
+    public void cleanUp() {
+<span class="pc bpc" id="L1034" title="1 of 2 branches missed.">        if (ppm != null) {</span>
+<span class="fc" id="L1035">            SubAllocator allocator = ppm.getSubAlloc();</span>
+<span class="pc bpc" id="L1036" title="1 of 2 branches missed.">            if (allocator != null) {</span>
+<span class="fc" id="L1037">                allocator.stopSubAllocator();</span>
+            }
+        }
+<span class="fc" id="L1040">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

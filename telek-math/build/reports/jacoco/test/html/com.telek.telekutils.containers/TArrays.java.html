@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TArrays.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekutils.containers</a> &gt; <span class="el_source">TArrays.java</span></div><h1>TArrays.java</h1><pre class="source lang-java linenums">package com.telek.telekutils.containers;
+
+
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekutils.arrayref.oned.FloatArrRef;
+import com.telek.telekutils.arrayref.oned.ArrayRef;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.IntStream;
+
+
+/**
+ * Utility methods revolving around arrays.
+ */
+public final class TArrays {
+
+    /* No Constructor */
+    private TArrays(){}
+
+
+    ////////////////////////////////
+    /////// COPYING METHODS ////////
+    ////////////////////////////////
+
+    public static int[] getCopyOf(int[] arrToCopy){
+<span class="fc" id="L28">        int size = arrToCopy.length;</span>
+<span class="fc" id="L29">        int[] newArray = new int[size];</span>
+<span class="fc" id="L30">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="fc" id="L31">        return newArray;</span>
+    }
+
+    public static float[] getCopyOf(float[] arrToCopy){
+<span class="fc" id="L35">        int size = arrToCopy.length;</span>
+<span class="fc" id="L36">        float[] newArray = new float[size];</span>
+<span class="fc" id="L37">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="fc" id="L38">        return newArray;</span>
+    }
+
+    public static long[] getCopyOf(long[] arrToCopy){
+<span class="fc" id="L42">        int size = arrToCopy.length;</span>
+<span class="fc" id="L43">        long[] newArray = new long[size];</span>
+<span class="fc" id="L44">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="fc" id="L45">        return newArray;</span>
+    }
+
+    public static short[] getCopyOf(short[] arrToCopy){
+<span class="nc" id="L49">        int size = arrToCopy.length;</span>
+<span class="nc" id="L50">        short[] newArray = new short[size];</span>
+<span class="nc" id="L51">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="nc" id="L52">        return newArray;</span>
+    }
+
+    public static byte[] getCopyOf(byte[] arrToCopy){
+<span class="nc" id="L56">        int size = arrToCopy.length;</span>
+<span class="nc" id="L57">        byte[] newArray = new byte[size];</span>
+<span class="nc" id="L58">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="nc" id="L59">        return newArray;</span>
+    }
+
+    public static double[] getCopyOf(double[] arrToCopy){
+<span class="fc" id="L63">        int size = arrToCopy.length;</span>
+<span class="fc" id="L64">        double[] newArray = new double[size];</span>
+<span class="fc" id="L65">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="fc" id="L66">        return newArray;</span>
+    }
+
+    public static Number[] getCopyOf(Number[] arrToCopy){
+<span class="nc" id="L70">        int size = arrToCopy.length;</span>
+<span class="nc" id="L71">        Number[] newArray = new Number[size];</span>
+<span class="nc" id="L72">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="nc" id="L73">        return newArray;</span>
+    }
+
+    public static &lt;T&gt; T[] getCopyOf(T[] arrToCopy, Class&lt;T&gt; clazz){
+<span class="fc" id="L77">        int size = arrToCopy.length;</span>
+<span class="fc" id="L78">        T[] newArray = (T[]) Array.newInstance(clazz, size);</span>
+<span class="fc" id="L79">        System.arraycopy(arrToCopy, 0, newArray, 0, size);</span>
+<span class="fc" id="L80">        return newArray;</span>
+    }
+
+
+    public static int[][] getCopyOf(int[][] arrToCopy){
+<span class="fc" id="L85">        return Arrays.stream(arrToCopy).map(int[]::clone).toArray(int[][]::new);</span>
+    }
+
+    public static float[][] getCopyOf(float[][] arrToCopy){
+<span class="fc" id="L89">        return Arrays.stream(arrToCopy).map(float[]::clone).toArray(float[][]::new);</span>
+    }
+
+    public static Number[][] getCopyOf(Number[][] arrToCopy){
+<span class="fc" id="L93">        return Arrays.stream(arrToCopy).map(Number[]::clone).toArray(Number[][]::new);</span>
+    }
+
+    public static double[][] getCopyOf(double[][] arrToCopy){
+<span class="fc" id="L97">        return Arrays.stream(arrToCopy).map(double[]::clone).toArray(double[][]::new);</span>
+    }
+
+
+    ///////////////////////////////////////
+    /////// CASTING ARRAYS METHODS ////////
+    ///////////////////////////////////////
+
+    public static double[] getCastedDoubleCopyOf(float[] arrToCast){
+<span class="fc" id="L106">        return IntStream.range(0, arrToCast.length).mapToDouble(i -&gt; arrToCast[i]).toArray();</span>
+    }
+
+    public static double[] getCastedDoubleCopyOf(int[] arrToCast){
+<span class="fc" id="L110">        return IntStream.range(0, arrToCast.length).mapToDouble(i -&gt; arrToCast[i]).toArray();</span>
+    }
+
+    public static double[] getCastedDoubleCopyOf(Number[] arrToCast){
+<span class="fc" id="L114">        return IntStream.range(0, arrToCast.length).mapToDouble(i -&gt; arrToCast[i].doubleValue()).toArray();</span>
+    }
+
+    public static double[][] getCastedDouble2CopyOf(float[][] arrToCast){
+<span class="fc" id="L118">        double[][] dArray = new double[arrToCast.length][arrToCast[0].length];</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (int row = 0; row &lt; dArray.length; row++) {</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">            for (int column = 0; column &lt; dArray[0].length; column++){</span>
+<span class="fc" id="L121">                dArray[row][column] = arrToCast[row][column];</span>
+            }
+        }
+<span class="fc" id="L124">        return dArray;</span>
+    }
+
+    public static double[][] getCastedDouble2CopyOf(int[][] arrToCast){
+<span class="fc" id="L128">        double[][] dArray = new double[arrToCast.length][arrToCast[0].length];</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for (int row = 0; row &lt; dArray.length; row++) {</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            for (int column = 0; column &lt; dArray[0].length; column++){</span>
+<span class="fc" id="L131">                dArray[row][column] = arrToCast[row][column];</span>
+            }
+        }
+<span class="fc" id="L134">        return dArray;</span>
+    }
+
+    public static double[][] getCastedDouble2CopyOf(Number[][] arrToCast){
+<span class="fc" id="L138">        double[][] dArray = new double[arrToCast.length][arrToCast[0].length];</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (int row = 0; row &lt; dArray.length; row++) {</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            for (int column = 0; column &lt; dArray[0].length; column++){</span>
+<span class="fc" id="L141">                dArray[row][column] = arrToCast[row][column].doubleValue();</span>
+            }
+        }
+<span class="fc" id="L144">        return dArray;</span>
+    }
+
+
+    ///////////////////////////////////////
+    /////// PRINTING ARRAY METHODS ////////
+    ///////////////////////////////////////
+
+<span class="nc" id="L152">    public static String toString(double[] arr){return Arrays.toString(arr);}</span>
+<span class="nc" id="L153">    public static String toString(float[] arr){return Arrays.toString(arr);}</span>
+<span class="nc" id="L154">    public static String toString(int[] arr){return Arrays.toString(arr);}</span>
+<span class="nc" id="L155">    public static String toString(long[] arr){return Arrays.toString(arr);}</span>
+<span class="nc" id="L156">    public static String toString(byte[] arr){return Arrays.toString(arr);}</span>
+<span class="nc" id="L157">    public static String toString(short[] arr){return Arrays.toString(arr);}</span>
+<span class="nc" id="L158">    public static String toString(Number[] arr){return Arrays.toString(arr);}</span>
+
+<span class="nc" id="L160">    public static String toString(double[][] arr){return Arrays.deepToString(arr);}</span>
+<span class="nc" id="L161">    public static String toString(float[][] arr){return Arrays.deepToString(arr);}</span>
+<span class="nc" id="L162">    public static String toString(int[][] arr){return Arrays.deepToString(arr);}</span>
+<span class="nc" id="L163">    public static String toString(long[][] arr){return Arrays.deepToString(arr);}</span>
+<span class="nc" id="L164">    public static String toString(byte[][] arr){return Arrays.deepToString(arr);}</span>
+<span class="nc" id="L165">    public static String toString(short[][] arr){return Arrays.deepToString(arr);}</span>
+<span class="nc" id="L166">    public static String toString(Number[][] arr){return Arrays.deepToString(arr);}</span>
+
+
+
+    ////////////////////////////////////
+    /////// SORT &amp; COPY METHODS ////////
+    ////////////////////////////////////
+
+
+    public static &lt;T&gt; T[] getSortedCopy(T[] arrToCopyAndSort, Class&lt;T&gt; clazz, Comparator&lt;T&gt; comparator){
+<span class="fc" id="L176">        T[] newArray = getCopyOf(arrToCopyAndSort, clazz);</span>
+<span class="fc" id="L177">        Arrays.sort(newArray, comparator);</span>
+<span class="fc" id="L178">        return newArray;</span>
+    }
+
+    public static int[] getSortedCopy(int[] arrToCopyAndSort){
+<span class="fc" id="L182">        int[] newArray = getCopyOf(arrToCopyAndSort);</span>
+<span class="fc" id="L183">        Arrays.sort(newArray);</span>
+<span class="fc" id="L184">        return newArray;</span>
+    }
+
+    public static float[] getSortedCopy(float[] arrToCopyAndSort){
+<span class="fc" id="L188">        float[] newArray = getCopyOf(arrToCopyAndSort);</span>
+<span class="fc" id="L189">        Arrays.sort(newArray);</span>
+<span class="fc" id="L190">        return newArray;</span>
+    }
+
+    public static double[] getSortedCopy(double[] arrToCopyAndSort){
+<span class="fc" id="L194">        double[] newArray = getCopyOf(arrToCopyAndSort);</span>
+<span class="fc" id="L195">        Arrays.sort(newArray);</span>
+<span class="fc" id="L196">        return newArray;</span>
+    }
+
+    public static long[] getSortedCopy(long[] arrToCopyAndSort){
+<span class="fc" id="L200">        long[] newArray = getCopyOf(arrToCopyAndSort);</span>
+<span class="fc" id="L201">        Arrays.sort(newArray);</span>
+<span class="fc" id="L202">        return newArray;</span>
+    }
+
+    public static byte[] getSortedCopy(byte[] arrToCopyAndSort){
+<span class="nc" id="L206">        byte[] newArray = getCopyOf(arrToCopyAndSort);</span>
+<span class="nc" id="L207">        Arrays.sort(newArray);</span>
+<span class="nc" id="L208">        return newArray;</span>
+    }
+
+    public static short[] getSortedCopy(short[] arrToCopyAndSort){
+<span class="nc" id="L212">        short[] newArray = getCopyOf(arrToCopyAndSort);</span>
+<span class="nc" id="L213">        Arrays.sort(newArray);</span>
+<span class="nc" id="L214">        return newArray;</span>
+    }
+
+
+    ////////////////////////////////////
+    ///// ARRAY CREATION METHODS //////
+    ////////////////////////////////////
+
+
+    public static double[] doubleArr(double... nums){
+<span class="fc" id="L224">        double[] arrToReturn = new double[nums.length];</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        for(int i = 0; i &lt; nums.length; i++) arrToReturn[i] = nums[i];</span>
+<span class="fc" id="L226">        return arrToReturn;</span>
+    }
+
+    public static int[] intArr(int... nums){
+<span class="fc" id="L230">        int[] arrToReturn = new int[nums.length];</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        for(int i = 0; i &lt; nums.length; i++)</span>
+<span class="fc" id="L232">            arrToReturn[i] = nums[i];</span>
+<span class="fc" id="L233">        return arrToReturn;</span>
+    }
+
+    public static float[] floatArr(float... nums){
+<span class="fc" id="L237">        float[] arrToReturn = new float[nums.length];</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        for(int i = 0; i &lt; nums.length; i++)</span>
+<span class="fc" id="L239">            arrToReturn[i] = nums[i];</span>
+<span class="fc" id="L240">        return arrToReturn;</span>
+    }
+
+    public static double[][] doubleArr2(double[]... numArrays){
+<span class="nc" id="L244">        double[][] arrToReturn = new double[numArrays.length][numArrays.length];</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        for(int i = 0; i &lt; numArrays.length; i++)</span>
+<span class="nc" id="L246">            arrToReturn[i] = numArrays[i];</span>
+<span class="nc" id="L247">        return arrToReturn;</span>
+    }
+
+    public static int[][] intArr2(int[]... numArrays){
+<span class="nc" id="L251">        int[][] arrToReturn = new int[numArrays.length][numArrays.length];</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        for(int i = 0; i &lt; numArrays.length; i++)</span>
+<span class="nc" id="L253">            arrToReturn[i] = numArrays[i];</span>
+<span class="nc" id="L254">        return arrToReturn;</span>
+    }
+
+
+    /**
+     * @param start first value (inclusive)
+     * @param end last value (inclusive)
+     * @param elemCountIncludingBothEnds element count (size of the array)
+     * @return an array in form start, start+delta, start+2delta, ..., end
+     */
+    public static double[] linearlySpacedArr(double start, double end, int elemCountIncludingBothEnds){
+<span class="nc" id="L265">        double min = Math.min(start, end);</span>
+<span class="nc" id="L266">        double max = Math.max(start, end);</span>
+<span class="nc" id="L267">        int elemCount = Math.abs(elemCountIncludingBothEnds - 2);</span>
+
+<span class="nc" id="L269">        int len = 2 + elemCount;</span>
+<span class="nc" id="L270">        double[] arr = new double[len];</span>
+
+<span class="nc" id="L272">        final double range = max - min;</span>
+<span class="nc" id="L273">        final double delta = range / (double) (len-1);</span>
+
+<span class="nc" id="L275">        arr[0] = min; // first elem</span>
+<span class="nc" id="L276">        arr[len-1] = max; // last elem</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">        for (int i = 1; i &lt; len-1; i++) { // elems in the middle</span>
+<span class="nc" id="L278">            arr[i] = min + i * delta;</span>
+        }
+
+<span class="nc" id="L281">        return arr;</span>
+    }
+
+
+    /**
+     * @param start first value (inclusive)
+     * @param end last value (inclusive)
+     * @param step increment value
+     * @return an array containing start, start+step, start+2step, ...
+     */
+    public static double[] doubleArr(double start, double end, double step){
+<span class="nc" id="L292">        double min = Math.min(start, end);</span>
+<span class="nc" id="L293">        double max = Math.max(start, end);</span>
+<span class="nc" id="L294">        double inc = Math.abs(step);</span>
+
+<span class="nc" id="L296">        int len = 1 + (int) ((max - min) / inc);</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        if(TMath.areEqual((min + len * inc), max))</span>
+<span class="nc" id="L298">            len++; // make end inclusive for doubles</span>
+
+<span class="nc" id="L300">        double[] arr = new double[len];</span>
+
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        for (int i = 0; i &lt; len; i++)</span>
+<span class="nc" id="L303">            arr[i] = min + i * inc;</span>
+
+<span class="nc" id="L305">        return arr;</span>
+    }
+
+
+    /**
+     * @param start first value (inclusive)
+     * @param end last value (inclusive)
+     * @param step increment value
+     * @return an array containing start, start+step, start+2step, ...
+     */
+    public static int[] intArr(int start, int end, int step){
+<span class="nc" id="L316">        int min = Math.min(start, end);</span>
+<span class="nc" id="L317">        int max = Math.max(start, end);</span>
+<span class="nc" id="L318">        int inc = Math.abs(step);</span>
+
+<span class="nc" id="L320">        int len = 1 + ((max - min) / inc);</span>
+<span class="nc" id="L321">        int[] arr = new int[len];</span>
+
+<span class="nc bnc" id="L323" title="All 2 branches missed.">        for (int i = 0; i &lt; len; i++)</span>
+<span class="nc" id="L324">            arr[i] = min + i * inc;</span>
+
+<span class="nc" id="L326">        return arr;</span>
+    }
+
+    public static double[] doubleFilledArr(int size, double fillValue){
+<span class="fc" id="L330">        double[] arrToReturn = new double[size];</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">        for(int i = 0; i &lt; size; i++)</span>
+<span class="fc" id="L332">            arrToReturn[i] = fillValue;</span>
+<span class="fc" id="L333">        return arrToReturn;</span>
+    }
+
+    public static int[] intFilledArr(int size, int fillValue){
+<span class="nc" id="L337">        int[] arrToReturn = new int[size];</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">        for(int i = 0; i &lt; size; i++)</span>
+<span class="nc" id="L339">            arrToReturn[i] = fillValue;</span>
+<span class="nc" id="L340">        return arrToReturn;</span>
+    }
+
+
+
+
+    /////////////////////////////////
+    ///// MATHEMATICAL METHODS //////
+    /////////////////////////////////
+
+
+    public static boolean areEqual(double[] arr1, double[] arr2){
+<span class="nc" id="L352">        return Arrays.equals(arr1, arr2);</span>
+    }
+
+    public static boolean areEqual(int[] arr1, int[] arr2){
+<span class="nc" id="L356">        return Arrays.equals(arr1, arr2);</span>
+    }
+
+    public static boolean areEqual(float[] arr1, float[] arr2){
+<span class="nc" id="L360">        return Arrays.equals(arr1, arr2);</span>
+    }
+
+    public static boolean areEqual(long[] arr1, long[] arr2){
+<span class="nc" id="L364">        return Arrays.equals(arr1, arr2);</span>
+    }
+
+
+
+    ////////////////////////////////
+    /////// UTILITY METHODS ////////
+    ////////////////////////////////
+
+
+    public static long getMax(long[] array){
+<span class="nc" id="L375">        return Arrays.stream(array).max().getAsLong();</span>
+    }
+
+    public static int getMax(int[] array){
+<span class="nc" id="L379">        return Arrays.stream(array).max().getAsInt();</span>
+    }
+
+    public static double getMax(double[] array){
+<span class="nc" id="L383">        return Arrays.stream(array).max().getAsDouble();</span>
+    }
+
+    public static double getMax(Number[] array){
+<span class="nc" id="L387">        return Arrays.stream(array).max((o1, o2) -&gt; (int) (o1.doubleValue() - o2.doubleValue())).get().doubleValue();</span>
+    }
+
+    public static double getMax(ArrayRef array){
+<span class="fc" id="L391">        double max = array.getValue(0);</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">        for (int i = 1; i &lt; array.getSize(); i++) {</span>
+<span class="fc" id="L393">            double curValue = array.getValue(i);</span>
+<span class="fc bfc" id="L394" title="All 2 branches covered.">            if(curValue &gt; max) max = curValue;</span>
+        }
+<span class="fc" id="L396">        return max;</span>
+    }
+
+
+    public static float getMax(float[] array){
+<span class="nc" id="L401">        return (float) getMax(new FloatArrRef(array));</span>
+    }
+
+
+    // O(n)
+    public static double getMin(ArrayRef array){
+<span class="fc" id="L407">        double min = array.getValue(0);</span>
+<span class="fc bfc" id="L408" title="All 2 branches covered.">        for (int i = 1; i &lt; array.getSize(); i++) {</span>
+<span class="fc" id="L409">            double curValue = array.getValue(i);</span>
+<span class="fc bfc" id="L410" title="All 2 branches covered.">            if(curValue &lt; min)</span>
+<span class="fc" id="L411">                min = curValue;</span>
+        }
+<span class="fc" id="L413">        return min;</span>
+    }
+
+    public static float getMin(float[] array){
+<span class="nc" id="L417">        return (float) getMin(new FloatArrRef(array));</span>
+    }
+
+    public static long getMin(long[] array){
+<span class="nc" id="L421">        return Arrays.stream(array).min().getAsLong();</span>
+    }
+
+    public static int getMin(int[] array){
+<span class="nc" id="L425">        return Arrays.stream(array).min().getAsInt();</span>
+    }
+
+    public static double getMin(double[] array){
+<span class="nc" id="L429">        return Arrays.stream(array).min().getAsDouble();</span>
+    }
+
+    public static double getMin(Number[] array){
+<span class="nc" id="L433">        return Arrays.stream(array).min((o1, o2) -&gt; (int) (o1.doubleValue() - o2.doubleValue())).get().doubleValue();</span>
+    }
+
+
+
+    /////////////////////////////////////////
+    /////// ARRAY CONVERSION METHODS ////////
+    /////////////////////////////////////////
+
+
+    /**
+     * Changing anything in the Integer[] array WILL change stuff in the int[]
+     * @param arr any array
+     * @return that array in class form
+     */
+    public static Integer[] getAsClassArray(int[] arr){
+<span class="fc" id="L449">        return Arrays.stream(arr).boxed().toArray(Integer[]::new);</span>
+    }
+
+
+
+    /**
+     * Changing anything in the Long[] array WILL change stuff in the long[]
+     * @param arr any array
+     * @return that array in class form
+     */
+    public static Long[] getAsClassArray(long[] arr){
+<span class="fc" id="L460">        return Arrays.stream(arr).boxed().toArray(Long[]::new);</span>
+    }
+
+
+    /**
+     * Changing anything in the Double[] array WILL change stuff in the double[]
+     * @param arr any array
+     * @return that array in class form
+     */
+    public static Double[] getAsClassArray(double[] arr){
+<span class="fc" id="L470">        return Arrays.stream(arr).boxed().toArray(Double[]::new);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WiggleSortII.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.sort.advanced.wave</a> &gt; <span class="el_source">WiggleSortII.java</span></div><h1>WiggleSortII.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.sort.advanced.wave;
+
+import static com.sl.algorithms.core.utils.ArrayOps.swap;
+
+import com.sl.algorithms.core.interfaces.select.MedianFinder;
+import com.sl.algorithms.core.interfaces.select.QuickSelect;
+import com.sl.algorithms.core.interfaces.sort.SortingEngine;
+import com.sl.algorithms.core.list.ListNode;
+import com.sl.algorithms.search.median.QuickSelectMedianFinder;
+import com.sl.algorithms.sort.finitegroups.DutchNationalFlagSort;
+
+/**
+ * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/wiggle-sort-ii/description/&quot;&gt;Reference&lt;/a&gt;&lt;br&gt;
+ *
+ * @see QuickSelect
+ * @see DutchNationalFlagSort
+ */
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L19">public class WiggleSortII&lt;T extends Comparable&gt; implements SortingEngine&lt;T&gt; {</span>
+
+<span class="fc" id="L21">  private static final MedianFinder medianFinder = new QuickSelectMedianFinder&lt;&gt;();</span>
+
+  @Override
+  public void sort(T[] A) {
+<span class="fc" id="L25">    checkArray(A);</span>
+<span class="fc" id="L26">    int n = A.length;</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">    if (n &lt; 2) {</span>
+<span class="fc" id="L28">      return;</span>
+    }
+<span class="fc" id="L30">    Comparable M = medianFinder.findMedian(A);</span>
+<span class="fc" id="L31">    int r = 0, w = n - 1, b = n - 1;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    while (w &gt;= r) {</span>
+<span class="fc" id="L33">      T obj = A[index(w, n)];</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">      if (obj.compareTo(M) &gt; 0) { // because the requirement is num1 &lt; num2 &gt; num3</span>
+<span class="fc" id="L35">        swap(A, index(r, n), index(w, n));</span>
+<span class="fc" id="L36">        r++;</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">      } else if (obj.compareTo(M) &lt; 0) {</span>
+<span class="fc" id="L38">        swap(A, index(b, n), index(w, n));</span>
+<span class="fc" id="L39">        b--;</span>
+<span class="fc" id="L40">        w--;</span>
+      } else {
+<span class="fc" id="L42">        w--;</span>
+      }
+<span class="fc" id="L44">    }</span>
+<span class="fc" id="L45">  }</span>
+
+  private int index(int index, int n) {
+<span class="fc" id="L48">    return (1 + 2 * index) % (n | 1);</span>
+  }
+
+  @Override
+  public ListNode&lt;T&gt; sortList(ListNode&lt;T&gt; head) {
+<span class="fc" id="L53">    throw new UnsupportedOperationException();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

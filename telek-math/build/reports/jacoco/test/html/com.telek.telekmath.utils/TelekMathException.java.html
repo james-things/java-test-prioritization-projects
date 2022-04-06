@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TelekMathException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.utils</a> &gt; <span class="el_source">TelekMathException.java</span></div><h1>TelekMathException.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.utils;
+
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.core.geometry.TLine2D;
+
+
+public final class TelekMathException extends RuntimeException {
+
+
+    public TelekMathException(String message) {
+<span class="nc" id="L11">        super(message);</span>
+<span class="nc" id="L12">    }</span>
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class EqualBoundsException extends RuntimeException {
+        public EqualBoundsException() {
+<span class="fc" id="L19">            super(&quot;Left bound of a range can't be greater or equal to the right bound.&quot;);</span>
+<span class="fc" id="L20">        }</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class IsNegativeException extends RuntimeException {
+
+        public IsNegativeException(String varName) {
+<span class="nc" id="L29">            super(String.format(&quot;%s can't be negative&quot;, varName));</span>
+<span class="nc" id="L30">        }</span>
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class UnsupportedDistributionTypeString extends RuntimeException {
+        public UnsupportedDistributionTypeString() {
+<span class="nc" id="L39">            super(&quot;Your distType string should be one of these: \&quot;uniform\&quot;, \&quot;poisson\&quot;, \&quot;normal\&quot;&quot;);</span>
+<span class="nc" id="L40">        }</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class ExpectedValueAssumptionException extends RuntimeException {
+        public ExpectedValueAssumptionException(double val) {
+<span class="nc" id="L48">            super(&quot;All expected values must be higher than 5, your value is: &quot; + val);</span>
+<span class="nc" id="L49">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class NotEqualArrayLengthException extends RuntimeException {
+        public NotEqualArrayLengthException(String arrayName, String otherThingLengthName) {
+<span class="nc" id="L56">            super(String.format(&quot;Your %s array's length should be equal to %s's length&quot;,</span>
+                    arrayName, otherThingLengthName));
+<span class="nc" id="L58">        }</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class SampleSizeIsGreaterThanPopulationSizeException extends RuntimeException {
+
+        public SampleSizeIsGreaterThanPopulationSizeException() {
+<span class="nc" id="L67">            super(&quot;Sample size has to be less than population size.&quot;);</span>
+<span class="nc" id="L68">        }</span>
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class NotEqualKeyAndValueException extends RuntimeException {
+
+        public NotEqualKeyAndValueException() {
+<span class="nc" id="L77">            super(&quot;Number of keys and values aren't equal&quot;);</span>
+<span class="nc" id="L78">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class NotGreaterThanZeroException extends RuntimeException {
+
+        public NotGreaterThanZeroException(String fieldStr) {
+<span class="nc" id="L86">            super(fieldStr + &quot; value has to be greater than zero.&quot;);</span>
+<span class="nc" id="L87">        }</span>
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class NotGreaterThanNException extends RuntimeException {
+        public NotGreaterThanNException(String fieldStr, String valStr) {
+<span class="nc" id="L95">            super(fieldStr + &quot; is not greater than &quot; + valStr);</span>
+<span class="nc" id="L96">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class LinesAreNotParallelException extends RuntimeException {
+
+        public LinesAreNotParallelException(TLine2D line1, TLine2D line2) {
+<span class="nc" id="L104">            super(&quot;These lines aren't parallel to each other: &quot; + line1.toString() + &quot; , &quot; + line2.toString());</span>
+<span class="nc" id="L105">        }</span>
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class MatricesCantBeMultipliedException extends RuntimeException {
+
+        public MatricesCantBeMultipliedException(int m1Col, int m2Row) {
+<span class="nc" id="L115">            super(String.format(</span>
+                    &quot;These matrices can't be multiplied because first matrix's column size isn't equal to &quot; +
+<span class="nc" id="L117">                            &quot;the second matrix's row size, %d != %d&quot;, m1Col, m2Row</span>
+            ));
+<span class="nc" id="L119">        }</span>
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class DifferentMatrixDimensionException extends RuntimeException {
+        public DifferentMatrixDimensionException() {
+<span class="nc" id="L127">            super(&quot;Both matrices must have the same dimension.&quot;);</span>
+<span class="nc" id="L128">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class UnnecessaryZeroException extends RuntimeException {
+        public UnnecessaryZeroException() {
+<span class="nc" id="L135">            super(&quot;Your array has an unnecessary 0 at the end.&quot;);</span>
+<span class="nc" id="L136">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class HasNonLetterCharactersException extends RuntimeException {
+        public HasNonLetterCharactersException() {
+<span class="nc" id="L143">            super(&quot;Write the code without non-letter characters&quot;);</span>
+<span class="nc" id="L144">        }</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class NotASquareMatrixException extends RuntimeException {
+        public NotASquareMatrixException() {
+<span class="fc" id="L152">            super(&quot;This matrix is not a square matrix.&quot;);</span>
+<span class="fc" id="L153">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class PermutationException extends RuntimeException {
+        public PermutationException(int n, int r) {
+<span class="nc" id="L160">            super(String.format(&quot;Invalid values for permutation for perm(%d,%d)&quot;, n, r));</span>
+<span class="nc" id="L161">        }</span>
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class CombinationException extends RuntimeException {
+        public CombinationException(int n, int r) {
+<span class="nc" id="L167">            super(String.format(&quot;Invalid values for combination for comb(%d,%d)&quot;, n, r));</span>
+<span class="nc" id="L168">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class RepeatedCombinationException extends RuntimeException {
+        public RepeatedCombinationException(int n, int r) {
+<span class="nc" id="L175">            super(String.format(&quot;Invalid values for repeated combination for comb(%d,%d)&quot;, n, r));</span>
+<span class="nc" id="L176">        }</span>
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class DivisionByZeroException extends RuntimeException {
+        public DivisionByZeroException() {
+<span class="nc" id="L183">            super(&quot;You can't divide by zero.&quot;);</span>
+<span class="nc" id="L184">        }</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class VigenereCipherException extends RuntimeException {
+        public VigenereCipherException() {
+<span class="nc" id="L192">            super(&quot;Invalid key, try entering a one-word key that is shorter than the text&quot;);</span>
+<span class="nc" id="L193">        }</span>
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class InvalidBaseException extends RuntimeException {
+        public InvalidBaseException() {
+<span class="nc" id="L202">            super(&quot;Base of a logarithm must be greater than 0 and not equal to 1&quot;);</span>
+<span class="nc" id="L203">        }</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class RepeatedPermutationException extends IllegalArgumentException {
+
+        public RepeatedPermutationException(int n, int... rValues){
+<span class="nc" id="L212">            super( getErrString(n, rValues) );</span>
+<span class="nc" id="L213">        }</span>
+
+        private static String getErrString(int n, int... rValues){
+<span class="nc" id="L216">            StringBuilder sbError = new StringBuilder( String.format(&quot;Invalid values for repeated permutation for perm(%d,&quot;, n) );</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            for(int i = 0; i &lt; rValues.length; i++) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                if(i+1 == rValues.length) sbError.append(rValues[i] + &quot;)&quot;);</span>
+<span class="nc" id="L219">                else sbError.append(rValues[i] + &quot;,&quot;);</span>
+            }
+<span class="nc" id="L221">            return sbError.toString();</span>
+        }
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public static class NotInRangeException extends RuntimeException {
+
+        public NotInRangeException(TRange range, double value) {
+<span class="nc" id="L232">            super(&quot;The value &quot; + value + &quot; is not in the range: &quot; + range.toString());</span>
+<span class="nc" id="L233">        }</span>
+
+        public NotInRangeException(TRange range, int value) {
+<span class="nc" id="L236">            super(&quot;The value &quot; + value + &quot; is not in the range: &quot; + range.toString());</span>
+<span class="nc" id="L237">        }</span>
+
+        public NotInRangeException(TRange range, float value) {
+<span class="nc" id="L240">            super(&quot;The value &quot; + value + &quot; is not in the range: &quot; + range.toString());</span>
+<span class="nc" id="L241">        }</span>
+
+        public NotInRangeException(TRange range, long value) {
+<span class="nc" id="L244">            super(&quot;The value &quot; + value + &quot; is not in the range: &quot; + range.toString());</span>
+<span class="nc" id="L245">        }</span>
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class NotAMultiplyOfNException extends RuntimeException {
+
+        public NotAMultiplyOfNException(String fieldStr, int value) {
+<span class="nc" id="L254">            super(fieldStr + &quot; isn't a multiply of &quot; + value + &quot; (like &quot; + value + &quot;n)&quot;);</span>
+<span class="nc" id="L255">        }</span>
+
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class InvalidSignStringException extends RuntimeException {
+
+        public InvalidSignStringException() {
+<span class="nc" id="L264">            super(&quot;The signStr parameter should be &gt;=, &lt;= or =&quot;);</span>
+<span class="nc" id="L265">        }</span>
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static class InvalidValueException extends IllegalArgumentException{
+
+        public InvalidValueException(String fieldStr, double value) {
+<span class="nc" id="L275">            super(&quot;Invalid value for &quot; + fieldStr + &quot; = &quot; + value);</span>
+<span class="nc" id="L276">        }</span>
+
+        public InvalidValueException(String fieldStr, float value) {
+<span class="nc" id="L279">            super(&quot;Invalid value for &quot; + fieldStr + &quot; = &quot; + value);</span>
+<span class="nc" id="L280">        }</span>
+
+        public InvalidValueException(String fieldStr, int value) {
+<span class="nc" id="L283">            super(&quot;Invalid value for &quot; + fieldStr + &quot; = &quot; + value);</span>
+<span class="nc" id="L284">        }</span>
+
+        public InvalidValueException(String fieldStr, long value) {
+<span class="nc" id="L287">            super(&quot;Invalid value for &quot; + fieldStr + &quot; = &quot; + value);</span>
+<span class="nc" id="L288">        }</span>
+
+        public InvalidValueException(String fieldStr) {
+<span class="nc" id="L291">            super(&quot;Invalid value for &quot; + fieldStr + &quot; = &quot; + &quot;null&quot;);</span>
+<span class="nc" id="L292">        }</span>
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Used to get rid of compiler errors, this is not an actual exception.
+     */
+    public static class ThisLineIsNeverExecutedException extends RuntimeException {
+
+        public ThisLineIsNeverExecutedException() {
+<span class="nc" id="L306">            super(&quot;An unexpected error has occured&quot;);</span>
+<span class="nc" id="L307">        }</span>
+
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public static class WrongFunctionException extends IllegalArgumentException{
+
+        public WrongFunctionException(String theValue, String forValue, String cantBeValue) {
+<span class="nc" id="L319">            super(theValue + &quot; value for &quot; + forValue + &quot; can't be &quot; + cantBeValue</span>
+                    + &quot;, use TConstantFunc for constant functions.&quot;);
+<span class="nc" id="L321">        }</span>
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

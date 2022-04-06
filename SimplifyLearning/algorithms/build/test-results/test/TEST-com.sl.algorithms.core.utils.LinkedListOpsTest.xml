@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.core.utils.LinkedListOpsTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:32" hostname="LAPTOP-0DNPIBQS" time="0.007">
+  <properties/>
+  <testcase name="testRemoveDataByPosition" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.006"/>
+  <testcase name="testRemoveDuplicates" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.0"/>
+  <testcase name="testIsPalindrome" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.0"/>
+  <testcase name="testRemoveData" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.0"/>
+  <testcase name="testInsertOp" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.001"/>
+  <testcase name="testReorderList" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.0"/>
+  <testcase name="testCreateLinkedList" classname="com.sl.algorithms.core.utils.LinkedListOpsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

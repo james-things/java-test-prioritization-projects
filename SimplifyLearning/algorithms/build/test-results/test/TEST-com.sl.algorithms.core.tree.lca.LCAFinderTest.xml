@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.core.tree.lca.LCAFinderTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:32" hostname="LAPTOP-0DNPIBQS" time="0.008">
+  <properties/>
+  <testcase name="assertLCARecursive" classname="com.sl.algorithms.core.tree.lca.LCAFinderTest" time="0.005"/>
+  <testcase name="assertLCAIterative" classname="com.sl.algorithms.core.tree.lca.LCAFinderTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

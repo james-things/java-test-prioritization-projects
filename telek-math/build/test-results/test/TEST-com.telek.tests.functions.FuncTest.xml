@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.telek.tests.functions.FuncTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-03-31T14:11:58" hostname="LAPTOP-0DNPIBQS" time="0.03">
+  <properties/>
+  <testcase name="amnTest" classname="com.telek.tests.functions.FuncTest" time="0.016"/>
+  <testcase name="tfunctionTest" classname="com.telek.tests.functions.FuncTest" time="0.013"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

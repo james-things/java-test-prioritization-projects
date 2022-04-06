@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ArrayOps.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.utils</a> &gt; <span class="el_source">ArrayOps.java</span></div><h1>ArrayOps.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.utils;
+
+import com.sl.algorithms.core.interfaces.base.Constants;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class ArrayOps implements Constants {
+
+<span class="fc" id="L10">  ArrayOps() {</span>
+    /*
+     * This is a utility class.&lt;br&gt;
+     */
+<span class="fc" id="L14">  }</span>
+
+  public static &lt;T extends Comparable&gt; void swap(T[] objects, int i, int j) {
+<span class="fc bfc" id="L17" title="All 2 branches covered.">    if (i == j) {</span>
+<span class="fc" id="L18">      return; // important</span>
+    }
+<span class="fc" id="L20">    T temp = objects[i];</span>
+<span class="fc" id="L21">    objects[i] = objects[j];</span>
+<span class="fc" id="L22">    objects[j] = temp;</span>
+<span class="fc" id="L23">  }</span>
+
+  public static void swap(int[] nums, int i, int j) {
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">    if (i == j) {</span>
+<span class="nc" id="L27">      return; // important</span>
+    }
+<span class="fc" id="L29">    int temp = nums[i];</span>
+<span class="fc" id="L30">    nums[i] = nums[j];</span>
+<span class="fc" id="L31">    nums[j] = temp;</span>
+<span class="fc" id="L32">  }</span>
+
+  public static &lt;T extends Comparable&gt; void swapInBlocks(T[] a, int i1, int i2, int n) {
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L36">      T temp = a[i1 + i];</span>
+<span class="fc" id="L37">      a[i1 + i] = a[i2 + i];</span>
+<span class="fc" id="L38">      a[i2 + i] = temp;</span>
+    }
+<span class="fc" id="L40">  }</span>
+
+  public static &lt;T extends Comparable&gt; void reverse(T[] objects) {
+    // O(n) time and O(1) space
+<span class="fc" id="L44">    reverse(objects, 0, objects.length - 1);</span>
+<span class="fc" id="L45">  }</span>
+
+  public static &lt;T extends Comparable&gt; void reverse(T[] objects, int start, int end) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    while (start &lt; end) {</span>
+<span class="fc" id="L49">      swap(objects, start++, end--);</span>
+    }
+<span class="fc" id="L51">  }</span>
+
+  public static void reverse(int[] nums) {
+<span class="fc" id="L54">    reverse(nums, 0, nums.length - 1);</span>
+<span class="fc" id="L55">  }</span>
+
+  public static void reverse(int[] nums, int start, int end) {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    while (start &lt; end) {</span>
+<span class="fc" id="L59">      swap(nums, start++, end--);</span>
+    }
+<span class="fc" id="L61">  }</span>
+
+  //O(n)
+  public static &lt;T&gt; String printArray(T[] objects) {
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">    if (objects == null || objects.length == 0) {</span>
+<span class="fc" id="L66">      return &quot;[]&quot;;</span>
+    }
+<span class="fc" id="L68">    int l = objects.length;</span>
+<span class="fc" id="L69">    StringBuilder output = new StringBuilder(&quot;[&quot;);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    for (int i = 0; i &lt; l - 1; i++) {</span>
+<span class="fc" id="L71">      output = output.append(objects[i]).append(DELIMITER_COMMA);</span>
+    }
+<span class="fc" id="L73">    output.append(objects[l - 1]).append(&quot;]&quot;);</span>
+<span class="fc" id="L74">    return output.toString();</span>
+  }
+
+  public static String printArray(int[] nums) {
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">    if (nums == null || nums.length == 0) {</span>
+<span class="nc" id="L79">      return &quot;[]&quot;;</span>
+    }
+<span class="fc" id="L81">    int l = nums.length;</span>
+<span class="fc" id="L82">    StringBuilder output = new StringBuilder(&quot;[&quot;);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">    for (int i = 0; i &lt; l - 1; i++) {</span>
+<span class="fc" id="L84">      output = output.append(nums[i]).append(DELIMITER_COMMA);</span>
+    }
+<span class="fc" id="L86">    output.append(nums[l - 1]).append(&quot;]&quot;);</span>
+<span class="fc" id="L87">    return output.toString();</span>
+  }
+
+  // O(nlog(n))
+  public static &lt;T&gt; boolean haveSameData(T[] nums1, T[] nums2) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">    if (nums1.length != nums2.length) {</span>
+<span class="fc" id="L93">      return false;</span>
+    }
+<span class="fc" id="L95">    Arrays.sort(nums1);</span>
+<span class="fc" id="L96">    Arrays.sort(nums2);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">    for (int i = 0; i &lt; nums1.length; i++) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">      if (nums1[i] != nums2[i]) {</span>
+<span class="fc" id="L99">        return false;</span>
+      }
+    }
+<span class="fc" id="L102">    return true;</span>
+  }
+
+  public static &lt;T&gt; boolean haveSameDataBasedOnList(T[] nums1, T[] nums2) {
+<span class="fc" id="L106">    return haveSameData(new ArrayList&lt;&gt;(Arrays.asList(nums1)),</span>
+<span class="fc" id="L107">        new ArrayList&lt;&gt;(Arrays.asList(nums2)));</span>
+  }
+
+  public static &lt;T&gt; boolean haveSameData(List&lt;T&gt; list1, List&lt;T&gt; list2) {
+<span class="fc" id="L111">    List&lt;T&gt; intersection = new ArrayList&lt;&gt;(list1);</span>
+<span class="fc" id="L112">    intersection.removeAll(list2);</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">    if (intersection.size() == 0) {</span>
+<span class="fc" id="L114">      intersection = new ArrayList&lt;&gt;(list2);</span>
+<span class="fc" id="L115">      intersection.removeAll(list1);</span>
+    }
+<span class="fc bfc" id="L117" title="All 2 branches covered.">    return (intersection.size() == 0);</span>
+  }
+
+  public static boolean isMountain(int[] nums) {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">    if (nums == null) {</span>
+<span class="fc" id="L122">      return false;</span>
+    }
+<span class="fc" id="L124">    int n = nums.length;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (n &lt; 3) {</span>
+<span class="fc" id="L126">      return false;</span>
+    }
+    //search for peak
+<span class="fc" id="L129">    int p = -1;</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">    for (int i = 1; i &lt; (n - 1); i++) {</span>
+<span class="fc bfc" id="L131" title="All 4 branches covered.">      if (nums[i - 1] &lt; nums[i] &amp;&amp; nums[i] &gt; nums[i + 1]) {</span>
+<span class="fc" id="L132">        p = i;</span>
+      }
+    }
+<span class="fc bfc" id="L135" title="All 2 branches covered.">    if (p == -1) {</span>
+<span class="fc" id="L136">      return false;</span>
+    }
+    //assert ascent
+<span class="fc bfc" id="L139" title="All 2 branches covered.">    for (int i = 0; i &lt; p; i++) {</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">      if (nums[i] &gt;= nums[i + 1]) {</span>
+<span class="fc" id="L141">        return false;</span>
+      }
+    }
+    //assert descent
+<span class="fc bfc" id="L145" title="All 2 branches covered.">    for (int i = p; i &lt; (n - 1); i++) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">      if (nums[i] &lt;= nums[i + 1]) {</span>
+<span class="fc" id="L147">        return false;</span>
+      }
+    }
+<span class="fc" id="L150">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

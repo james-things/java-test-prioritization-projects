@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GenericBinarySearch.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.search.binarysearch</a> &gt; <span class="el_source">GenericBinarySearch.java</span></div><h1>GenericBinarySearch.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.search.binarysearch;
+
+import com.sl.algorithms.core.interfaces.search.Search;
+import com.sl.algorithms.core.utils.Formulas;
+
+/**
+ * &lt;br&gt;Search object in a sorted (and rotated) list.&lt;br&gt; &lt;br&gt;&lt;u&gt;Related Problems&lt;/u&gt;: &lt;br&gt;&lt;a
+ * href=&quot;https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/&quot;&gt;Find
+ * Minimum in a Rotated Sorted Array&lt;/a&gt; &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/description/&quot;&gt;Find
+ * Minimum in a Rotated Sorted Array (with duplicates)&lt;/a&gt; &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/search-in-rotated-sorted-array/description/&quot;&gt;Search
+ * in Rotated Sorted Array&lt;/a&gt; &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/search-in-rotated-sorted-array-ii/description/&quot;&gt;Search
+ * in Rotated Sorted Array (with duplicates)&lt;/a&gt;
+ */
+<span class="fc" id="L14">public class GenericBinarySearch&lt;T extends Comparable&gt; implements Search&lt;T&gt; {</span>
+
+  @Override
+  public int findIndex(T[] rotatedSortedInput, T targetElement) {
+<span class="fc" id="L18">    checkArray(rotatedSortedInput);</span>
+<span class="fc" id="L19">    int start = 0, end = rotatedSortedInput.length - 1;</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">    int startOfAscent =</span>
+<span class="fc" id="L21">        rotatedSortedInput.length == 1 ? 0 : findStartOfAscent(rotatedSortedInput, start, end);</span>
+<span class="fc" id="L22">    return findIndexGeneric(rotatedSortedInput, targetElement, start, end, startOfAscent);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;) // compareTo
+  private int findIndexGeneric(T[] a, T target, int start, int end, int startOfAscent) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">    while (start &lt;= end) {</span>
+<span class="fc" id="L28">      int midPoint = Formulas.midPoint(start, end);</span>
+<span class="fc" id="L29">      int realMidPoint = (midPoint + startOfAscent) % a.length;</span>
+<span class="fc" id="L30">      int diff = a[realMidPoint].compareTo(target);</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">      if (diff == 0) {</span>
+<span class="fc" id="L32">        return realMidPoint;</span>
+      }
+<span class="fc bfc" id="L34" title="All 2 branches covered.">      if (diff &lt; 0) {</span>
+<span class="fc" id="L35">        start = midPoint + 1;</span>
+      } else {
+<span class="fc" id="L37">        end = midPoint - 1;</span>
+      }
+<span class="fc" id="L39">    }</span>
+<span class="fc" id="L40">    return ELEMENT_NOT_FOUND;</span>
+  }
+
+  public int findStartOfAscent(T[] a) {
+<span class="fc" id="L44">    checkArray(a);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">    return a.length == 1 ? 0 : findStartOfAscent(a, 0, a.length - 1);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;) // compareTo
+  private int findStartOfAscent(T[] a, int start, int end) {
+    // both checks are necessary e.g. when all elements are the same or when all elements are same except one (e.g. [1,3,1,1,1])
+<span class="fc" id="L51">    T leftValue = a[start];</span>
+<span class="fc" id="L52">    T rightValue = a[end];</span>
+<span class="fc bfc" id="L53" title="All 4 branches covered.">    while (start &lt; end &amp;&amp; leftValue.compareTo(rightValue) &gt;= 0) {</span>
+<span class="fc" id="L54">      int m = Formulas.midPoint(start, end);</span>
+<span class="fc" id="L55">      int mDiff = a[m].compareTo(a[end]);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">      if (mDiff == 0) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (leftValue.compareTo(a[--end])</span>
+            &lt; 0) { // this is to handle duplicates and also sparsed array e.g. {1,1,1,2,1,1}
+<span class="fc" id="L59">          return ++end;</span>
+        }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">      } else if (mDiff &gt; 0) { // start-index is at the right</span>
+<span class="fc" id="L62">        start = m + 1;</span>
+      } else { // if (mDiff &lt; 0) // start-index is at the left
+<span class="fc" id="L64">        end = m;</span>
+      }
+<span class="fc" id="L66">      leftValue = a[start];</span>
+<span class="fc" id="L67">      rightValue = a[end];</span>
+<span class="fc" id="L68">    }</span>
+<span class="fc" id="L69">    return start;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

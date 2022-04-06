@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocalFolderExtractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar</a> &gt; <span class="el_source">LocalFolderExtractor.java</span></div><h1>LocalFolderExtractor.java</h1><pre class="source lang-java linenums">package com.github.junrar;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.rarfile.FileHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+class LocalFolderExtractor {
+
+    private final File folderDestination;
+<span class="fc" id="L16">    private static final Logger logger = LoggerFactory.getLogger(LocalFolderExtractor.class);</span>
+
+<span class="fc" id="L18">    LocalFolderExtractor(final File destination) {</span>
+<span class="fc" id="L19">        this.folderDestination = destination;</span>
+<span class="fc" id="L20">    }</span>
+
+    File createDirectory(final FileHeader fh) {
+<span class="fc" id="L23">        String fileName = null;</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (fh.isDirectory()) {</span>
+<span class="fc" id="L25">            fileName = fh.getFileName();</span>
+        }
+
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (fileName == null) {</span>
+<span class="nc" id="L29">            return null;</span>
+        }
+
+<span class="fc" id="L32">        File f = new File(folderDestination, fileName);</span>
+        try {
+<span class="fc" id="L34">            String fileCanonPath = f.getCanonicalPath();</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            if (!fileCanonPath.startsWith(folderDestination.getCanonicalPath())) {</span>
+<span class="fc" id="L36">                String errorMessage = &quot;Rar contains invalid path: '&quot; + fileCanonPath + &quot;'&quot;;</span>
+<span class="fc" id="L37">                throw new IllegalStateException(errorMessage);</span>
+            }
+<span class="nc" id="L39">        } catch (IOException e) {</span>
+<span class="nc" id="L40">            throw new IllegalStateException(e);</span>
+<span class="fc" id="L41">        }</span>
+
+<span class="fc" id="L43">        return f;</span>
+    }
+
+    File extract(
+        final Archive arch,
+        final FileHeader fileHeader
+    ) throws RarException, IOException {
+<span class="fc" id="L50">        final File f = createFile(fileHeader, folderDestination);</span>
+<span class="fc" id="L51">        try (OutputStream stream = new FileOutputStream(f)) {</span>
+<span class="fc" id="L52">            arch.extractFile(fileHeader, stream);</span>
+        }
+<span class="fc" id="L54">        return f;</span>
+    }
+
+    private File createFile(final FileHeader fh, final File destination) throws IOException {
+<span class="fc" id="L58">        String name = fh.getFileName();</span>
+<span class="fc" id="L59">        File f = new File(destination, name);</span>
+<span class="fc" id="L60">        String dirCanonPath = f.getCanonicalPath();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (!dirCanonPath.startsWith(destination.getCanonicalPath())) {</span>
+<span class="fc" id="L62">            String errorMessage = &quot;Rar contains file with invalid path: '&quot; + dirCanonPath + &quot;'&quot;;</span>
+<span class="fc" id="L63">            throw new IllegalStateException(errorMessage);</span>
+        }
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!f.exists()) {</span>
+            try {
+<span class="fc" id="L67">                f = makeFile(destination, name);</span>
+<span class="nc" id="L68">            } catch (final IOException e) {</span>
+<span class="nc" id="L69">                logger.error(&quot;error creating the new file: {}&quot;, f.getName(), e);</span>
+<span class="fc" id="L70">            }</span>
+        }
+<span class="fc" id="L72">        return f;</span>
+    }
+
+    private File makeFile(final File destination, final String name) throws IOException {
+<span class="fc" id="L76">        final String[] dirs = name.split(&quot;\\\\&quot;);</span>
+<span class="fc" id="L77">        String path = &quot;&quot;;</span>
+<span class="fc" id="L78">        final int size = dirs.length;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (size == 1) {</span>
+<span class="fc" id="L80">            return new File(destination, name);</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        } else if (size &gt; 1) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            for (int i = 0; i &lt; dirs.length - 1; i++) {</span>
+<span class="fc" id="L83">                path = path + File.separator + dirs[i];</span>
+<span class="fc" id="L84">                File dir = new File(destination, path);</span>
+<span class="fc" id="L85">                dir.mkdir();</span>
+            }
+<span class="fc" id="L87">            path = path + File.separator + dirs[dirs.length - 1];</span>
+<span class="fc" id="L88">            final File f = new File(destination, path);</span>
+<span class="fc" id="L89">            f.createNewFile();</span>
+<span class="fc" id="L90">            return f;</span>
+        } else {
+<span class="nc" id="L92">            return null;</span>
+        }
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.github.junrar.JunrarTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2022-03-27T20:43:28" hostname="LAPTOP-0DNPIBQS" time="0.056">
+  <properties/>
+  <testcase name="extractionFromStreamHappyDay()" classname="com.github.junrar.JunrarTest" time="0.016"/>
+  <testcase name="extractionFromFileHappyDay()" classname="com.github.junrar.JunrarTest" time="0.015"/>
+  <testcase name="listContents()" classname="com.github.junrar.JunrarTest" time="0.018"/>
+  <testcase name="listContentsFromStream()" classname="com.github.junrar.JunrarTest" time="0.005"/>
+  <system-out><![CDATA[16:43:28.828 [Test worker] INFO com.github.junrar.Junrar - extracting: foo\bar.txt
+16:43:28.828 [Test worker] INFO com.github.junrar.Junrar - extracting: foo
+16:43:28.844 [Test worker] INFO com.github.junrar.Junrar - extracting: foo\bar.txt
+16:43:28.859 [Test worker] INFO com.github.junrar.Junrar - extracting: foo
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

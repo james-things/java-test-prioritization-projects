@@ -1,0 +1,144 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'com.github.ben-manes.versions' version '0.38.0'
+    id 'com.autonomousapps.dependency-analysis' version '0.71.0'
+    id 'dev.jacomet.logging-capabilities' version '0.9.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
+    id 'org.sonarqube' version '3.3'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+
+    testRuntimeOnly 'ch.qos.logback:logback-classic:1.2.11'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+    testImplementation 'commons-io:commons-io:2.11.0'
+    testImplementation 'org.mockito:mockito-core:4.3.1'
+    testImplementation 'org.assertj:assertj-core:3.22.0'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.0'
+    testImplementation 'org.junit-pioneer:junit-pioneer:1.6.1'
+}
+
+group = 'com.github.junrar'
+description = 'rar decompression library in plain java'
+
+java {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+// Set the '--release' compiler option if compiling on Java > 1.8.
+// Prevents the bytecode from being incompatible with Java 8.
+compileJava {
+    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        options.release.set(8)
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Java Unrar'
+                description = "${description}"
+                url = 'https://github.com/junrar/junrar'
+                licenses {
+                    license {
+                        name = 'UnRar License'
+                        url = 'https://github.com/junrar/junrar/LICENSE.md'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gotson'
+                        name = 'Gauthier Roebroeck'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/junrar/junrar.git'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    required { false }
+    def signingKey = findProperty('signingKey')
+    def signingPassword = findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
+}
+
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.wrapper {
+    gradleVersion = '6.8.3'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+test {
+    useJUnitPlatform()
+}
+
+checkstyle {
+    configFile = file("${rootDir}/checkstyle.xml")
+    toolVersion = '8.29'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+tasks.named("dependencyUpdates").configure {
+    // disallow release candidates as upgradable versions from stable versions
+    rejectVersionIf {
+        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+    }
+}
+
+plugins.withType(JacocoPlugin) {
+    tasks["test"].finalizedBy 'jacocoTestReport'
+}

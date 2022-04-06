@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkedListOps.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.utils</a> &gt; <span class="el_source">LinkedListOps.java</span></div><h1>LinkedListOps.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.utils;
+
+import com.sl.algorithms.core.interfaces.base.OpPosition;
+import com.sl.algorithms.core.list.ListNode;
+
+public class LinkedListOps {
+
+<span class="fc" id="L8">  LinkedListOps() {</span>
+    /**
+     * This is a utility class.&lt;br&gt;
+     */
+<span class="fc" id="L12">  }</span>
+
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; insertData(ListNode&lt;T&gt; head, T newData,
+      OpPosition position) {
+<span class="fc" id="L16">    ListNode&lt;T&gt; newNode = new ListNode&lt;&gt;(newData);</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">    if (head == null) {</span>
+<span class="fc" id="L18">      return newNode;</span>
+    }
+<span class="pc bpc" id="L20" title="1 of 4 branches missed.">    switch (position) {</span>
+      case START: { // O(1)
+<span class="fc" id="L22">        newNode.next = head;</span>
+<span class="fc" id="L23">        head = newNode;</span>
+<span class="fc" id="L24">        break;</span>
+      }
+      case AFTER: { // O(1)
+<span class="fc" id="L27">        newNode.next = head.next;</span>
+<span class="fc" id="L28">        head.next = newNode;</span>
+<span class="fc" id="L29">        break;</span>
+      }
+      case END: { // O(n)
+<span class="fc" id="L32">        head.next = insertData(head.next, newData, OpPosition.END);</span>
+        break;
+      }
+    }
+<span class="fc" id="L36">    return head;</span>
+  }
+
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; removeDataByPosition(ListNode&lt;T&gt; head,
+      OpPosition position) {
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    if (head == null) {</span>
+<span class="fc" id="L42">      return head;</span>
+    }
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">    switch (position) {</span>
+      case START: { // O(1)
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (head.next == null) {</span>
+<span class="fc" id="L47">          return null;</span>
+        }
+<span class="fc" id="L49">        ListNode&lt;T&gt; temp = head;</span>
+<span class="fc" id="L50">        head = temp.next;</span>
+<span class="fc" id="L51">        break;</span>
+      }
+      case AFTER: { // O(1)
+<span class="fc" id="L54">        head.next = head.next.next;</span>
+<span class="fc" id="L55">        break;</span>
+      }
+      case END: { // O(n)
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (head.next == null) {</span>
+<span class="fc" id="L59">          return null;</span>
+        }
+<span class="fc" id="L61">        ListNode&lt;T&gt; temp = head;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        while (temp.next.next != null) {</span>
+<span class="fc" id="L63">          temp = temp.next;</span>
+        }
+<span class="fc" id="L65">        temp.next = null;</span>
+<span class="fc" id="L66">        break;</span>
+      }
+    }
+<span class="fc" id="L69">    return head;</span>
+  }
+
+  // O(n) time and O(1) space
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; removeData(ListNode&lt;T&gt; head, T data) {
+<span class="fc" id="L74">    ListNode&lt;T&gt; dummyNode = ListNode.dummyNode();</span>
+<span class="fc" id="L75">    dummyNode.next = head;</span>
+<span class="fc" id="L76">    ListNode&lt;T&gt; prev = dummyNode, curr = head;</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">    while (curr != null) {</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">      if (curr.data == data) {</span>
+<span class="fc" id="L79">        prev.next = curr.next;</span>
+      } else {
+<span class="fc" id="L81">        prev = curr;</span>
+      }
+<span class="fc" id="L83">      curr = curr.next;</span>
+    }
+<span class="fc" id="L85">    return dummyNode.next;</span>
+  }
+
+  // O(n) method to remove duplicates from a list
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; removeDuplicates(ListNode&lt;T&gt; head) {
+<span class="fc bfc" id="L90" title="All 4 branches covered.">    if (head == null || head.next == null) {</span>
+<span class="fc" id="L91">      return head;</span>
+    }
+<span class="fc" id="L93">    ListNode&lt;T&gt; curr = head;</span>
+    ListNode&lt;T&gt; next;
+<span class="fc bfc" id="L95" title="All 4 branches covered.">    while (curr != null &amp;&amp; curr.next != null) {</span>
+<span class="fc bfc" id="L96" title="All 4 branches covered.">      while (curr.next != null &amp;&amp; curr.compareTo(curr.next)</span>
+          == 0) { // we mainly need data check only here, not a deep equality check
+<span class="fc" id="L98">        next = curr.next;</span>
+<span class="fc" id="L99">        curr.next = next.next;</span>
+      }
+<span class="fc" id="L101">      curr = curr.next;</span>
+    }
+<span class="fc" id="L103">    return head;</span>
+  }
+
+  /**
+   * O(n) time and O(1) space method to reverse a list.
+   *
+   * @param head input list
+   * @param &lt;T&gt; {@link Comparable}
+   * @return reversed list
+   */
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; reverse(ListNode&lt;T&gt; head) {
+<span class="fc" id="L114">    ListNode&lt;T&gt; prev = null, curr = head, next;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    while (curr != null) {</span>
+<span class="fc" id="L116">      next = curr.next;</span>
+<span class="fc" id="L117">      curr.next = prev;</span>
+<span class="fc" id="L118">      prev = curr;</span>
+<span class="fc" id="L119">      curr = next;</span>
+    }
+<span class="fc" id="L121">    head = prev;</span>
+<span class="fc" id="L122">    return head;</span>
+  }
+
+  /**
+   * O(n) time and O(n/kMax) recursion-space method to reverse list in groups of kMax.
+   *
+   * @param head input list
+   * @param k batch-size
+   * @param &lt;T&gt; {@link Comparable}
+   * @return reversed list
+   */
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; reverseListInGroups(ListNode&lt;T&gt; head, int k) {
+<span class="fc bfc" id="L134" title="All 8 branches covered.">    if (head == null || head.next == null || k &gt; head.size() || k == 0) {</span>
+<span class="fc" id="L135">      return head;</span>
+    }
+<span class="fc" id="L137">    ListNode&lt;T&gt; prev = null, curr = head, next = null;</span>
+<span class="pc bpc" id="L138" title="1 of 4 branches missed.">    for (int i = 0; i &lt; k &amp;&amp; curr != null; i++) {</span>
+<span class="fc" id="L139">      next = curr.next;</span>
+<span class="fc" id="L140">      curr.next = prev;</span>
+<span class="fc" id="L141">      prev = curr;</span>
+<span class="fc" id="L142">      curr = next;</span>
+    }
+<span class="fc" id="L144">    head.next = reverseListInGroups(next, k);</span>
+<span class="fc" id="L145">    head = prev;</span>
+<span class="fc" id="L146">    return head;</span>
+  }
+
+  /**
+   * O(n) time and O(n/2) recursion-space method to swap/reverse in pairs.
+   *
+   * @param head input list
+   * @param &lt;T&gt; {@link Comparable}
+   * @return transformed list
+   */
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; swapInPairs(ListNode&lt;T&gt; head) {
+<span class="fc bfc" id="L157" title="All 4 branches covered.">    if (head == null || head.next == null) {</span>
+<span class="fc" id="L158">      return head;</span>
+    }
+<span class="fc" id="L160">    ListNode&lt;T&gt; next = head.next;</span>
+<span class="fc" id="L161">    head.next = swapInPairs(head.next.next);</span>
+<span class="fc" id="L162">    next.next = head;</span>
+<span class="fc" id="L163">    return next;</span>
+  }
+
+  // O(n) time and O(1) space
+  public static ListNode&lt;Integer&gt; incrementByOne(ListNode&lt;Integer&gt; head) {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">    if (head == null) {</span>
+<span class="fc" id="L169">      return null;</span>
+    }
+<span class="fc" id="L171">    int one = 1;</span>
+<span class="fc" id="L172">    boolean addOne = true;</span>
+<span class="fc" id="L173">    head = reverse(head);</span>
+<span class="fc" id="L174">    ListNode&lt;Integer&gt; curr = head;</span>
+<span class="pc bpc" id="L175" title="1 of 4 branches missed.">    while (curr != null &amp;&amp; curr.next != null) {</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">      if (addOne) {</span>
+<span class="fc" id="L177">        curr.data += one;</span>
+      }
+<span class="fc bfc" id="L179" title="All 2 branches covered.">      if (curr.data &gt; 9) {</span>
+<span class="fc" id="L180">        curr.data = curr.data % 10;</span>
+<span class="fc" id="L181">        addOne = true;</span>
+      } else {
+<span class="fc" id="L183">        addOne = false;</span>
+      }
+<span class="fc" id="L185">      curr = curr.next;</span>
+    }
+<span class="pc bpc" id="L187" title="1 of 4 branches missed.">    if (curr != null &amp;&amp; addOne) {</span>
+<span class="fc" id="L188">      curr.data += one;</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">      if (curr.data &gt; 9) {</span>
+<span class="fc" id="L190">        curr.data = curr.data % 10;</span>
+<span class="fc" id="L191">        curr.next = new ListNode&lt;&gt;(one);</span>
+      }
+    }
+<span class="fc" id="L194">    head = reverse(head);</span>
+<span class="fc" id="L195">    return head;</span>
+  }
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/reorder-list/description/&quot;&gt;Reorder List&lt;/a&gt;&lt;br&gt;
+   * &lt;br&gt;&lt;u&gt;Approach&lt;/u&gt;:&amp;nbsp;Find the mid-point; break the list into 2 parts around the mid-point;
+   * establish new links.&lt;br&gt;
+   *
+   * @param head input list
+   * @param &lt;T&gt; {@link Comparable}
+   * @return re-ordered list
+   */
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; reorderList(ListNode&lt;T&gt; head) {
+<span class="fc bfc" id="L208" title="All 6 branches covered.">    if (head == null || head.next == null || head.next.next == null) {</span>
+<span class="fc" id="L209">      return head;</span>
+    }
+<span class="fc" id="L211">    ListNode&lt;T&gt; midPoint = head.midPoint();</span>
+<span class="fc" id="L212">    ListNode&lt;T&gt; reverseNode = reverse(midPoint.next);</span>
+<span class="fc" id="L213">    midPoint.next = null; // this is to break the list into 2 (it's also important to keep the memory-usage in control)</span>
+<span class="fc" id="L214">    ListNode&lt;T&gt; curr = head;</span>
+<span class="fc bfc" id="L215" title="All 4 branches covered.">    while (curr != null &amp;&amp; reverseNode != null) {</span>
+<span class="fc" id="L216">      ListNode&lt;T&gt; currNext = curr.next;</span>
+<span class="fc" id="L217">      ListNode&lt;T&gt; reverseNext = reverseNode.next;</span>
+<span class="fc" id="L218">      curr.next = reverseNode;</span>
+<span class="fc" id="L219">      reverseNode.next = currNext;</span>
+<span class="fc" id="L220">      curr = currNext;</span>
+<span class="fc" id="L221">      reverseNode = reverseNext;</span>
+<span class="fc" id="L222">    }</span>
+<span class="fc" id="L223">    return head;</span>
+  }
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/palindrome-linked-list/description/&quot;&gt;Palindrome
+   * Linked List&lt;/a&gt;&lt;br&gt;
+   *
+   * @param head input list
+   * @param &lt;T&gt; {@link Comparable}
+   * @return true, when the list follows a palindrome pattern
+   */
+  public static &lt;T extends Comparable&gt; boolean isPalindrome(ListNode&lt;T&gt; head) {
+<span class="fc bfc" id="L235" title="All 4 branches covered.">    if (head == null || head.next == null) {</span>
+<span class="fc" id="L236">      return true;</span>
+    }
+<span class="fc" id="L238">    ListNode&lt;T&gt; midPoint = head.midPoint();</span>
+<span class="fc" id="L239">    ListNode&lt;T&gt; reverseNode = reverse(midPoint);</span>
+<span class="fc" id="L240">    midPoint.next = null;</span>
+<span class="fc" id="L241">    ListNode&lt;T&gt; curr = head;</span>
+<span class="pc bpc" id="L242" title="1 of 4 branches missed.">    while (curr != null &amp;&amp; reverseNode != null) {</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">      if (curr.compareTo(reverseNode) != 0) {</span>
+<span class="fc" id="L244">        return false;</span>
+      }
+<span class="fc" id="L246">      curr = curr.next;</span>
+<span class="fc" id="L247">      reverseNode = reverseNode.next;</span>
+    }
+<span class="fc" id="L249">    return true;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

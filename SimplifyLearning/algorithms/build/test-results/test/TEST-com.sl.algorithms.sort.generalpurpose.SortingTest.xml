@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.sort.generalpurpose.SortingTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:47" hostname="LAPTOP-0DNPIBQS" time="0.212">
+  <properties/>
+  <testcase name="testSelectionSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.004"/>
+  <testcase name="testBubbleSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.006"/>
+  <testcase name="testMinHeapSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.006"/>
+  <testcase name="testMaxHeapSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.0"/>
+  <testcase name="testBottomUpMergeSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.027"/>
+  <testcase name="testInsertionSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.155"/>
+  <testcase name="testQuickSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.002"/>
+  <testcase name="testTopDownMergeSort" classname="com.sl.algorithms.sort.generalpurpose.SortingTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

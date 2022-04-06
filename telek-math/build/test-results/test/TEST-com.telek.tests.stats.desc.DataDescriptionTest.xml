@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.telek.tests.stats.desc.DataDescriptionTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2022-03-31T14:11:58" hostname="LAPTOP-0DNPIBQS" time="0.735">
+  <properties/>
+  <testcase name="dataDescGenericTest" classname="com.telek.tests.stats.desc.DataDescriptionTest" time="0.004"/>
+  <testcase name="randomTest1" classname="com.telek.tests.stats.desc.DataDescriptionTest" time="0.05"/>
+  <testcase name="randomTest2" classname="com.telek.tests.stats.desc.DataDescriptionTest" time="0.03"/>
+  <testcase name="dataDescPrimitiveTest" classname="com.telek.tests.stats.desc.DataDescriptionTest" time="0.007"/>
+  <testcase name="noiseTest1" classname="com.telek.tests.stats.desc.DataDescriptionTest" time="0.638"/>
+  <testcase name="dataDescPrimitiveWithoutConversionTest" classname="com.telek.tests.stats.desc.DataDescriptionTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

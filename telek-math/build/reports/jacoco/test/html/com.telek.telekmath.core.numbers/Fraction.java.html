@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Fraction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.numbers</a> &gt; <span class="el_source">Fraction.java</span></div><h1>Fraction.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.numbers;
+
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekmath.utils.TelekMathException.*;
+
+import java.util.Objects;
+
+
+/**
+ * An immutable fraction class. &lt;br&gt;
+ */
+public class Fraction {
+
+    //////////////
+    /*  FIELDS  */
+    //////////////
+
+    private final int numerator, denominator;
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+<span class="fc" id="L24">    public Fraction(int numerator, int denominator){</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if(denominator == 0) throw new DivisionByZeroException();</span>
+        // SORT
+<span class="fc bfc" id="L27" title="All 8 branches covered.">        if( (denominator &lt; 0 &amp;&amp; numerator &lt; 0) || (numerator &gt; 0 &amp;&amp; denominator &lt; 0) ){</span>
+<span class="fc" id="L28">            denominator *= -1;</span>
+<span class="fc" id="L29">            numerator *= -1;</span>
+        }
+
+        // SIMPLIFY
+<span class="fc" id="L33">        int gcd = TMath.gcd(numerator, denominator);</span>
+<span class="fc" id="L34">        numerator /= gcd;</span>
+<span class="fc" id="L35">        denominator /= gcd;</span>
+
+<span class="fc" id="L37">        this.numerator = numerator;</span>
+<span class="fc" id="L38">        this.denominator = denominator;</span>
+<span class="fc" id="L39">    }</span>
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+    public double getAsDouble(){
+<span class="fc" id="L48">        return ((double) this.numerator) / ((double) this.denominator);</span>
+    }
+
+    public boolean isInteger(){
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        return this.numerator % this.denominator == 0;</span>
+    }
+
+    public Fraction add(Fraction frac2){
+<span class="fc" id="L56">        return add(frac2.numerator, frac2.denominator);</span>
+    }
+
+    public Fraction subtract(Fraction frac2){
+<span class="fc" id="L60">        return add(-frac2.numerator, frac2.denominator);</span>
+    }
+
+    public Fraction multiply(Fraction frac2){
+<span class="fc" id="L64">        return multiply(frac2.numerator, frac2.denominator);</span>
+    }
+
+    public Fraction divide(Fraction frac2){
+<span class="fc" id="L68">        return multiply(frac2.denominator, frac2.numerator);</span>
+    }
+
+    public Fraction pow(int exponent){
+<span class="fc" id="L72">        Fraction frac = new Fraction(TMath.pow(this.numerator, exponent), TMath.pow(this.denominator, exponent));</span>
+<span class="fc" id="L73">        return frac;</span>
+    }
+
+    public boolean isGreaterThan(Fraction other){
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        return this.getAsDouble() &gt; other.getAsDouble();</span>
+    }
+
+    public boolean isGreaterOrEqualTo(Fraction other){
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        return this.getAsDouble() &gt;= other.getAsDouble();</span>
+    }
+
+    public boolean isLessOrEqualTo(Fraction other){
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        return this.getAsDouble() &lt;= other.getAsDouble();</span>
+    }
+
+    public boolean isLessThan(Fraction other){
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        return this.getAsDouble() &lt; other.getAsDouble();</span>
+    }
+
+
+
+    /*  GETTERS AND SETTERS  */
+
+<span class="fc" id="L96">    public int getNumerator() { return numerator;}</span>
+<span class="fc" id="L97">    public int getDenominator() { return denominator;}</span>
+
+
+    /*  HELPERS  */
+
+    private Fraction multiply(int num2, int denom2){
+<span class="fc" id="L103">        Fraction frac = new Fraction(this.numerator * num2, this.denominator * denom2);</span>
+<span class="fc" id="L104">        return frac;</span>
+    }
+
+    private Fraction add(int num2, int denom2){
+        // a/b + c/d = (ad+bc) / bd
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if(this.denominator == denom2){</span>
+<span class="nc" id="L110">            return new Fraction(this.numerator + num2, this.denominator);</span>
+        }
+        else{
+<span class="fc" id="L113">            int b = this.denominator;</span>
+<span class="fc" id="L114">            int d = denom2;</span>
+<span class="fc" id="L115">            return new Fraction(this.numerator * d + b * num2, b * d);</span>
+        }
+    }
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if(!this.isInteger()){</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            return String.format(&quot;%s%d / %d&quot;,</span>
+<span class="nc" id="L129">                    numerator * denominator &lt; 0 ? &quot;-&quot; : &quot;&quot;, Math.abs(numerator), Math.abs(denominator));</span>
+        }
+        else
+<span class="nc" id="L132">            return String.valueOf(this.numerator / this.denominator);</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L138" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L139">        Fraction that = (Fraction) o;</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        return this.getAsDouble() == that.getAsDouble();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L145">        return Objects.hash(numerator, denominator);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BoyerMooreVoting.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.search.majorityelement</a> &gt; <span class="el_source">BoyerMooreVoting.java</span></div><h1>BoyerMooreVoting.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.search.majorityelement;
+
+import com.sl.algorithms.core.interfaces.search.MajorityFinder;
+
+/**
+ * &lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm&quot;&gt;Boyer
+ * Moore Voting Algorithm&lt;/a&gt;&lt;br&gt; &lt;br&gt;&lt;p&gt;Basic idea of the algorithm is if we cancel out each
+ * occurrence of an element e with all the other elements that are different from e then e will
+ * exist till end if it is a majority element.&lt;/p&gt; Majority = n/2
+ */
+<span class="fc" id="L11">public class BoyerMooreVoting&lt;T extends Comparable&gt; implements MajorityFinder&lt;T&gt; {</span>
+
+  @Override
+  public T findMajorityElement(T[] candidates) {
+<span class="fc" id="L15">    checkArray(candidates);</span>
+<span class="fc" id="L16">    int majorityIndex = 0, count = 1;</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">    for (int i = 1; i &lt; candidates.length; i++) {</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">      if (count == 0) {</span>
+<span class="fc" id="L19">        majorityIndex = i;</span>
+<span class="fc" id="L20">        count = 1;</span>
+      }
+<span class="fc bfc" id="L22" title="All 2 branches covered.">      if (candidates[i].equals(candidates[majorityIndex])) {</span>
+<span class="fc" id="L23">        count++;</span>
+      } else {
+<span class="fc" id="L25">        count--;</span>
+      }
+    }
+<span class="fc" id="L28">    return candidates[majorityIndex];</span>
+  }
+
+  @Override
+  public boolean isMajority(T[] candidates, T majorityElement) {
+<span class="fc" id="L33">    checkArray(candidates);</span>
+<span class="fc" id="L34">    int count = 0;</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    for (T candidate : candidates) {</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">      if (candidate.equals(majorityElement)) {</span>
+<span class="fc" id="L37">        count++;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (count &gt; candidates.length / 2) {</span>
+<span class="fc" id="L39">          return true;</span>
+        }
+      }
+    }
+<span class="fc" id="L43">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

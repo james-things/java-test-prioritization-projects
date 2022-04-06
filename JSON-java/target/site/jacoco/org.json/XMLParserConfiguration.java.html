@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XMLParserConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JSON in Java</a> &gt; <a href="index.source.html" class="el_package">org.json</a> &gt; <span class="el_source">XMLParserConfiguration.java</span></div><h1>XMLParserConfiguration.java</h1><pre class="source lang-java linenums">package org.json;
+/*
+Copyright (c) 2002 JSON.org
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+The Software shall be used for Good, not Evil.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+
+/**
+ * Configuration object for the XML parser. The configuration is immutable.
+ * @author AylwardJ
+ */
+@SuppressWarnings({&quot;&quot;})
+public class XMLParserConfiguration {
+    /** Original Configuration of the XML Parser. */
+<span class="fc" id="L40">    public static final XMLParserConfiguration ORIGINAL</span>
+        = new XMLParserConfiguration();
+    /** Original configuration of the XML Parser except that values are kept as strings. */
+<span class="fc" id="L43">    public static final XMLParserConfiguration KEEP_STRINGS</span>
+<span class="fc" id="L44">        = new XMLParserConfiguration().withKeepStrings(true);</span>
+
+    /**
+     * When parsing the XML into JSON, specifies if values should be kept as strings (&lt;code&gt;true&lt;/code&gt;), or if
+     * they should try to be guessed into JSON values (numeric, boolean, string)
+     */
+    private boolean keepStrings;
+    
+    /**
+     * The name of the key in a JSON Object that indicates a CDATA section. Historically this has
+     * been the value &quot;content&quot; but can be changed. Use &lt;code&gt;null&lt;/code&gt; to indicate no CDATA
+     * processing.
+     */
+    private String cDataTagName;
+    
+    /**
+     * When parsing the XML into JSON, specifies if values with attribute xsi:nil=&quot;true&quot;
+     * should be kept as attribute(&lt;code&gt;false&lt;/code&gt;), or they should be converted to
+     * &lt;code&gt;null&lt;/code&gt;(&lt;code&gt;true&lt;/code&gt;)
+     */
+    private boolean convertNilAttributeToNull;
+
+    /**
+     * This will allow type conversion for values in XML if xsi:type attribute is defined
+     */
+    private Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt; xsiTypeMap;
+
+    /**
+     * When parsing the XML into JSON, specifies the tags whose values should be converted
+     * to arrays
+     */
+    private Set&lt;String&gt; forceList;
+
+    /**
+     * Default parser configuration. Does not keep strings (tries to implicitly convert
+     * values), and the CDATA Tag Name is &quot;content&quot;.
+     */
+<span class="fc" id="L81">    public XMLParserConfiguration () {</span>
+<span class="fc" id="L82">        this.keepStrings = false;</span>
+<span class="fc" id="L83">        this.cDataTagName = &quot;content&quot;;</span>
+<span class="fc" id="L84">        this.convertNilAttributeToNull = false;</span>
+<span class="fc" id="L85">        this.xsiTypeMap = Collections.emptyMap();</span>
+<span class="fc" id="L86">        this.forceList = Collections.emptySet();</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Configure the parser string processing and use the default CDATA Tag Name as &quot;content&quot;.
+     * @param keepStrings &lt;code&gt;true&lt;/code&gt; to parse all values as string.
+     *      &lt;code&gt;false&lt;/code&gt; to try and convert XML string values into a JSON value.
+     * @deprecated This constructor has been deprecated in favor of using the new builder
+     *      pattern for the configuration.
+     *      This constructor may be removed in a future release.
+     */
+    @Deprecated
+    public XMLParserConfiguration (final boolean keepStrings) {
+<span class="nc" id="L99">        this(keepStrings, &quot;content&quot;, false);</span>
+<span class="nc" id="L100">    }</span>
+
+    /**
+     * Configure the parser string processing to try and convert XML values to JSON values and
+     * use the passed CDATA Tag Name the processing value. Pass &lt;code&gt;null&lt;/code&gt; to
+     * disable CDATA processing
+     * @param cDataTagName &lt;code&gt;null&lt;/code&gt; to disable CDATA processing. Any other value
+     *      to use that value as the JSONObject key name to process as CDATA.
+     * @deprecated This constructor has been deprecated in favor of using the new builder
+     *      pattern for the configuration.
+     *      This constructor may be removed in a future release.
+     */
+    @Deprecated
+    public XMLParserConfiguration (final String cDataTagName) {
+<span class="nc" id="L114">        this(false, cDataTagName, false);</span>
+<span class="nc" id="L115">    }</span>
+
+    /**
+     * Configure the parser to use custom settings.
+     * @param keepStrings &lt;code&gt;true&lt;/code&gt; to parse all values as string.
+     *      &lt;code&gt;false&lt;/code&gt; to try and convert XML string values into a JSON value.
+     * @param cDataTagName &lt;code&gt;null&lt;/code&gt; to disable CDATA processing. Any other value
+     *      to use that value as the JSONObject key name to process as CDATA.
+     * @deprecated This constructor has been deprecated in favor of using the new builder
+     *      pattern for the configuration.
+     *      This constructor may be removed in a future release.
+     */
+    @Deprecated
+<span class="nc" id="L128">    public XMLParserConfiguration (final boolean keepStrings, final String cDataTagName) {</span>
+<span class="nc" id="L129">        this.keepStrings = keepStrings;</span>
+<span class="nc" id="L130">        this.cDataTagName = cDataTagName;</span>
+<span class="nc" id="L131">        this.convertNilAttributeToNull = false;</span>
+<span class="nc" id="L132">    }</span>
+
+    /**
+     * Configure the parser to use custom settings.
+     * @param keepStrings &lt;code&gt;true&lt;/code&gt; to parse all values as string.
+     *      &lt;code&gt;false&lt;/code&gt; to try and convert XML string values into a JSON value.
+     * @param cDataTagName &lt;code&gt;null&lt;/code&gt; to disable CDATA processing. Any other value
+     *      to use that value as the JSONObject key name to process as CDATA.
+     * @param convertNilAttributeToNull &lt;code&gt;true&lt;/code&gt; to parse values with attribute xsi:nil=&quot;true&quot; as null.
+     *                                  &lt;code&gt;false&lt;/code&gt; to parse values with attribute xsi:nil=&quot;true&quot; as {&quot;xsi:nil&quot;:true}.
+     * @deprecated This constructor has been deprecated in favor of using the new builder
+     *      pattern for the configuration.
+     *      This constructor may be removed or marked private in a future release.
+     */
+    @Deprecated
+<span class="nc" id="L147">    public XMLParserConfiguration (final boolean keepStrings, final String cDataTagName, final boolean convertNilAttributeToNull) {</span>
+<span class="nc" id="L148">        this.keepStrings = keepStrings;</span>
+<span class="nc" id="L149">        this.cDataTagName = cDataTagName;</span>
+<span class="nc" id="L150">        this.convertNilAttributeToNull = convertNilAttributeToNull;</span>
+<span class="nc" id="L151">    }</span>
+
+    /**
+     * Configure the parser to use custom settings.
+     * @param keepStrings &lt;code&gt;true&lt;/code&gt; to parse all values as string.
+     *      &lt;code&gt;false&lt;/code&gt; to try and convert XML string values into a JSON value.
+     * @param cDataTagName &lt;code&gt;null&lt;/code&gt; to disable CDATA processing. Any other value
+     *      to use that value as the JSONObject key name to process as CDATA.
+     * @param convertNilAttributeToNull &lt;code&gt;true&lt;/code&gt; to parse values with attribute xsi:nil=&quot;true&quot; as null.
+     *                                  &lt;code&gt;false&lt;/code&gt; to parse values with attribute xsi:nil=&quot;true&quot; as {&quot;xsi:nil&quot;:true}.
+     * @param xsiTypeMap  &lt;code&gt;new HashMap&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt;()&lt;/code&gt; to parse values with attribute
+     *                   xsi:type=&quot;integer&quot; as integer,  xsi:type=&quot;string&quot; as string
+     * @param forceList  &lt;code&gt;new HashSet&lt;String&gt;()&lt;/code&gt; to parse the provided tags' values as arrays 
+     */
+    private XMLParserConfiguration (final boolean keepStrings, final String cDataTagName,
+<span class="fc" id="L166">            final boolean convertNilAttributeToNull, final Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt; xsiTypeMap, final Set&lt;String&gt; forceList ) {</span>
+<span class="fc" id="L167">        this.keepStrings = keepStrings;</span>
+<span class="fc" id="L168">        this.cDataTagName = cDataTagName;</span>
+<span class="fc" id="L169">        this.convertNilAttributeToNull = convertNilAttributeToNull;</span>
+<span class="fc" id="L170">        this.xsiTypeMap = Collections.unmodifiableMap(xsiTypeMap);</span>
+<span class="fc" id="L171">        this.forceList = Collections.unmodifiableSet(forceList);</span>
+<span class="fc" id="L172">    }</span>
+
+    /**
+     * Provides a new instance of the same configuration.
+     */
+    @Override
+    protected XMLParserConfiguration clone() {
+        // future modifications to this method should always ensure a &quot;deep&quot;
+        // clone in the case of collections. i.e. if a Map is added as a configuration
+        // item, a new map instance should be created and if possible each value in the
+        // map should be cloned as well. If the values of the map are known to also
+        // be immutable, then a shallow clone of the map is acceptable.
+<span class="fc" id="L184">        return new XMLParserConfiguration(</span>
+                this.keepStrings,
+                this.cDataTagName,
+                this.convertNilAttributeToNull,
+                this.xsiTypeMap,
+                this.forceList
+        );
+    }
+    
+    /**
+     * When parsing the XML into JSON, specifies if values should be kept as strings (&lt;code&gt;true&lt;/code&gt;), or if
+     * they should try to be guessed into JSON values (numeric, boolean, string)
+     * 
+     * @return The &lt;code&gt;keepStrings&lt;/code&gt; configuration value.
+     */
+    public boolean isKeepStrings() {
+<span class="fc" id="L200">        return this.keepStrings;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies if values should be kept as strings (&lt;code&gt;true&lt;/code&gt;), or if
+     * they should try to be guessed into JSON values (numeric, boolean, string)
+     * 
+     * @param newVal
+     *      new value to use for the &lt;code&gt;keepStrings&lt;/code&gt; configuration option.
+     * 
+     * @return The existing configuration will not be modified. A new configuration is returned.
+     */
+    public XMLParserConfiguration withKeepStrings(final boolean newVal) {
+<span class="fc" id="L213">        XMLParserConfiguration newConfig = this.clone();</span>
+<span class="fc" id="L214">        newConfig.keepStrings = newVal;</span>
+<span class="fc" id="L215">        return newConfig;</span>
+    }
+
+    /**
+     * The name of the key in a JSON Object that indicates a CDATA section. Historically this has
+     * been the value &quot;content&quot; but can be changed. Use &lt;code&gt;null&lt;/code&gt; to indicate no CDATA
+     * processing.
+     * 
+     * @return The &lt;code&gt;cDataTagName&lt;/code&gt; configuration value.
+     */
+    public String getcDataTagName() {
+<span class="fc" id="L226">        return this.cDataTagName;</span>
+    }
+
+    /**
+     * The name of the key in a JSON Object that indicates a CDATA section. Historically this has
+     * been the value &quot;content&quot; but can be changed. Use &lt;code&gt;null&lt;/code&gt; to indicate no CDATA
+     * processing.
+     * 
+     * @param newVal
+     *      new value to use for the &lt;code&gt;cDataTagName&lt;/code&gt; configuration option.
+     * 
+     * @return The existing configuration will not be modified. A new configuration is returned.
+     */
+    public XMLParserConfiguration withcDataTagName(final String newVal) {
+<span class="fc" id="L240">        XMLParserConfiguration newConfig = this.clone();</span>
+<span class="fc" id="L241">        newConfig.cDataTagName = newVal;</span>
+<span class="fc" id="L242">        return newConfig;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies if values with attribute xsi:nil=&quot;true&quot;
+     * should be kept as attribute(&lt;code&gt;false&lt;/code&gt;), or they should be converted to
+     * &lt;code&gt;null&lt;/code&gt;(&lt;code&gt;true&lt;/code&gt;)
+     * 
+     * @return The &lt;code&gt;convertNilAttributeToNull&lt;/code&gt; configuration value.
+     */
+    public boolean isConvertNilAttributeToNull() {
+<span class="fc" id="L253">        return this.convertNilAttributeToNull;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies if values with attribute xsi:nil=&quot;true&quot;
+     * should be kept as attribute(&lt;code&gt;false&lt;/code&gt;), or they should be converted to
+     * &lt;code&gt;null&lt;/code&gt;(&lt;code&gt;true&lt;/code&gt;)
+     * 
+     * @param newVal
+     *      new value to use for the &lt;code&gt;convertNilAttributeToNull&lt;/code&gt; configuration option.
+     * 
+     * @return The existing configuration will not be modified. A new configuration is returned.
+     */
+    public XMLParserConfiguration withConvertNilAttributeToNull(final boolean newVal) {
+<span class="fc" id="L267">        XMLParserConfiguration newConfig = this.clone();</span>
+<span class="fc" id="L268">        newConfig.convertNilAttributeToNull = newVal;</span>
+<span class="fc" id="L269">        return newConfig;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies that the values with attribute xsi:type
+     * will be converted to target type defined to client in this configuration
+     * {@code Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt;} to parse values with attribute
+     * xsi:type=&quot;integer&quot; as integer,  xsi:type=&quot;string&quot; as string
+     * @return &lt;code&gt;xsiTypeMap&lt;/code&gt; unmodifiable configuration map.
+     */
+    public Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt; getXsiTypeMap() {
+<span class="fc" id="L280">        return this.xsiTypeMap;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies that the values with attribute xsi:type
+     * will be converted to target type defined to client in this configuration
+     * {@code Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt;} to parse values with attribute
+     * xsi:type=&quot;integer&quot; as integer,  xsi:type=&quot;string&quot; as string
+     * @param xsiTypeMap  {@code new HashMap&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt;()} to parse values with attribute
+     *                   xsi:type=&quot;integer&quot; as integer,  xsi:type=&quot;string&quot; as string
+     * @return The existing configuration will not be modified. A new configuration is returned.
+     */
+    public XMLParserConfiguration withXsiTypeMap(final Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt; xsiTypeMap) {
+<span class="fc" id="L293">        XMLParserConfiguration newConfig = this.clone();</span>
+<span class="fc" id="L294">        Map&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt; cloneXsiTypeMap = new HashMap&lt;String, XMLXsiTypeConverter&lt;?&gt;&gt;(xsiTypeMap);</span>
+<span class="fc" id="L295">        newConfig.xsiTypeMap = Collections.unmodifiableMap(cloneXsiTypeMap);</span>
+<span class="fc" id="L296">        return newConfig;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies that tags that will be converted to arrays
+     * in this configuration {@code Set&lt;String&gt;} to parse the provided tags' values as arrays 
+     * @return &lt;code&gt;forceList&lt;/code&gt; unmodifiable configuration set.
+     */
+    public Set&lt;String&gt; getForceList() {
+<span class="fc" id="L305">        return this.forceList;</span>
+    }
+
+    /**
+     * When parsing the XML into JSON, specifies that tags that will be converted to arrays
+     * in this configuration {@code Set&lt;String&gt;} to parse the provided tags' values as arrays 
+     * @param forceList  {@code new HashSet&lt;String&gt;()} to parse the provided tags' values as arrays 
+     * @return The existing configuration will not be modified. A new configuration is returned.
+     */
+    public XMLParserConfiguration withForceList(final Set&lt;String&gt; forceList) {
+<span class="fc" id="L315">        XMLParserConfiguration newConfig = this.clone();</span>
+<span class="fc" id="L316">        Set&lt;String&gt; cloneForceList = new HashSet&lt;String&gt;(forceList);</span>
+<span class="fc" id="L317">        newConfig.forceList = Collections.unmodifiableSet(cloneForceList);</span>
+<span class="fc" id="L318">        return newConfig;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

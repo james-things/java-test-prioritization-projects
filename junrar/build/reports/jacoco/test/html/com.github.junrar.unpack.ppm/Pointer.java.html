@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pointer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.ppm</a> &gt; <span class="el_source">Pointer.java</span></div><h1>Pointer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 14.06.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.ppm;
+
+/**
+ * Simulates Pointers on a single mem block as a byte[]
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">public abstract class Pointer {</span>
+    protected byte[] mem;
+    protected int pos;
+
+    /**
+     * Initialize the object with the array (may be null)
+     * @param mem the byte array
+     */
+<span class="fc" id="L34">    public Pointer(byte[] mem) {</span>
+<span class="fc" id="L35">        this.mem = mem;</span>
+<span class="fc" id="L36">    }</span>
+    /**
+     * returns the position of this object in the byte[]
+     * @return the address of this object
+     */
+    public int getAddress() {
+<span class="pc bpc" id="L42" title="2 of 4 branches missed.">        assert (mem != null);</span>
+<span class="fc" id="L43">        return pos;</span>
+    }
+
+    /**
+     * needs to set the fields of this object to the values in the byte[]
+     * at the given position.
+     * be aware of the byte order
+     * @param pos the position this object should point to
+     */
+    public void setAddress(int pos) {
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">        assert (mem != null);</span>
+<span class="pc bpc" id="L54" title="3 of 6 branches missed.">        assert (pos &gt;= 0) &amp;&amp; (pos &lt; mem.length) : pos;</span>
+<span class="fc" id="L55">        this.pos = pos;</span>
+<span class="fc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

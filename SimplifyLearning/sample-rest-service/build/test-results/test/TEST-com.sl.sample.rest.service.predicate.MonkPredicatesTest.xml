@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.sample.rest.service.predicate.MonkPredicatesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:28:09" hostname="LAPTOP-0DNPIBQS" time="0.021">
+  <properties/>
+  <testcase name="assertSportPersonsCount" classname="com.sl.sample.rest.service.predicate.MonkPredicatesTest" time="0.019"/>
+  <testcase name="assertAdultSportPersonsCount" classname="com.sl.sample.rest.service.predicate.MonkPredicatesTest" time="0.001"/>
+  <testcase name="assertCompareMonks" classname="com.sl.sample.rest.service.predicate.MonkPredicatesTest" time="0.0"/>
+  <testcase name="testMonkUniqueness" classname="com.sl.sample.rest.service.predicate.MonkPredicatesTest" time="0.0"/>
+  <testcase name="assertTeenagerCount" classname="com.sl.sample.rest.service.predicate.MonkPredicatesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

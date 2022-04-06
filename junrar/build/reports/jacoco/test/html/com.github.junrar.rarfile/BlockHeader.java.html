@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">BlockHeader.java</span></div><h1>BlockHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 22.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Base class of headers that contain data
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class BlockHeader extends BaseBlock {
+    public static final short blockHeaderSize = 4;
+
+<span class="fc" id="L35">    private static final Logger logger = LoggerFactory.getLogger(BlockHeader.class);</span>
+
+    private long dataSize;
+    private long packSize;
+
+<span class="nc" id="L40">    public BlockHeader() {</span>
+
+<span class="nc" id="L42">    }</span>
+
+    public BlockHeader(BlockHeader bh) {
+<span class="fc" id="L45">        super(bh);</span>
+<span class="fc" id="L46">        this.packSize = bh.getDataSize();</span>
+<span class="fc" id="L47">        this.dataSize = packSize;</span>
+<span class="fc" id="L48">        this.positionInFile = bh.getPositionInFile();</span>
+<span class="fc" id="L49">    }</span>
+
+    public BlockHeader(BaseBlock bb, byte[] blockHeader) {
+<span class="fc" id="L52">        super(bb);</span>
+
+<span class="fc" id="L54">        this.packSize = Raw.readIntLittleEndianAsLong(blockHeader, 0);</span>
+<span class="fc" id="L55">        this.dataSize  = this.packSize;</span>
+<span class="fc" id="L56">    }</span>
+
+    public long getDataSize() {
+<span class="fc" id="L59">        return dataSize;</span>
+    }
+
+    public long getPackSize() {
+<span class="fc" id="L63">        return packSize;</span>
+    }
+
+    public void print() {
+<span class="fc" id="L67">        super.print();</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="fc" id="L69">            logger.info(&quot;DataSize: {} packSize: {}&quot;, getDataSize(), getPackSize());</span>
+        }
+<span class="fc" id="L71">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

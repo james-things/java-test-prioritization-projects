@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------
+Test set: org.json.junit.JSONObjectTest
+-------------------------------------------------------------------------------
+Tests run: 95, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 1.321 s <<< FAILURE! - in org.json.junit.JSONObjectTest
+org.json.junit.JSONObjectTest.jsonObjectByBean1  Time elapsed: 0.03 s  <<< ERROR!
+com.jayway.jsonpath.PathNotFoundException: No results for path: $['callbacks']
+

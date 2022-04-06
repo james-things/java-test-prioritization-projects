@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TLine2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.geometry</a> &gt; <span class="el_source">TLine2D.java</span></div><h1>TLine2D.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.geometry;
+
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekmath.core.constants.TMathConstants;
+import com.telek.telekmath.core.geometry.points.TPoint2D;
+import com.telek.telekmath.utils.TelekMathException.*;
+import com.telek.telekutils.colors.TColor;
+
+import java.util.Objects;
+
+
+
+/**
+ * An immutable 2D line class. &lt;br&gt;
+ * Defines a mathematical line in form  ax + by + c = 0 &lt;br&gt;
+ * All methods either return a numeric value or &lt;b&gt;a new {@link TLine2D} instance&lt;/b&gt;.
+ */
+public class TLine2D {
+
+    /*   ax + by + c = 0   &lt;=&gt;   y = mx + n
+    *       =&gt;  m = -a/b,  n = -c/b
+    *
+     *    if b = 0 then it's in form x = k  (parallel to y axis)
+     *    ax + by + c = 0, b = 0   &lt;=&gt;   x = k
+     *       =&gt;  k = -c/a
+     * */
+
+    private final double a, b, c;
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+
+<span class="fc" id="L36">    public TLine2D(double a, double b, double c){</span>
+<span class="fc" id="L37">        this.a = a;</span>
+<span class="fc" id="L38">        this.b = b;</span>
+<span class="fc" id="L39">        this.c = c;</span>
+<span class="fc" id="L40">    }</span>
+
+
+
+    /**
+     * Defines a line in form  y = mx + n
+     * @param m specifies m
+     * @param n specifies n
+     */
+    public TLine2D(double m, double n){
+<span class="fc" id="L50">        this(-m, 1d, -n);</span>
+<span class="fc" id="L51">    }</span>
+
+
+
+<span class="fc" id="L55">    public TLine2D(TPoint2D pointOneOnLine, TPoint2D pointTwoOnLine){</span>
+<span class="fc" id="L56">        double x1 = pointOneOnLine.x;</span>
+<span class="fc" id="L57">        double x2 = pointTwoOnLine.x;</span>
+<span class="fc" id="L58">        double y1 = pointOneOnLine.y;</span>
+<span class="fc" id="L59">        double y2 = pointTwoOnLine.y;</span>
+
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if( x1 == x2 ){ // x = k</span>
+<span class="fc" id="L62">            this.a = 1d;</span>
+<span class="fc" id="L63">            this.b = 0d;</span>
+<span class="fc" id="L64">            this.c = -x1;</span>
+        }
+        else{ // ax+by+c=0
+<span class="nc" id="L67">            this.a = -(y1-y2)/(x1-x2);</span>
+<span class="nc" id="L68">            this.b = 1d;</span>
+<span class="nc" id="L69">            this.c = -this.a * x1 - y1;</span>
+        }
+<span class="fc" id="L71">    }</span>
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+
+    /**
+     * @param line2 any line
+     * @return true if this line and line2 are parallel to each other if and only if  m1 = m2
+     */
+    public boolean isParallelTo(TLine2D line2){
+<span class="fc" id="L85">        boolean firstParallel = this.isParallelToYAxis();</span>
+<span class="fc" id="L86">        boolean secondParallel = line2.isParallelToYAxis();</span>
+
+<span class="pc bpc" id="L88" title="3 of 4 branches missed.">        if( firstParallel &amp;&amp; secondParallel ) // x = k, x = k</span>
+<span class="nc" id="L89">            return true;</span>
+<span class="pc bpc" id="L90" title="5 of 8 branches missed.">        else if( (!firstParallel &amp;&amp; secondParallel) || (firstParallel &amp;&amp; !secondParallel) ) // ax+by+c=0, x = k  or otherway around</span>
+<span class="nc" id="L91">            return false;</span>
+        else // ax+by+c=0, ax+by+c=0
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">            return ( -a/b ) == ( -line2.a / line2.b ); // m1 == m2</span>
+    }
+
+
+
+
+
+    /**
+     * @param line2 any line
+     * @return true if this line and line2 are parallel to each other if and only if m1 = m2
+     */
+    public boolean isOrthogonalTo(TLine2D line2){
+<span class="fc" id="L105">        return TMath.areEqual(angleBetweenTwoLines(this, line2), TMathConstants.PI_OVER_TWO);</span>
+    }
+
+
+
+    public TLine2D getSymmetricalLineTo(boolean isSymmetricalToXAxis, boolean isSymmetricalToYAxis){
+<span class="pc bpc" id="L111" title="1 of 4 branches missed.">        return new TLine2D(</span>
+                isSymmetricalToYAxis ? -this.a : this.a,
+                isSymmetricalToXAxis ? -this.b : this.b,
+                this.c
+        );
+    }
+
+
+
+
+
+    /**
+     * sqrt(1 + m^2) = sqrt( (a^2 + b^2) / b^2 )
+     * @return The size of this line.
+     */
+    public double size(){
+<span class="fc" id="L127">        double a2 = a * a;</span>
+<span class="fc" id="L128">        double b2 = b * b;</span>
+<span class="fc" id="L129">        double inside = (a2 + b2) / b2;</span>
+<span class="fc" id="L130">        return Math.sqrt( inside );</span>
+    }
+
+
+
+
+    /**
+     * If b = 0 then this line is in form x = k, otherwise it's in the form y = mx + n
+     * @return True if this line is in form x = k.
+     */
+    public boolean isParallelToYAxis() {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        return b == 0;</span>
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    /**
+     * Finds the intersection point of two lines, returns null if lines do not intersect. (Parallel lines)
+     * @param line1 any line
+     * @param line2 any line
+     * @return Returns the intersection point or null if it doesn't exists
+     */
+    public static TPoint2D intersectionPointBetweenTwoLines(TLine2D line1, TLine2D line2){
+<span class="fc" id="L157">        boolean firstParallel = line1.isParallelToYAxis();</span>
+<span class="fc" id="L158">        boolean secondParallel = line2.isParallelToYAxis();</span>
+<span class="pc bpc" id="L159" title="3 of 4 branches missed.">        if(firstParallel &amp;&amp; secondParallel){ // x = k, x = k</span>
+<span class="nc" id="L160">            double k1 = -line1.c / line1.a;</span>
+<span class="nc" id="L161">            double k2 = -line2.c / line2.a;</span>
+            // wont intersect here if they have different k values
+<span class="nc bnc" id="L163" title="All 2 branches missed.">            if(k1 != k2) return null;</span>
+
+            // infinitely many points here, just return one of them
+<span class="nc" id="L166">            return new TPoint2D(k1, 0d);</span>
+        }
+<span class="pc bpc" id="L168" title="2 of 4 branches missed.">        else if(!firstParallel &amp;&amp; secondParallel){ // ax+by+c=0, x = k</span>
+            // always intersects here
+<span class="nc" id="L170">            double a = line1.a, b = line1.b, c = line1.c, k = -line2.c / line2.a;</span>
+<span class="nc" id="L171">            return new TPoint2D(k, (-a*k-c) / b );</span>
+        }
+<span class="pc bpc" id="L173" title="3 of 4 branches missed.">        else if(firstParallel &amp;&amp; !secondParallel){ // x = k, ax+by+c=0</span>
+            // always intersects here
+<span class="nc" id="L175">            double a = line2.a, b = line2.b, c = line2.c, k = -line1.c / line1.a;</span>
+<span class="nc" id="L176">            return new TPoint2D(k, (-a*k-c) / b );</span>
+        }
+        else{ // ax+by+c=0, ax+by+c=0
+<span class="fc" id="L179">            double m1 = -line1.a / line1.b;</span>
+<span class="fc" id="L180">            double m2 = -line2.a / line2.b;</span>
+<span class="fc" id="L181">            double n1 = -line1.c / line1.b;</span>
+<span class="fc" id="L182">            double n2 = -line2.c / line2.b;</span>
+            // wont intersect here if they have the same m and different n
+<span class="pc bpc" id="L184" title="1 of 4 branches missed.">            if(m1 == m2 &amp;&amp; n1 != n2) return null;</span>
+
+            // always intersects here
+<span class="fc" id="L187">            double x = - (n1-n2) / (m1-m2);</span>
+<span class="fc" id="L188">            double y = m1 * x + n1;</span>
+
+<span class="fc" id="L190">            return new TPoint2D(x, y);</span>
+        }
+    }
+
+
+
+    /** Returns the distance between two parallel lines
+     * @param line1 any line
+     * @param line2 any line that's parallel to line1
+     * @return The orthogonal distance between two parallel lines
+     */
+    public static double distanceBetweenTwoParallelLines(TLine2D line1, TLine2D line2){
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if(!line1.isParallelTo(line2)) throw new LinesAreNotParallelException(line1, line2);</span>
+<span class="fc" id="L203">        return Math.abs(line2.c - line1.c) / Math.sqrt( line1.a * line1.a + line1.b * line1.b ); // abs(c2-c1) / sqrt(a^2+b^2)</span>
+    }
+
+
+
+    /**
+     * @param point any point
+     * @param line any line
+     * @return The orthogonal distance between point and line
+     */
+    public static double distanceBetweenPointAndLine(TPoint2D point, TLine2D line){
+<span class="fc" id="L214">        return Math.abs( line.a * point.x + line.b * point.y + line.c )  / Math.sqrt( line.a * line.a + line.b * line.b );</span>
+    }
+
+
+
+    /**
+     * This method will return the angle between the lines in range [0, PI/2]. &lt;br&gt;
+     * Use (180deg - angle) to find the obtuse angle.
+     * @param line1 any line
+     * @param line2 any line
+     * @return The angle between line1 and line2
+     */
+    public static double angleBetweenTwoLines(TLine2D line1, TLine2D line2){
+        // https://www.cuemath.com/geometry/angle-between-two-lines/
+<span class="fc" id="L228">        boolean firstParallel = line1.isParallelToYAxis();</span>
+<span class="fc" id="L229">        boolean secondParallel = line2.isParallelToYAxis();</span>
+
+<span class="pc bpc" id="L231" title="3 of 4 branches missed.">        if(firstParallel &amp;&amp; secondParallel){ // x = k, x = k</span>
+<span class="nc" id="L232">            return 0d;</span>
+        }
+        else{
+<span class="fc" id="L235">            double a1 = line1.a, a2 = line2.a;</span>
+<span class="fc" id="L236">            double b1 = line1.b, b2 = line2.b;</span>
+<span class="fc" id="L237">            return Math.abs(Math.atan( (a2 * b1 - a1 * b2) / (a1 * a2 + b1 * b2) ));</span>
+        }
+    }
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public String toString() {
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        if(this.isParallelToYAxis()) return String.format(&quot;x = %f&quot;, -c/a).replaceAll(&quot;-0.000000&quot;, &quot;0&quot;);</span>
+
+
+        // ax+by+c = 0
+        // a/b x + y + c/b = 0
+        // y = -a/b x -c/b
+
+<span class="nc" id="L258">        return String.format(&quot; y = %fx + %f&quot;, -a/b, -c/b)</span>
+<span class="nc" id="L259">                .replaceAll(&quot; 0.000000x \\+ &quot;, &quot;&quot;)</span>
+<span class="nc" id="L260">                .replaceAll(&quot;\\+ \\-&quot;, &quot;- &quot;)</span>
+<span class="nc" id="L261">                .replaceAll(&quot;\\+ 0.000000 =&quot;, &quot;=&quot;)</span>
+<span class="nc" id="L262">                .replaceAll(&quot;\\- 0.000000 =&quot;, &quot;=&quot;)</span>
+<span class="nc" id="L263">                .replaceAll(&quot;1.000000x&quot;, &quot;x&quot;)</span>
+<span class="nc" id="L264">                .replaceAll(&quot;-1.000000x&quot;, &quot;x&quot;)</span>
+<span class="nc" id="L265">                .trim();</span>
+        /* was like this:
+        return String.format(&quot; %fx + %fy + %f = 0&quot;, a, b, c)
+                .replaceAll(&quot; 0.000000x \\+ &quot;, &quot;&quot;)
+                .replaceAll(&quot;0.000000y \\+ &quot;, &quot;&quot;)
+                .replaceAll(&quot;\\+ \\-&quot;, &quot;- &quot;)
+                .replaceAll(&quot;\\+ 0.000000 =&quot;, &quot;=&quot;)
+                .replaceAll(&quot;\\- 0.000000 =&quot;, &quot;=&quot;)
+                .replaceAll(&quot;1.000000y&quot;, &quot;y&quot;)
+                .replaceAll(&quot;1.000000x&quot;, &quot;x&quot;)
+                .replaceAll(&quot;-1.000000x&quot;, &quot;x&quot;)
+                .replaceAll(&quot;-1.000000y&quot;, &quot;y&quot;)
+                .trim();
+        */
+    }
+
+
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L287" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L288">        TLine2D line2 = (TLine2D) o;</span>
+        // -x + y = 0 and x - y = 0 are the same thing so check them both here:
+<span class="pc bpc" id="L290" title="1 of 6 branches missed.">        boolean b1 = this.a == line2.a &amp;&amp; this.b == line2.b &amp;&amp; this.c == line2.c;</span>
+<span class="pc bpc" id="L291" title="1 of 6 branches missed.">        boolean b2 = this.a == -line2.a &amp;&amp; this.b == -line2.b &amp;&amp; this.c == -line2.c;</span>
+<span class="fc bfc" id="L292" title="All 4 branches covered.">        return b1 || b2;</span>
+    }
+
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L298">        return Objects.hash(a, b, c);</span>
+    }
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

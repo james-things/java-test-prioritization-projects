@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkedListMergeIterative.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.list.merge</a> &gt; <span class="el_source">LinkedListMergeIterative.java</span></div><h1>LinkedListMergeIterative.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.list.merge;
+
+import com.sl.algorithms.core.interfaces.merge.MergeEngine;
+import com.sl.algorithms.core.list.ListNode;
+
+/**
+ * &lt;p&gt;Iteratively merge lists from an array of sorted lists - for reference only.&lt;/p&gt;
+ */
+<span class="fc" id="L9">public class LinkedListMergeIterative&lt;T extends Comparable&gt; implements MergeEngine&lt;T&gt; {</span>
+
+  @Override
+  public ListNode&lt;T&gt; mergeKSortedLists(ListNode&lt;T&gt;[] sortedListsArray) {
+<span class="fc" id="L13">    ListNode&lt;T&gt; mHead = merge2SortedLists(sortedListsArray[0], sortedListsArray[1]);</span>
+<span class="fc bfc" id="L14" title="All 2 branches covered.">    for (int i = 2; i &lt; sortedListsArray.length; i++) {</span>
+<span class="fc" id="L15">      ListNode&lt;T&gt; list1 = mHead;</span>
+<span class="fc" id="L16">      ListNode&lt;T&gt; list2 = sortedListsArray[i];</span>
+<span class="fc" id="L17">      mHead = merge2SortedLists(list1, list2);</span>
+    }
+<span class="fc" id="L19">    return mHead;</span>
+  }
+
+  /**
+   * O(n+m) time and space iterative method to merge 2 sorted lists.&lt;br&gt;
+   */
+  @Override
+  public ListNode&lt;T&gt; merge2SortedLists(ListNode&lt;T&gt; list1, ListNode&lt;T&gt; list2) {
+<span class="pc bpc" id="L27" title="1 of 4 branches missed.">    if (list1 == null || list1.isDummyNode()) {</span>
+<span class="fc" id="L28">      return list2;</span>
+    }
+<span class="pc bpc" id="L30" title="1 of 4 branches missed.">    if (list2 == null || list2.isDummyNode()) {</span>
+<span class="fc" id="L31">      return list1;</span>
+    }
+<span class="fc" id="L33">    ListNode&lt;T&gt; dummyNode = ListNode.dummyNode();</span>
+<span class="fc" id="L34">    ListNode&lt;T&gt; mHead = dummyNode;</span>
+<span class="fc" id="L35">    dummyNode.next = mHead;</span>
+    do {
+<span class="fc bfc" id="L37" title="All 2 branches covered.">      if (list1.compareTo(list2) &lt;= 0) {</span>
+<span class="fc" id="L38">        mHead.next = list1;</span>
+<span class="fc" id="L39">        mHead = list1;</span>
+<span class="fc" id="L40">        list1 = list1.next;</span>
+      } else {
+<span class="fc" id="L42">        mHead.next = list2;</span>
+<span class="fc" id="L43">        mHead = list2;</span>
+<span class="fc" id="L44">        list2 = list2.next;</span>
+      }
+<span class="fc bfc" id="L46" title="All 4 branches covered.">    } while (list1 != null &amp;&amp; list2 != null);</span>
+    // handle the case when one list contains all values less that second list
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    if (list1 != null) {</span>
+<span class="fc" id="L49">      mHead.next = list1;</span>
+    } else { // if (list2 != null)
+<span class="fc" id="L51">      mHead.next = list2;</span>
+    }
+<span class="fc" id="L53">    return dummyNode.next;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FrequencyClass.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.statistics.freqtable</a> &gt; <span class="el_source">FrequencyClass.java</span></div><h1>FrequencyClass.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.statistics.freqtable;
+
+
+import java.util.Objects;
+
+public class FrequencyClass {
+
+    public final double cLeft, cRight, midpoint, freq, relFreq, incCumFreq, incRelFreq;
+
+<span class="fc" id="L10">    FrequencyClass(double cl, double cr, double mid, double f, double rf, double icf, double irf) {</span>
+<span class="fc" id="L11">        this.cLeft = cl;</span>
+<span class="fc" id="L12">        this.cRight = cr;</span>
+<span class="fc" id="L13">        this.midpoint = mid;</span>
+<span class="fc" id="L14">        this.freq = f;</span>
+<span class="fc" id="L15">        this.relFreq = rf;</span>
+<span class="fc" id="L16">        this.incCumFreq = icf;</span>
+<span class="fc" id="L17">        this.incRelFreq = irf;</span>
+<span class="fc" id="L18">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L22">        return &quot;FrequencyClass{&quot; +</span>
+                &quot;cLeft=&quot; + cLeft +
+                &quot;, cRight=&quot; + cRight +
+                &quot;, midpoint=&quot; + midpoint +
+                &quot;, freq=&quot; + freq +
+                &quot;, relFreq=&quot; + relFreq +
+                &quot;, incCumFreq=&quot; + incCumFreq +
+                &quot;, incRelFreq=&quot; + incRelFreq +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L36" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L37">        FrequencyClass that = (FrequencyClass) o;</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        return Double.compare(that.cLeft, cLeft) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                Double.compare(that.cRight, cRight) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">                Double.compare(that.midpoint, midpoint) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">                Double.compare(that.freq, freq) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">                Double.compare(that.relFreq, relFreq) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">                Double.compare(that.incCumFreq, incCumFreq) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">                Double.compare(that.incRelFreq, incRelFreq) == 0;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L49">        return Objects.hash(cLeft, cRight, midpoint, freq, relFreq, incCumFreq, incRelFreq);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

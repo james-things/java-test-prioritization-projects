@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BitInput.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.vm</a> &gt; <span class="el_source">BitInput.java</span></div><h1>BitInput.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.vm;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class BitInput {
+
+    /**
+     * the max size of the input
+     */
+    public static final int MAX_SIZE = 0x8000;
+    protected int inAddr;
+    protected int inBit;
+    protected byte[] inBuf;
+
+
+    public void InitBitInput() {
+<span class="fc" id="L38">        inAddr = 0;</span>
+<span class="fc" id="L39">        inBit = 0;</span>
+<span class="fc" id="L40">    }</span>
+    /**
+     * @param Bits .
+     */
+    public void addbits(int Bits) {
+<span class="fc" id="L45">        Bits += inBit;</span>
+<span class="fc" id="L46">        inAddr += Bits &gt;&gt;&gt; 3;</span>
+<span class="fc" id="L47">        inBit = Bits &amp; 7;</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * @return the bits (unsigned short)
+     */
+    public int getbits() {
+//      int BitField=0;
+//      BitField|=(int)(inBuf[inAddr] &lt;&lt; 16)&amp;0xFF0000;
+//      BitField|=(int)(inBuf[inAddr+1] &lt;&lt; 8)&amp;0xff00;
+//      BitField|=(int)(inBuf[inAddr+2])&amp;0xFF;
+//      BitField &gt;&gt;&gt;= (8-inBit);
+//      return (BitField &amp; 0xffff);
+<span class="fc" id="L60">        return (((((inBuf[inAddr] &amp; 0xff) &lt;&lt; 16)</span>
+                + ((inBuf[inAddr + 1] &amp; 0xff) &lt;&lt; 8)
+                + ((inBuf[inAddr + 2] &amp; 0xff))) &gt;&gt;&gt; (8 - inBit)) &amp; 0xffff);
+    }
+
+    /**
+     *
+     */
+<span class="fc" id="L68">    public BitInput() {</span>
+<span class="fc" id="L69">        inBuf = new byte[MAX_SIZE];</span>
+<span class="fc" id="L70">    }</span>
+
+    /**
+     * @param Bits add the bits
+     */
+    public void faddbits(int Bits) {
+<span class="fc" id="L76">        addbits(Bits);</span>
+<span class="fc" id="L77">    }</span>
+
+
+    /**
+     * @return get the bits
+     */
+    public int fgetbits() {
+<span class="fc" id="L84">        return (getbits());</span>
+    }
+
+    /**
+     * Indicates an Overfow
+     * @param IncPtr how many bytes to inc
+     * @return true if an Oververflow would occur
+     */
+    public boolean Overflow(int IncPtr) {
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        return (inAddr + IncPtr &gt;= MAX_SIZE);</span>
+    }
+    public byte[] getInBuf() {
+<span class="fc" id="L96">        return inBuf;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

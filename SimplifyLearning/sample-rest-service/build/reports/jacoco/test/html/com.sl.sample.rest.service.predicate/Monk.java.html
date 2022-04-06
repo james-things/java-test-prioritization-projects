@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Monk.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sample-rest-service</a> &gt; <a href="index.source.html" class="el_package">com.sl.sample.rest.service.predicate</a> &gt; <span class="el_source">Monk.java</span></div><h1>Monk.java</h1><pre class="source lang-java linenums">package com.sl.sample.rest.service.predicate;
+
+public class Monk {
+
+  private final int age;
+  private final boolean sportsPerson;
+
+<span class="fc" id="L8">  public Monk(final int _age, final boolean _sportsperson) {</span>
+<span class="fc" id="L9">    age = _age;</span>
+<span class="fc" id="L10">    sportsPerson = _sportsperson;</span>
+<span class="fc" id="L11">  }</span>
+
+  public int getAge() {
+<span class="fc" id="L14">    return age;</span>
+  }
+
+  public boolean isSportsPerson() {
+<span class="fc" id="L18">    return sportsPerson;</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">    if (this == o) {</span>
+<span class="nc" id="L24">      return true;</span>
+    }
+<span class="pc bpc" id="L26" title="1 of 4 branches missed.">    if (o == null || getClass() != o.getClass()) {</span>
+<span class="fc" id="L27">      return false;</span>
+    }
+<span class="fc" id="L29">    Monk monk = (Monk) o;</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">    if (age != monk.age) {</span>
+<span class="fc" id="L31">      return false;</span>
+    }
+<span class="fc bfc" id="L33" title="All 2 branches covered.">    return sportsPerson == monk.sportsPerson;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    return 31 * age + (sportsPerson ? 1 : 0);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

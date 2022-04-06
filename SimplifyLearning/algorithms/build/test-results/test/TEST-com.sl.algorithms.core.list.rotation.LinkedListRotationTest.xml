@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2022-03-31T13:27:31" hostname="LAPTOP-0DNPIBQS" time="0.004">
+  <properties/>
+  <testcase name="assertIsRotation" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.001"/>
+  <testcase name="testBaseCases" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.001"/>
+  <testcase name="testRotateLeft" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.0"/>
+  <testcase name="testStringRotationLeft" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.001"/>
+  <testcase name="testStringRotationRight" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.0"/>
+  <testcase name="assertArrayRotationUsingLinkedList" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.001"/>
+  <testcase name="testRotateRight" classname="com.sl.algorithms.core.list.rotation.LinkedListRotationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,12 @@
+com.github.junrar
+com.github.junrar.crc
+com.github.junrar.crypt
+com.github.junrar.exception
+com.github.junrar.io
+com.github.junrar.rarfile
+com.github.junrar.unpack
+com.github.junrar.unpack.decode
+com.github.junrar.unpack.ppm
+com.github.junrar.unpack.vm
+com.github.junrar.unsigned
+com.github.junrar.volume

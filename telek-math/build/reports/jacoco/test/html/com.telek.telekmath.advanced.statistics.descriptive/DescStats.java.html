@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DescStats.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.statistics.descriptive</a> &gt; <span class="el_source">DescStats.java</span></div><h1>DescStats.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.statistics.descriptive;
+
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.utils.TMath;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import com.telek.telekmath.utils.TelekMathException.*;
+
+// import Mode to get rid of poor syntax
+import com.telek.telekmath.advanced.statistics.descriptive.DataDescription.Mode;
+import com.telek.telekutils.arrayref.oned.*;
+
+
+public class DescStats {
+
+
+    /* No constructor and fields */
+    private DescStats(){}
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////    GENERAL METHODS    ///////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+
+
+    public static double getRange(double min, double max){
+<span class="fc" id="L28">        return max - min;</span>
+    }
+
+    public static double getMean(double sum, double count){
+<span class="fc" id="L32">        return sum / count;</span>
+    }
+
+    /**
+     * @param variance the variance of this data set
+     * @return the standard deviation of this data set
+     */
+    public static double getStddev(double variance) {
+<span class="fc" id="L40">        return TMath.sqrt(variance);</span>
+    }
+
+    public static double getInterquartileRange(double quartile1, double quartile3) {
+<span class="fc" id="L44">        return quartile3 - quartile1;</span>
+    }
+
+    public static double getPearsonSkewnessCoefficient(double median, double mean, double stddev) {
+<span class="fc" id="L48">        return 3 * (mean - median) / stddev;</span>
+    }
+
+    public static double getBowleySkewnessCoefficient(double quartile1, double quartile2, double quartile3) {
+<span class="fc" id="L52">        return (quartile3 + quartile1 - 2 * quartile2) / (quartile3 - quartile1);</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////    VALIDNESS METHODS    //////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    public static void verifyProportion(double pHat) {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if(!TRange.ZERO_TO_ONE.isInRange(pHat))</span>
+<span class="nc" id="L64">            throw new InvalidValueException(&quot;pHat&quot;, pHat);</span>
+<span class="fc" id="L65">    }</span>
+
+    public static void verifyAlpha(double alpha){
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if(!TRange.ZERO_TO_ONE.isInRange(alpha))</span>
+<span class="nc" id="L69">            throw new InvalidValueException(&quot;alpha&quot;, alpha);</span>
+<span class="fc" id="L70">    }</span>
+
+    public static void verifyVariance(double variance){
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if(variance &lt; 0)</span>
+<span class="nc" id="L74">            throw new IsNegativeException(&quot;variance&quot;);</span>
+<span class="fc" id="L75">    }</span>
+
+    public static void verifyStddev(double stddev){
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if(stddev &lt; 0)</span>
+<span class="nc" id="L79">            throw new IsNegativeException(&quot;standard deviation&quot;);</span>
+<span class="fc" id="L80">    }</span>
+
+    public static void verifyCount(double count){
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if(count &lt; 0)</span>
+<span class="nc" id="L84">            throw new IsNegativeException(&quot;count (array size)&quot;);</span>
+<span class="fc" id="L85">    }</span>
+
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////    UNUSED ADDITIONAL METHODS    ////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+
+
+    public static double getMedian(ArrayRef sortedData){
+<span class="nc" id="L94">        return getQuartile(sortedData, 2);</span>
+    }
+    public static double getMedian(Number[] sortedData){
+<span class="nc" id="L97">        return getQuartile(sortedData, 2);</span>
+    }
+    public static double getMedian(double[] sortedData){
+<span class="nc" id="L100">        return getQuartile(sortedData, 2);</span>
+    }
+    public static double getMedian(int[] sortedData){
+<span class="nc" id="L103">        return getQuartile(sortedData, 2);</span>
+    }
+    public static double getMedian(float[] sortedData) {
+<span class="nc" id="L106">        return getQuartile(sortedData, 2);</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    ////////////////////    TYPELESS ARRAY IMPLEMENTATION    ////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+
+
+    public static double getCount(ArrayRef data){
+<span class="fc" id="L116">        return data.getSize();</span>
+    }
+
+    public static double getMin(ArrayRef sortedData){
+<span class="fc" id="L120">        return sortedData.getValue(0);</span>
+    }
+
+    public static double getMax(ArrayRef sortedData){
+<span class="fc" id="L124">        return sortedData.getValue(sortedData.getSize() - 1);</span>
+    }
+
+    public static double getSum(ArrayRef data){
+<span class="fc" id="L128">        double sum = 0;</span>
+<span class="fc" id="L129">        int len = data.getSize();</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++)</span>
+<span class="fc" id="L131">            sum += data.getValue(i);</span>
+<span class="fc" id="L132">        return sum;</span>
+    }
+
+    public static double getVariance(ArrayRef data, double mean, boolean isSample){
+<span class="fc" id="L136">        double variance = 0;</span>
+<span class="fc" id="L137">        int len = data.getSize();</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L139">            double val = data.getValue(i);</span>
+<span class="fc" id="L140">            double ximean = val - mean;</span>
+<span class="fc" id="L141">            variance += ximean * ximean;</span>
+        }
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        variance /= isSample ? len - 1 : len;</span>
+<span class="fc" id="L144">        return variance;</span>
+    }
+
+    public static Mode getModeAndModeCount(ArrayRef data){
+<span class="fc" id="L148">        HashMap&lt;Double, Integer&gt; frequencyMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L149">        double maxModeFrequency  = 1, mode = 0;</span>
+<span class="fc" id="L150">        boolean hasMode = false;</span>
+<span class="fc" id="L151">        int len = data.getSize();</span>
+
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L154">            double dbl = data.getValue(i);</span>
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (frequencyMap.get(dbl) != null) {</span>
+<span class="fc" id="L157">                int current = frequencyMap.get(dbl) + 1;</span>
+<span class="fc" id="L158">                frequencyMap.put(dbl, current);</span>
+
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                if(current &gt; maxModeFrequency) {</span>
+<span class="fc" id="L161">                    maxModeFrequency  = current;</span>
+<span class="fc" id="L162">                    mode = dbl;</span>
+<span class="fc" id="L163">                    hasMode = true;</span>
+                }
+<span class="fc" id="L165">            }</span>
+<span class="fc" id="L166">            else frequencyMap.put(dbl, 1);</span>
+        }
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        mode = hasMode ? mode : Double.NaN;</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        double modeCount = hasMode ? frequencyMap.get(mode) : Double.NaN;</span>
+<span class="fc" id="L170">        return new Mode(mode, modeCount);</span>
+    }
+
+    /**
+     * Uses linear interpolation to calculate the quartiles. &lt;br&gt;
+     * Same as QUARTILE.EXC in Excel.
+     * @param sortedData the sorted data set
+     * @param nthQuartile an integer (1,2 or 3)
+     * @return the nth quartile
+     */
+    public static double getQuartile(ArrayRef sortedData, int nthQuartile) {
+<span class="fc" id="L181">        double quartileIndex = (sortedData.getSize() + 1d) * nthQuartile / 4d;</span>
+<span class="fc" id="L182">        double percentage = quartileIndex % 1;</span>
+<span class="fc" id="L183">        int lowIndex = (int) Math.floor(quartileIndex);</span>
+        // -1 because in statistics we have 1-based indexes but in Java it's 0-based
+<span class="fc" id="L185">        double lowValue = sortedData.getValue(lowIndex - 1);</span>
+        // also -1 here...
+<span class="fc" id="L187">        double highValue = sortedData.getValue(lowIndex);</span>
+<span class="fc" id="L188">        return lowValue + (highValue - lowValue) * percentage;</span>
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////
+    /////////////    OTHER TYPES THAT CONVERT TO TYPELESS ARRAYS    //////////////
+    //////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////    NUMBER[]    ///////////////////////////////
+
+
+    public static double getCount(Number[] data){
+<span class="nc" id="L200">        return getCount(new NumberArrRef(data));</span>
+    }
+    public static double getMin(Number[] sortedData){
+<span class="nc" id="L203">        return getMin(new NumberArrRef(sortedData));</span>
+    }
+    public static double getMax(Number[] sortedData){
+<span class="nc" id="L206">        return getMax(new NumberArrRef(sortedData));</span>
+    }
+    public static double getSum(Number[] data){
+<span class="nc" id="L209">        return getSum(new NumberArrRef(data));</span>
+    }
+    public static double getVariance(Number[] data, double mean, boolean isSample){
+<span class="nc" id="L212">        return getVariance(new NumberArrRef(data), mean, isSample);</span>
+    }
+    public static Mode getModeAndModeCount(Number[] data){
+<span class="nc" id="L215">        return getModeAndModeCount(new NumberArrRef(data));</span>
+    }
+    public static double getQuartile(Number[] sortedData, int nthQuartile) {
+<span class="nc" id="L218">        return getQuartile(new NumberArrRef(sortedData), nthQuartile);</span>
+    }
+
+    ///////////////////////////////    double[]    ///////////////////////////////
+
+    public static double getCount(double[] data){
+<span class="fc" id="L224">        return getCount(new DoubleArrRef(data));</span>
+    }
+    public static double getMin(double[] sortedData){
+<span class="fc" id="L227">        return getMin(new DoubleArrRef(sortedData));</span>
+    }
+    public static double getMax(double[] sortedData){
+<span class="fc" id="L230">        return getMax(new DoubleArrRef(sortedData));</span>
+    }
+    public static double getSum(double[] data){
+<span class="fc" id="L233">        return getSum(new DoubleArrRef(data));</span>
+    }
+    public static double getVariance(double[] data, double mean, boolean isSample){
+<span class="fc" id="L236">        return getVariance(new DoubleArrRef(data), mean, isSample);</span>
+    }
+    public static Mode getModeAndModeCount(double[] data){
+<span class="fc" id="L239">        return getModeAndModeCount(new DoubleArrRef(data));</span>
+    }
+    public static double getQuartile(double[] sortedData, int nthQuartile) {
+<span class="fc" id="L242">        return getQuartile(new DoubleArrRef(sortedData), nthQuartile);</span>
+    }
+
+    /////////////////////////////////    int[]    ////////////////////////////////
+
+    public static double getCount(int[] data){
+<span class="fc" id="L248">        return getCount(new IntArrRef(data));</span>
+    }
+    public static double getMin(int[] sortedData){
+<span class="fc" id="L251">        return getMin(new IntArrRef(sortedData));</span>
+    }
+    public static double getMax(int[] sortedData){
+<span class="fc" id="L254">        return getMax(new IntArrRef(sortedData));</span>
+    }
+    public static double getSum(int[] data){
+<span class="fc" id="L257">        return getSum(new IntArrRef(data));</span>
+    }
+    public static double getVariance(int[] data, double mean, boolean isSample){
+<span class="fc" id="L260">        return getVariance(new IntArrRef(data), mean, isSample);</span>
+    }
+    public static Mode getModeAndModeCount(int[] data){
+<span class="fc" id="L263">        return getModeAndModeCount(new IntArrRef(data));</span>
+    }
+    public static double getQuartile(int[] sortedData, int nthQuartile) {
+<span class="fc" id="L266">        return getQuartile(new IntArrRef(sortedData), nthQuartile);</span>
+    }
+
+    /////////////////////////////////    float[]    //////////////////////////////
+
+    public static double getCount(float[] data){
+<span class="fc" id="L272">        return getCount(new FloatArrRef(data));</span>
+    }
+    public static double getMin(float[] sortedData){
+<span class="fc" id="L275">        return getMin(new FloatArrRef(sortedData));</span>
+    }
+    public static double getMax(float[] sortedData){
+<span class="fc" id="L278">        return getMax(new FloatArrRef(sortedData));</span>
+    }
+    public static double getSum(float[] data){
+<span class="fc" id="L281">        return getSum(new FloatArrRef(data));</span>
+    }
+    public static double getVariance(float[] data, double mean, boolean isSample){
+<span class="fc" id="L284">        return getVariance(new FloatArrRef(data), mean, isSample);</span>
+    }
+    public static Mode getModeAndModeCount(float[] data){
+<span class="fc" id="L287">        return getModeAndModeCount(new FloatArrRef(data));</span>
+    }
+    public static double getQuartile(float[] sortedData, int nthQuartile) {
+<span class="fc" id="L290">        return getQuartile(new FloatArrRef(sortedData), nthQuartile);</span>
+    }
+
+
+    //////////////////////////////////    T[]    /////////////////////////////////
+
+
+    public static &lt;T&gt; double getCount(T[] data, Field field){
+<span class="nc" id="L298">        return getCount(new GenericArrRef&lt;&gt;(data, field));</span>
+    }
+    public static &lt;T&gt; double getMin(T[] data, Field field){
+<span class="nc" id="L301">        return getMin(new GenericArrRef&lt;&gt;(data, field));</span>
+    }
+    public static &lt;T&gt; double getMax(T[] data, Field field){
+<span class="nc" id="L304">        return getMax(new GenericArrRef&lt;&gt;(data, field));</span>
+    }
+    public static &lt;T&gt; double getSum(T[] data, Field field) {
+<span class="nc" id="L307">        return getSum(new GenericArrRef&lt;&gt;(data, field));</span>
+    }
+    public static &lt;T&gt; double getVariance(T[] data, Field field, double mean, boolean isSample) {
+<span class="nc" id="L310">        return getVariance(new GenericArrRef&lt;&gt;(data, field), mean, isSample);</span>
+    }
+    public static &lt;T&gt; Mode getModeAndModeCount(T[] data, Field field) {
+<span class="nc" id="L313">        return getModeAndModeCount(new GenericArrRef&lt;&gt;(data, field));</span>
+    }
+    public static &lt;T&gt; double getQuartile(T[] sortedData, Field field, int nthQuartile) throws IllegalAccessException {
+<span class="nc" id="L316">        return getQuartile(new GenericArrRef&lt;&gt;(sortedData, field), nthQuartile);</span>
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    ////////    METHODS THAT CALCULATE EVERYTHING AND RETURN A DATADESCRIPTION OBJECT    ////////
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static DataDescription getDataDesc(ArrayRef sortedData){
+<span class="fc" id="L326">        double count = getCount(sortedData);</span>
+<span class="fc" id="L327">        double min = getMin(sortedData);</span>
+<span class="fc" id="L328">        double max = getMax(sortedData);</span>
+<span class="fc" id="L329">        double range = getRange(min, max);</span>
+<span class="fc" id="L330">        double sum = getSum(sortedData);</span>
+<span class="fc" id="L331">        double mean = getMean(sum, count);</span>
+<span class="fc" id="L332">        double variance = getVariance(sortedData, mean, false);</span>
+<span class="fc" id="L333">        double sampleVariance = getVariance(sortedData, mean, true);</span>
+<span class="fc" id="L334">        double stddev = getStddev(variance);</span>
+<span class="fc" id="L335">        Mode mode = getModeAndModeCount(sortedData);</span>
+<span class="fc" id="L336">        double quartile1 = getQuartile(sortedData, 1);</span>
+<span class="fc" id="L337">        double quartile2 = getQuartile(sortedData, 2);</span>
+<span class="fc" id="L338">        double quartile3 = getQuartile(sortedData, 3);</span>
+<span class="fc" id="L339">        double median = quartile2;</span>
+<span class="fc" id="L340">        double interquartileRange = getInterquartileRange(quartile1, quartile3);</span>
+<span class="fc" id="L341">        double pearsonSkewCoef = getPearsonSkewnessCoefficient(median, mean, stddev);</span>
+<span class="fc" id="L342">        double bowleySkewCoef = getBowleySkewnessCoefficient(quartile1, quartile2, quartile3);</span>
+
+<span class="fc" id="L344">        return new DataDescription(variance, sampleVariance,</span>
+                mean, sum, interquartileRange, count,
+                quartile1, mode, median, quartile2, quartile3, min, max,
+                range, stddev, pearsonSkewCoef, bowleySkewCoef);
+    }
+
+    // these all convert themselves to TypelessArrays
+    public static DataDescription getDataDesc(Number[] sortedData){
+<span class="fc" id="L352">        return getDataDesc(new NumberArrRef(sortedData));</span>
+    }
+    public static DataDescription getDataDesc(int[] sortedData){
+<span class="fc" id="L355">        return getDataDesc(new IntArrRef(sortedData));</span>
+    }
+    public static DataDescription getDataDesc(double[] sortedData){
+<span class="fc" id="L358">        return getDataDesc(new DoubleArrRef(sortedData));</span>
+    }
+    public static DataDescription getDataDesc(float[] sortedData){
+<span class="nc" id="L361">        return getDataDesc(new FloatArrRef(sortedData));</span>
+    }
+    public static &lt;T&gt; DataDescription getDataDesc(T[] sortedData, Field field) {
+<span class="fc" id="L364">        return getDataDesc(new GenericArrRef&lt;&gt;(sortedData, field));</span>
+    }
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

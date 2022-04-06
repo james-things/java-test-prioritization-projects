@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TPoint3D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.geometry.points</a> &gt; <span class="el_source">TPoint3D.java</span></div><h1>TPoint3D.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.geometry.points;
+
+import com.telek.telekmath.core.geometry.TLine2D;
+import com.telek.telekmath.core.geometry.vectors.TVector2D;
+import com.telek.telekmath.core.geometry.vectors.TVector3D;
+import com.telek.telekmath.utils.TMath;
+import java.util.Objects;
+
+
+/**
+ * An immutable 3D point class. &lt;br&gt;
+ * All methods either return a numeric value or &lt;b&gt;a new {@link TPoint3D} instance&lt;/b&gt;.
+ */
+public class TPoint3D{
+
+    public final double x,y,z;
+
+<span class="fc" id="L18">    public TPoint3D(double x, double y, double z){</span>
+<span class="fc" id="L19">        this.x = x;</span>
+<span class="fc" id="L20">        this.y = y;</span>
+<span class="fc" id="L21">        this.z = z;</span>
+<span class="fc" id="L22">    }</span>
+
+
+    public double distanceFromOrigin() {
+<span class="fc" id="L26">        return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );</span>
+    }
+
+    /**
+     * @param point2 any point
+     * @return The distance between this vector and the other specified vector
+     */
+    public double distance(TPoint3D point2){
+<span class="fc" id="L34">        return Math.sqrt( ( (this.x - point2.x) * (this.x - point2.x) )</span>
+                + ( (this.y - point2.y) * (this.y - point2.y) )
+                + ( (this.z - point2.z) * (this.z - point2.z) )
+        );
+    }
+
+
+    public TPoint3D scale(double scale){
+<span class="nc" id="L42">        return new TPoint3D(this.x * scale, this.y * scale, this.z * scale);</span>
+    }
+
+
+    public TPoint3D moveBy(double xAmount, double yAmount, double zAmount){
+<span class="nc" id="L47">        return new TPoint3D(this.x + xAmount, this.y + yAmount, this.z + zAmount);</span>
+    }
+
+
+    public TVector3D toTVector3D(){
+<span class="nc" id="L52">        return new TVector3D(this.x, this.y, this.z);</span>
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static TPoint3D midPoint(TPoint3D point1, TPoint3D point2){
+<span class="fc" id="L58">        return new TPoint3D( ( point1.x + point2.x ) / 2 , ( point1.y + point2.y ) / 2 , ( point1.z + point2.z ) / 2 );</span>
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L67">        return String.format(&quot;(%f, %f, %f)&quot;, this.x, this.y, this.z)</span>
+<span class="nc" id="L68">                .replaceAll(&quot;0.000000,&quot;, &quot;0,&quot;)</span>
+<span class="nc" id="L69">                .replaceAll(&quot;-0.000000,&quot;, &quot;0,&quot;)</span>
+<span class="nc" id="L70">                .replaceAll(&quot; -0.000000&quot;, &quot; 0&quot;)</span>
+<span class="nc" id="L71">                .replaceAll(&quot; 0.000000&quot;, &quot; 0&quot;)</span>
+<span class="nc" id="L72">                .replaceAll(&quot;1.000000,&quot;, &quot;1,&quot;)</span>
+<span class="nc" id="L73">                .replaceAll(&quot;-1.000000,&quot;, &quot;-1,&quot;)</span>
+<span class="nc" id="L74">                .replaceAll(&quot; -1.000000&quot;, &quot; -1&quot;)</span>
+<span class="nc" id="L75">                .replaceAll(&quot; 1.000000&quot;, &quot; 1&quot;)</span>
+<span class="nc" id="L76">                .replaceAll(&quot;-0&quot;, &quot;0&quot;);</span>
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L83" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L84">        TPoint3D tPoint3D = (TPoint3D) o;</span>
+<span class="pc bpc" id="L85" title="3 of 6 branches missed.">        return TMath.areEqual(tPoint3D.x, x) &amp;&amp; TMath.areEqual(tPoint3D.y, y) &amp;&amp; TMath.areEqual(tPoint3D.z, z);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L90">        return Objects.hash(x, y, z);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,805 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Archive.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar</a> &gt; <span class="el_source">Archive.java</span></div><h1>Archive.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 22.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression
+ * algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar;
+
+import com.github.junrar.crypt.Rijndael;
+import com.github.junrar.exception.BadRarArchiveException;
+import com.github.junrar.exception.CorruptHeaderException;
+import com.github.junrar.exception.CrcErrorException;
+import com.github.junrar.exception.HeaderNotInArchiveException;
+import com.github.junrar.exception.InitDeciphererFailedException;
+import com.github.junrar.exception.MainHeaderNullException;
+import com.github.junrar.exception.NotRarArchiveException;
+import com.github.junrar.exception.RarException;
+import com.github.junrar.exception.UnsupportedRarEncryptedException;
+import com.github.junrar.exception.UnsupportedRarV5Exception;
+import com.github.junrar.io.RawDataIo;
+import com.github.junrar.io.SeekableReadOnlyByteChannel;
+import com.github.junrar.rarfile.AVHeader;
+import com.github.junrar.rarfile.BaseBlock;
+import com.github.junrar.rarfile.BlockHeader;
+import com.github.junrar.rarfile.CommentHeader;
+import com.github.junrar.rarfile.EAHeader;
+import com.github.junrar.rarfile.EndArcHeader;
+import com.github.junrar.rarfile.FileHeader;
+import com.github.junrar.rarfile.MacInfoHeader;
+import com.github.junrar.rarfile.MainHeader;
+import com.github.junrar.rarfile.MarkHeader;
+import com.github.junrar.rarfile.ProtectHeader;
+import com.github.junrar.rarfile.RARVersion;
+import com.github.junrar.rarfile.SignHeader;
+import com.github.junrar.rarfile.SubBlockHeader;
+import com.github.junrar.rarfile.SubBlockHeaderType;
+import com.github.junrar.rarfile.UnixOwnersHeader;
+import com.github.junrar.rarfile.UnrarHeadertype;
+import com.github.junrar.unpack.ComprDataIO;
+import com.github.junrar.unpack.Unpack;
+import com.github.junrar.volume.FileVolumeManager;
+import com.github.junrar.volume.InputStreamVolumeManager;
+import com.github.junrar.volume.Volume;
+import com.github.junrar.volume.VolumeManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.crypto.Cipher;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+
+/**
+ * The Main Rar Class; represents a rar Archive
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class Archive implements Closeable, Iterable&lt;FileHeader&gt; {
+
+<span class="fc" id="L89">    private static final Logger logger = LoggerFactory.getLogger(Archive.class);</span>
+
+    private static final int MAX_HEADER_SIZE = 20971520; //20MB
+
+<span class="fc" id="L93">    private static final int PIPE_BUFFER_SIZE = getPropertyAs(</span>
+        &quot;junrar.extractor.buffer-size&quot;,
+        Integer::parseInt,
+<span class="fc" id="L96">        32 * 1024</span>
+    );
+
+<span class="fc" id="L99">    private static final boolean USE_EXECUTOR = getPropertyAs(</span>
+        &quot;junrar.extractor.use-executor&quot;,
+        Boolean::parseBoolean,
+<span class="fc" id="L102">        true</span>
+    );
+
+    private SeekableReadOnlyByteChannel channel;
+
+    private final UnrarCallback unrarCallback;
+
+    private final ComprDataIO dataIO;
+
+<span class="fc" id="L111">    private final List&lt;BaseBlock&gt; headers = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L113">    private MarkHeader markHead = null;</span>
+
+<span class="fc" id="L115">    private MainHeader newMhd = null;</span>
+
+    private Unpack unpack;
+
+    private int currentHeaderIndex;
+
+    /**
+     * Size of packed data in current file.
+     */
+<span class="fc" id="L124">    private long totalPackedSize = 0L;</span>
+
+    /**
+     * Number of bytes of compressed data read from current file.
+     */
+<span class="fc" id="L129">    private long totalPackedRead = 0L;</span>
+
+    private VolumeManager volumeManager;
+    private Volume volume;
+
+    private FileHeader nextFileHeader;
+    private String password;
+
+    public Archive(
+        final VolumeManager volumeManager,
+        final UnrarCallback unrarCallback,
+        final String password
+<span class="fc" id="L141">    ) throws RarException, IOException {</span>
+
+<span class="fc" id="L143">        this.volumeManager = volumeManager;</span>
+<span class="fc" id="L144">        this.unrarCallback = unrarCallback;</span>
+<span class="fc" id="L145">        this.password = password;</span>
+
+        try {
+<span class="fc" id="L148">            setVolume(this.volumeManager.nextVolume(this, null));</span>
+<span class="fc" id="L149">        } catch (IOException | RarException e) {</span>
+            try {
+<span class="fc" id="L151">                close();</span>
+<span class="nc" id="L152">            } catch (IOException e1) {</span>
+<span class="nc" id="L153">                logger.error(&quot;Failed to close the archive after an internal error!&quot;);</span>
+<span class="fc" id="L154">            }</span>
+<span class="fc" id="L155">            throw e;</span>
+<span class="fc" id="L156">        }</span>
+<span class="fc" id="L157">        this.dataIO = new ComprDataIO(this);</span>
+<span class="fc" id="L158">    }</span>
+
+    public Archive(final File firstVolume) throws RarException, IOException {
+<span class="fc" id="L161">        this(new FileVolumeManager(firstVolume), null, null);</span>
+<span class="fc" id="L162">    }</span>
+
+    public Archive(final File firstVolume, final UnrarCallback unrarCallback) throws RarException, IOException {
+<span class="nc" id="L165">        this(new FileVolumeManager(firstVolume), unrarCallback, null);</span>
+<span class="nc" id="L166">    }</span>
+
+    public Archive(final File firstVolume, final String password) throws RarException, IOException {
+<span class="fc" id="L169">        this(new FileVolumeManager(firstVolume), null, password);</span>
+<span class="fc" id="L170">    }</span>
+
+    public Archive(final File firstVolume, final UnrarCallback unrarCallback, final String password) throws RarException, IOException {
+<span class="nc" id="L173">        this(new FileVolumeManager(firstVolume), unrarCallback, password);</span>
+<span class="nc" id="L174">    }</span>
+
+    public Archive(final InputStream rarAsStream) throws RarException, IOException {
+<span class="fc" id="L177">        this(new InputStreamVolumeManager(rarAsStream), null, null);</span>
+<span class="fc" id="L178">    }</span>
+
+    public Archive(final InputStream rarAsStream, final UnrarCallback unrarCallback) throws RarException, IOException {
+<span class="nc" id="L181">        this(new InputStreamVolumeManager(rarAsStream), unrarCallback, null);</span>
+<span class="nc" id="L182">    }</span>
+
+    public Archive(final InputStream rarAsStream, final String password) throws IOException, RarException {
+<span class="fc" id="L185">        this(new InputStreamVolumeManager(rarAsStream), null, password);</span>
+<span class="fc" id="L186">    }</span>
+
+    public Archive(final InputStream rarAsStream, final UnrarCallback unrarCallback, final String password) throws IOException, RarException {
+<span class="nc" id="L189">        this(new InputStreamVolumeManager(rarAsStream), unrarCallback, password);</span>
+<span class="nc" id="L190">    }</span>
+
+    private void setChannel(final SeekableReadOnlyByteChannel channel, final long length) throws IOException, RarException {
+<span class="fc" id="L193">        this.totalPackedSize = 0L;</span>
+<span class="fc" id="L194">        this.totalPackedRead = 0L;</span>
+<span class="fc" id="L195">        close();</span>
+<span class="fc" id="L196">        this.channel = channel;</span>
+        try {
+<span class="fc" id="L198">            readHeaders(length);</span>
+<span class="fc" id="L199">        } catch (UnsupportedRarEncryptedException | UnsupportedRarV5Exception | CorruptHeaderException | BadRarArchiveException e) {</span>
+<span class="fc" id="L200">            logger.warn(&quot;exception in archive constructor maybe file is encrypted, corrupt or support not yet implemented&quot;, e);</span>
+<span class="fc" id="L201">            throw e;</span>
+<span class="nc" id="L202">        } catch (final Exception e) {</span>
+<span class="nc" id="L203">            logger.warn(&quot;exception in archive constructor maybe file is encrypted, corrupt or support not yet implemented&quot;, e);</span>
+            // ignore exceptions to allow extraction of working files in corrupt archive
+<span class="fc" id="L205">        }</span>
+        // Calculate size of packed data
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (final BaseBlock block : this.headers) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (block.getHeaderType() == UnrarHeadertype.FileHeader) {</span>
+<span class="fc" id="L209">                this.totalPackedSize += ((FileHeader) block).getFullPackSize();</span>
+            }
+<span class="fc" id="L211">        }</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        if (this.unrarCallback != null) {</span>
+<span class="nc" id="L213">            this.unrarCallback.volumeProgressChanged(this.totalPackedRead,</span>
+                this.totalPackedSize);
+        }
+<span class="fc" id="L216">    }</span>
+
+    public void bytesReadRead(final int count) {
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        if (count &gt; 0) {</span>
+<span class="fc" id="L220">            this.totalPackedRead += count;</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">            if (this.unrarCallback != null) {</span>
+<span class="nc" id="L222">                this.unrarCallback.volumeProgressChanged(this.totalPackedRead,</span>
+                    this.totalPackedSize);
+            }
+        }
+<span class="fc" id="L226">    }</span>
+
+    public SeekableReadOnlyByteChannel getChannel() {
+<span class="fc" id="L229">        return this.channel;</span>
+    }
+
+    /**
+     * Gets all of the headers in the archive.
+     *
+     * @return returns the headers.
+     */
+    public List&lt;BaseBlock&gt; getHeaders() {
+<span class="nc" id="L238">        return new ArrayList&lt;&gt;(this.headers);</span>
+    }
+
+    /**
+     * @return returns all file headers of the archive
+     */
+    public List&lt;FileHeader&gt; getFileHeaders() {
+<span class="fc" id="L245">        final List&lt;FileHeader&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (final BaseBlock block : this.headers) {</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">            if (block.getHeaderType().equals(UnrarHeadertype.FileHeader)) {</span>
+<span class="fc" id="L248">                list.add((FileHeader) block);</span>
+            }
+<span class="fc" id="L250">        }</span>
+<span class="fc" id="L251">        return list;</span>
+    }
+
+    public FileHeader nextFileHeader() {
+<span class="fc" id="L255">        final int n = this.headers.size();</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        while (this.currentHeaderIndex &lt; n) {</span>
+<span class="fc" id="L257">            final BaseBlock block = this.headers.get(this.currentHeaderIndex++);</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if (block.getHeaderType() == UnrarHeadertype.FileHeader) {</span>
+<span class="fc" id="L259">                return (FileHeader) block;</span>
+            }
+<span class="fc" id="L261">        }</span>
+<span class="fc" id="L262">        return null;</span>
+    }
+
+    public UnrarCallback getUnrarCallback() {
+<span class="fc" id="L266">        return this.unrarCallback;</span>
+    }
+
+    /**
+     * @return whether the archive is encrypted
+     * @throws RarException when the main header is not present
+     */
+    public boolean isEncrypted() throws RarException {
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (this.newMhd != null) {</span>
+<span class="fc" id="L275">            return this.newMhd.isEncrypted();</span>
+        } else {
+<span class="nc" id="L277">            throw new MainHeaderNullException();</span>
+        }
+    }
+
+    /**
+     * @return whether the archive content is password protected
+     * @throws RarException when the main header is not present
+     */
+    public boolean isPasswordProtected() throws RarException {
+<span class="fc bfc" id="L286" title="All 2 branches covered.">        if (isEncrypted()) return true;</span>
+<span class="fc" id="L287">        return getFileHeaders().stream().anyMatch(FileHeader::isEncrypted);</span>
+    }
+
+    /**
+     * Read the headers of the archive
+     *
+     * @param fileLength Length of file.
+     * @throws IOException, RarException
+     */
+    private void readHeaders(final long fileLength) throws IOException, RarException {
+<span class="fc" id="L297">        this.markHead = null;</span>
+<span class="fc" id="L298">        this.newMhd = null;</span>
+<span class="fc" id="L299">        this.headers.clear();</span>
+<span class="fc" id="L300">        this.currentHeaderIndex = 0;</span>
+<span class="fc" id="L301">        int toRead = 0;</span>
+
+        //keep track of positions already processed for
+        //more robustness against corrupt files
+<span class="fc" id="L305">        final Set&lt;Long&gt; processedPositions = new HashSet&lt;&gt;();</span>
+        while (true) {
+<span class="fc" id="L307">            int size = 0;</span>
+<span class="fc" id="L308">            long newpos = 0;</span>
+<span class="fc" id="L309">            RawDataIo rawData = new RawDataIo(channel);</span>
+<span class="fc" id="L310">            final byte[] baseBlockBuffer = safelyAllocate(BaseBlock.BaseBlockSize, MAX_HEADER_SIZE);</span>
+
+            // if header is encrypted,there is a 8-byte salt before each header
+<span class="fc bfc" id="L313" title="All 4 branches covered.">            if (newMhd != null &amp;&amp; newMhd.isEncrypted()) {</span>
+<span class="fc" id="L314">                byte[] salt = new byte[8];</span>
+<span class="fc" id="L315">                rawData.readFully(salt, 8);</span>
+                try {
+<span class="fc" id="L317">                    Cipher cipher = Rijndael.buildDecipherer(password, salt);</span>
+<span class="fc" id="L318">                    rawData.setCipher(cipher);</span>
+<span class="nc" id="L319">                } catch (Exception e) {</span>
+<span class="nc" id="L320">                    throw new InitDeciphererFailedException(e);</span>
+<span class="fc" id="L321">                }</span>
+            }
+
+<span class="fc" id="L324">            final long position = this.channel.getPosition();</span>
+
+            // Weird, but is trying to read beyond the end of the file
+<span class="fc bfc" id="L327" title="All 2 branches covered.">            if (position &gt;= fileLength) {</span>
+<span class="fc" id="L328">                break;</span>
+            }
+
+            // logger.info(&quot;\n--------reading header--------&quot;);
+<span class="fc" id="L332">            size = rawData.readFully(baseBlockBuffer, baseBlockBuffer.length);</span>
+
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">            if (size == 0) {</span>
+<span class="nc" id="L335">                break;</span>
+            }
+<span class="fc" id="L337">            final BaseBlock block = new BaseBlock(baseBlockBuffer);</span>
+
+<span class="fc" id="L339">            block.setPositionInFile(position);</span>
+
+<span class="fc" id="L341">            UnrarHeadertype headerType = block.getHeaderType();</span>
+<span class="fc bfc" id="L342" title="All 2 branches covered.">            if (headerType == null) {</span>
+<span class="fc" id="L343">                logger.warn(&quot;unknown block header!&quot;);</span>
+<span class="fc" id="L344">                throw new CorruptHeaderException();</span>
+            }
+<span class="pc bpc" id="L346" title="3 of 7 branches missed.">            switch (headerType) {</span>
+
+                case MarkHeader:
+<span class="fc" id="L349">                    this.markHead = new MarkHeader(block);</span>
+<span class="fc bfc" id="L350" title="All 2 branches covered.">                    if (!this.markHead.isSignature()) {</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">                        if (markHead.getVersion() == RARVersion.V5) {</span>
+<span class="fc" id="L352">                            logger.warn(&quot;Support for rar version 5 is not yet implemented!&quot;);</span>
+<span class="fc" id="L353">                            throw new UnsupportedRarV5Exception();</span>
+                        } else {
+<span class="fc" id="L355">                            throw new BadRarArchiveException();</span>
+                        }
+                    }
+<span class="fc" id="L358">                    this.headers.add(this.markHead);</span>
+                    // markHead.print();
+<span class="fc" id="L360">                    break;</span>
+
+                case MainHeader:
+<span class="pc bpc" id="L363" title="1 of 2 branches missed.">                    toRead = block.hasEncryptVersion() ? MainHeader.mainHeaderSizeWithEnc</span>
+<span class="fc" id="L364">                        : MainHeader.mainHeaderSize;</span>
+<span class="fc" id="L365">                    final byte[] mainbuff = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="fc" id="L366">                    rawData.readFully(mainbuff, mainbuff.length);</span>
+<span class="fc" id="L367">                    final MainHeader mainhead = new MainHeader(block, mainbuff);</span>
+<span class="fc" id="L368">                    this.headers.add(mainhead);</span>
+<span class="fc" id="L369">                    this.newMhd = mainhead;</span>
+<span class="fc" id="L370">                    break;</span>
+
+                case SignHeader:
+<span class="nc" id="L373">                    toRead = SignHeader.signHeaderSize;</span>
+<span class="nc" id="L374">                    final byte[] signBuff = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L375">                    rawData.readFully(signBuff, signBuff.length);</span>
+<span class="nc" id="L376">                    final SignHeader signHead = new SignHeader(block, signBuff);</span>
+<span class="nc" id="L377">                    this.headers.add(signHead);</span>
+<span class="nc" id="L378">                    break;</span>
+
+                case AvHeader:
+<span class="nc" id="L381">                    toRead = AVHeader.avHeaderSize;</span>
+<span class="nc" id="L382">                    final byte[] avBuff = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L383">                    rawData.readFully(avBuff, avBuff.length);</span>
+<span class="nc" id="L384">                    final AVHeader avHead = new AVHeader(block, avBuff);</span>
+<span class="nc" id="L385">                    this.headers.add(avHead);</span>
+<span class="nc" id="L386">                    break;</span>
+
+                case CommHeader:
+<span class="nc" id="L389">                    toRead = CommentHeader.commentHeaderSize;</span>
+<span class="nc" id="L390">                    final byte[] commBuff = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L391">                    rawData.readFully(commBuff, commBuff.length);</span>
+<span class="nc" id="L392">                    final CommentHeader commHead = new CommentHeader(block, commBuff);</span>
+<span class="nc" id="L393">                    this.headers.add(commHead);</span>
+
+<span class="nc" id="L395">                    newpos = commHead.getPositionInFile() + commHead.getHeaderSize(isEncrypted());</span>
+<span class="nc" id="L396">                    this.channel.setPosition(newpos);</span>
+
+<span class="nc bnc" id="L398" title="All 2 branches missed.">                    if (processedPositions.contains(newpos)) {</span>
+<span class="nc" id="L399">                        throw new BadRarArchiveException();</span>
+                    }
+<span class="nc" id="L401">                    processedPositions.add(newpos);</span>
+
+<span class="nc" id="L403">                    break;</span>
+                case EndArcHeader:
+
+<span class="fc" id="L406">                    toRead = 0;</span>
+<span class="fc bfc" id="L407" title="All 2 branches covered.">                    if (block.hasArchiveDataCRC()) {</span>
+<span class="fc" id="L408">                        toRead += EndArcHeader.endArcArchiveDataCrcSize;</span>
+                    }
+<span class="fc bfc" id="L410" title="All 2 branches covered.">                    if (block.hasVolumeNumber()) {</span>
+<span class="fc" id="L411">                        toRead += EndArcHeader.endArcVolumeNumberSize;</span>
+                    }
+                    EndArcHeader endArcHead;
+<span class="fc bfc" id="L414" title="All 2 branches covered.">                    if (toRead &gt; 0) {</span>
+<span class="fc" id="L415">                        final byte[] endArchBuff = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="fc" id="L416">                        rawData.readFully(endArchBuff, endArchBuff.length);</span>
+<span class="fc" id="L417">                        endArcHead = new EndArcHeader(block, endArchBuff);</span>
+<span class="fc" id="L418">                    } else {</span>
+<span class="fc" id="L419">                        endArcHead = new EndArcHeader(block, null);</span>
+                    }
+<span class="fc" id="L421">                    this.headers.add(endArcHead);</span>
+<span class="fc" id="L422">                    return;</span>
+
+                default:
+<span class="fc" id="L425">                    final byte[] blockHeaderBuffer = safelyAllocate(BlockHeader.blockHeaderSize, MAX_HEADER_SIZE);</span>
+<span class="fc" id="L426">                    rawData.readFully(blockHeaderBuffer, blockHeaderBuffer.length);</span>
+<span class="fc" id="L427">                    final BlockHeader blockHead = new BlockHeader(block,</span>
+                        blockHeaderBuffer);
+
+<span class="pc bpc" id="L430" title="2 of 4 branches missed.">                    switch (blockHead.getHeaderType()) {</span>
+                        case NewSubHeader:
+                        case FileHeader:
+<span class="fc" id="L433">                            toRead = blockHead.getHeaderSize(false)</span>
+                                - BlockHeader.BaseBlockSize
+                                - BlockHeader.blockHeaderSize;
+<span class="fc" id="L436">                            final byte[] fileHeaderBuffer = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="fc" id="L437">                            rawData.readFully(fileHeaderBuffer, fileHeaderBuffer.length);</span>
+
+<span class="fc" id="L439">                            final FileHeader fh = new FileHeader(blockHead, fileHeaderBuffer);</span>
+<span class="fc" id="L440">                            this.headers.add(fh);</span>
+<span class="fc" id="L441">                            newpos = fh.getPositionInFile() + fh.getHeaderSize(isEncrypted()) + fh.getFullPackSize();</span>
+<span class="fc" id="L442">                            this.channel.setPosition(newpos);</span>
+
+<span class="pc bpc" id="L444" title="1 of 2 branches missed.">                            if (processedPositions.contains(newpos)) {</span>
+<span class="nc" id="L445">                                throw new BadRarArchiveException();</span>
+                            }
+<span class="fc" id="L447">                            processedPositions.add(newpos);</span>
+<span class="fc" id="L448">                            break;</span>
+
+                        case ProtectHeader:
+<span class="nc" id="L451">                            toRead = blockHead.getHeaderSize(false)</span>
+                                - BlockHeader.BaseBlockSize
+                                - BlockHeader.blockHeaderSize;
+<span class="nc" id="L454">                            final byte[] protectHeaderBuffer = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L455">                            rawData.readFully(protectHeaderBuffer, protectHeaderBuffer.length);</span>
+<span class="nc" id="L456">                            final ProtectHeader ph = new ProtectHeader(blockHead, protectHeaderBuffer);</span>
+<span class="nc" id="L457">                            newpos = ph.getPositionInFile() + ph.getHeaderSize(isEncrypted()) + ph.getDataSize();</span>
+<span class="nc" id="L458">                            this.channel.setPosition(newpos);</span>
+
+<span class="nc bnc" id="L460" title="All 2 branches missed.">                            if (processedPositions.contains(newpos)) {</span>
+<span class="nc" id="L461">                                throw new BadRarArchiveException();</span>
+                            }
+<span class="nc" id="L463">                            processedPositions.add(newpos);</span>
+<span class="nc" id="L464">                            break;</span>
+
+                        case SubHeader: {
+<span class="fc" id="L467">                            final byte[] subHeadbuffer = safelyAllocate(SubBlockHeader.SubBlockHeaderSize, MAX_HEADER_SIZE);</span>
+<span class="fc" id="L468">                            rawData.readFully(subHeadbuffer, subHeadbuffer.length);</span>
+<span class="fc" id="L469">                            final SubBlockHeader subHead = new SubBlockHeader(blockHead,</span>
+                                subHeadbuffer);
+<span class="fc" id="L471">                            subHead.print();</span>
+<span class="fc" id="L472">                            SubBlockHeaderType subType = subHead.getSubType();</span>
+<span class="pc bpc" id="L473" title="1 of 2 branches missed.">                            if (subType == null) break;</span>
+<span class="nc bnc" id="L474" title="All 7 branches missed.">                            switch (subType) {</span>
+                                case MAC_HEAD: {
+<span class="nc" id="L476">                                    final byte[] macHeaderbuffer = safelyAllocate(MacInfoHeader.MacInfoHeaderSize, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L477">                                    rawData.readFully(macHeaderbuffer, macHeaderbuffer.length);</span>
+<span class="nc" id="L478">                                    final MacInfoHeader macHeader = new MacInfoHeader(subHead,</span>
+                                        macHeaderbuffer);
+<span class="nc" id="L480">                                    macHeader.print();</span>
+<span class="nc" id="L481">                                    this.headers.add(macHeader);</span>
+
+<span class="nc" id="L483">                                    break;</span>
+                                }
+                                // TODO implement other subheaders
+                                case BEEA_HEAD:
+<span class="nc" id="L487">                                    break;</span>
+                                case EA_HEAD: {
+<span class="nc" id="L489">                                    final byte[] eaHeaderBuffer = safelyAllocate(EAHeader.EAHeaderSize, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L490">                                    rawData.readFully(eaHeaderBuffer, eaHeaderBuffer.length);</span>
+<span class="nc" id="L491">                                    final EAHeader eaHeader = new EAHeader(subHead,</span>
+                                        eaHeaderBuffer);
+<span class="nc" id="L493">                                    eaHeader.print();</span>
+<span class="nc" id="L494">                                    this.headers.add(eaHeader);</span>
+
+<span class="nc" id="L496">                                    break;</span>
+                                }
+                                case NTACL_HEAD:
+<span class="nc" id="L499">                                    break;</span>
+                                case STREAM_HEAD:
+<span class="nc" id="L501">                                    break;</span>
+                                case UO_HEAD:
+<span class="nc" id="L503">                                    toRead = subHead.getHeaderSize(false);</span>
+<span class="nc" id="L504">                                    toRead -= BaseBlock.BaseBlockSize;</span>
+<span class="nc" id="L505">                                    toRead -= BlockHeader.blockHeaderSize;</span>
+<span class="nc" id="L506">                                    toRead -= SubBlockHeader.SubBlockHeaderSize;</span>
+<span class="nc" id="L507">                                    final byte[] uoHeaderBuffer = safelyAllocate(toRead, MAX_HEADER_SIZE);</span>
+<span class="nc" id="L508">                                    rawData.readFully(uoHeaderBuffer, uoHeaderBuffer.length);</span>
+<span class="nc" id="L509">                                    final UnixOwnersHeader uoHeader = new UnixOwnersHeader(</span>
+                                        subHead, uoHeaderBuffer);
+<span class="nc" id="L511">                                    uoHeader.print();</span>
+<span class="nc" id="L512">                                    this.headers.add(uoHeader);</span>
+<span class="nc" id="L513">                                    break;</span>
+                                default:
+<span class="nc" id="L515">                                    break;</span>
+                            }
+
+                            break;
+                        }
+                        default:
+<span class="nc" id="L521">                            logger.warn(&quot;Unknown Header&quot;);</span>
+<span class="nc" id="L522">                            throw new NotRarArchiveException();</span>
+
+                    }
+            }
+            // logger.info(&quot;\n--------end header--------&quot;);
+<span class="fc" id="L527">        }</span>
+<span class="fc" id="L528">    }</span>
+
+    private static byte[] safelyAllocate(final long len, final int maxSize) throws RarException {
+<span class="pc bpc" id="L531" title="1 of 2 branches missed.">        if (maxSize &lt; 0) {</span>
+<span class="nc" id="L532">            throw new IllegalArgumentException(&quot;maxsize must be &gt;= 0&quot;);</span>
+        }
+<span class="pc bpc" id="L534" title="2 of 4 branches missed.">        if (len &lt; 0 || len &gt; maxSize) {</span>
+<span class="nc" id="L535">            throw new BadRarArchiveException();</span>
+        }
+<span class="fc" id="L537">        return new byte[(int) len];</span>
+    }
+
+    /**
+     * Extract the file specified by the given header and write it to the
+     * supplied output stream
+     *
+     * @param hd the header to be extracted
+     * @param os the outputstream
+     * @throws RarException .
+     */
+    public void extractFile(final FileHeader hd, final OutputStream os) throws RarException {
+<span class="pc bpc" id="L549" title="1 of 2 branches missed.">        if (!this.headers.contains(hd)) {</span>
+<span class="nc" id="L550">            throw new HeaderNotInArchiveException();</span>
+        }
+        try {
+<span class="fc" id="L553">            doExtractFile(hd, os);</span>
+<span class="fc" id="L554">        } catch (final Exception e) {</span>
+<span class="pc bpc" id="L555" title="1 of 2 branches missed.">            if (e instanceof RarException) {</span>
+<span class="fc" id="L556">                throw (RarException) e;</span>
+            } else {
+<span class="nc" id="L558">                throw new RarException(e);</span>
+            }
+<span class="fc" id="L560">        }</span>
+<span class="fc" id="L561">    }</span>
+
+    /**
+     * Class to ensure the lazy initialization of the {@link ThreadPoolExecutor} upon first usage.&lt;br&gt;&lt;br&gt;
+     * &lt;p&gt;
+     * Using a cached thread pool executor is more efficient and creating a new thread for each extraction.
+     * The total number of threads will only increase if there are tasks on its queue and all current threads are busy.
+     * If there are available threads, those will be reused instead of a new one being created.
+     * &lt;br&gt;&lt;br&gt;
+     * &lt;p&gt;
+     * Configuration options:
+     * &lt;ul&gt;
+     * &lt;li&gt;To avoid the possibility of too many simultaneous active threads being started, the maximum
+     * number of threads can be configured through the {@code junrar.extractor.max-threads} system property.
+     * The default maximum number of threads is unbounded.&lt;/li&gt;
+     * &lt;li&gt;The keep alive time can be configured through the {@code junrar.extractor.thread-keep-alive-seconds} system property.
+     * The default is 5s.&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    private static final class ExtractorExecutorHolder {
+        private ExtractorExecutorHolder() {
+        }
+
+<span class="fc" id="L584">        private static final AtomicLong threadIndex = new AtomicLong();</span>
+
+        /**
+         * Equivalent to {@link java.util.concurrent.Executors#newCachedThreadPool()}, but customizable through system properties.
+         */
+<span class="fc" id="L589">        private static final ExecutorService cachedExecutorService = new ThreadPoolExecutor(</span>
+<span class="fc" id="L590">            0, getMaxThreads(),</span>
+<span class="fc" id="L591">            getThreadKeepAlive(), TimeUnit.SECONDS,</span>
+            new SynchronousQueue&lt;&gt;(),
+            r -&gt; {
+<span class="fc" id="L594">                Thread t = new Thread(r, &quot;junrar-extractor-&quot; + threadIndex.getAndIncrement());</span>
+<span class="fc" id="L595">                t.setDaemon(true);</span>
+<span class="fc" id="L596">                return t;</span>
+            });
+
+        private static int getMaxThreads() {
+<span class="fc" id="L600">            return getPropertyAs(&quot;junrar.extractor.max-threads&quot;, Integer::parseInt, Integer.MAX_VALUE);</span>
+        }
+
+        private static int getThreadKeepAlive() {
+<span class="fc" id="L604">            return getPropertyAs(&quot;junrar.extractor.thread-keep-alive-seconds&quot;, Integer::parseInt, 5);</span>
+        }
+    }
+
+    private static &lt;T&gt; T getPropertyAs(String key, Function&lt;String, T&gt; function, T defaultValue) {
+<span class="fc" id="L609">        Objects.requireNonNull(defaultValue, &quot;default value must not be null&quot;);</span>
+        try {
+<span class="fc" id="L611">            String integerString = System.getProperty(key);</span>
+<span class="pc bpc" id="L612" title="3 of 4 branches missed.">            if (integerString != null &amp;&amp; !integerString.isEmpty()) {</span>
+<span class="nc" id="L613">                return function.apply(integerString);</span>
+            }
+<span class="nc" id="L615">        } catch (SecurityException | NumberFormatException e) {</span>
+<span class="nc" id="L616">            logger.error(</span>
+                &quot;Could not parse the System Property '{}' into an '{}'. Defaulting to '{}'&quot;,
+                key,
+<span class="nc" id="L619">                defaultValue.getClass().getTypeName(),</span>
+                defaultValue,
+                e
+            );
+<span class="fc" id="L623">        }</span>
+<span class="fc" id="L624">        return defaultValue;</span>
+    }
+
+    /**
+     * Returns an {@link InputStream} that will allow to read the file and stream it. &lt;br&gt;
+     * Please note that this method will create a pair of Pipe streams and either: &lt;br&gt;
+     *
+     * &lt;ul&gt;
+     *     &lt;li&gt;delegate the work to a {@link ThreadPoolExecutor}, via {@link ExtractorExecutorHolder}; or&lt;/li&gt;
+     *     &lt;li&gt;delegate the work to a newly created thread on each call&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * You can choose which strategy to use by setting the {@code junrar.extractor.use-executor} system property.&lt;br&gt;
+     * Defaults to using the {@link ThreadPoolExecutor}.
+     *
+     * @param hd the header to be extracted
+     * @return an {@link InputStream} from which you can read the uncompressed bytes
+     * @throws IOException if any I/O error occur
+     * @see ExtractorExecutorHolder
+     */
+    public InputStream getInputStream(final FileHeader hd) throws IOException {
+        // Small optimization to prevent the creation of large buffers for very small files
+        // Never allocate more than needed
+<span class="fc" id="L647">        final int bufferSize = (int) Math.min(hd.getFullUnpackSize(), PIPE_BUFFER_SIZE);</span>
+
+<span class="fc" id="L649">        final PipedInputStream in = new PipedInputStream(bufferSize);</span>
+<span class="fc" id="L650">        final PipedOutputStream out = new PipedOutputStream(in);</span>
+
+        // Data will be available in another InputStream, connected to the OutputStream
+        // Delegates execution to the cached executor service.
+<span class="fc" id="L654">        Runnable r = () -&gt; {</span>
+            try {
+<span class="fc" id="L656">                extractFile(hd, out);</span>
+<span class="nc" id="L657">            } catch (final RarException ignored) {</span>
+            } finally {
+                try {
+<span class="fc" id="L660">                    out.close();</span>
+<span class="nc" id="L661">                } catch (final IOException ignored) {</span>
+<span class="fc" id="L662">                }</span>
+            }
+<span class="fc" id="L664">        };</span>
+<span class="pc bpc" id="L665" title="1 of 2 branches missed.">        if (USE_EXECUTOR) {</span>
+<span class="fc" id="L666">            ExtractorExecutorHolder.cachedExecutorService.submit(r);</span>
+        } else {
+<span class="nc" id="L668">            new Thread(r).start();</span>
+        }
+
+<span class="fc" id="L671">        return in;</span>
+    }
+
+    private void doExtractFile(FileHeader hd, final OutputStream os)
+        throws RarException, IOException {
+<span class="fc" id="L676">        this.dataIO.init(os);</span>
+<span class="fc" id="L677">        this.dataIO.init(hd);</span>
+<span class="pc bpc" id="L678" title="1 of 2 branches missed.">        this.dataIO.setUnpFileCRC(this.isOldFormat() ? 0 : 0xffFFffFF);</span>
+<span class="fc bfc" id="L679" title="All 2 branches covered.">        if (this.unpack == null) {</span>
+<span class="fc" id="L680">            this.unpack = new Unpack(this.dataIO);</span>
+        }
+<span class="fc bfc" id="L682" title="All 2 branches covered.">        if (!hd.isSolid()) {</span>
+<span class="fc" id="L683">            this.unpack.init(null);</span>
+        }
+<span class="fc" id="L685">        this.unpack.setDestSize(hd.getFullUnpackSize());</span>
+        try {
+<span class="fc" id="L687">            this.unpack.doUnpack(hd.getUnpVersion(), hd.isSolid());</span>
+            // Verify file CRC
+<span class="fc" id="L689">            hd = this.dataIO.getSubHeader();</span>
+<span class="pc bpc" id="L690" title="1 of 2 branches missed.">            final long actualCRC = hd.isSplitAfter() ? ~this.dataIO.getPackedCRC()</span>
+<span class="fc" id="L691">                : ~this.dataIO.getUnpFileCRC();</span>
+<span class="fc" id="L692">            final int expectedCRC = hd.getFileCRC();</span>
+<span class="fc bfc" id="L693" title="All 2 branches covered.">            if (actualCRC != expectedCRC) {</span>
+<span class="fc" id="L694">                throw new CrcErrorException();</span>
+            }
+            // if (!hd.isSplitAfter()) {
+            // // Verify file CRC
+            // if(~dataIO.getUnpFileCRC() != hd.getFileCRC()){
+            // throw new RarException(RarExceptionType.crcError);
+            // }
+            // }
+<span class="fc" id="L702">        } catch (final Exception e) {</span>
+<span class="fc" id="L703">            this.unpack.cleanUp();</span>
+<span class="pc bpc" id="L704" title="1 of 2 branches missed.">            if (e instanceof RarException) {</span>
+                // throw new RarException((RarException)e);
+<span class="fc" id="L706">                throw (RarException) e;</span>
+            } else {
+<span class="nc" id="L708">                throw new RarException(e);</span>
+            }
+<span class="fc" id="L710">        }</span>
+<span class="fc" id="L711">    }</span>
+
+    /**
+     * @return returns the main header of this archive
+     */
+    public MainHeader getMainHeader() {
+<span class="fc" id="L717">        return this.newMhd;</span>
+    }
+
+    /**
+     * @return whether the archive is old format
+     */
+    public boolean isOldFormat() {
+<span class="fc" id="L724">        return this.markHead.isOldFormat();</span>
+    }
+
+    /**
+     * Close the underlying compressed file.
+     */
+    @Override
+    public void close() throws IOException {
+<span class="fc bfc" id="L732" title="All 2 branches covered.">        if (this.channel != null) {</span>
+<span class="fc" id="L733">            this.channel.close();</span>
+<span class="fc" id="L734">            this.channel = null;</span>
+        }
+<span class="fc bfc" id="L736" title="All 2 branches covered.">        if (this.unpack != null) {</span>
+<span class="fc" id="L737">            this.unpack.cleanUp();</span>
+        }
+<span class="fc" id="L739">    }</span>
+
+    /**
+     * @return the volumeManager
+     */
+    public VolumeManager getVolumeManager() {
+<span class="fc" id="L745">        return this.volumeManager;</span>
+    }
+
+    /**
+     * @param volumeManager the volumeManager to set
+     */
+    public void setVolumeManager(final VolumeManager volumeManager) {
+<span class="nc" id="L752">        this.volumeManager = volumeManager;</span>
+<span class="nc" id="L753">    }</span>
+
+    /**
+     * @return the volume
+     */
+    public Volume getVolume() {
+<span class="fc" id="L759">        return this.volume;</span>
+    }
+
+    public String getPassword() {
+<span class="fc" id="L763">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L767">        this.password = password;</span>
+<span class="nc" id="L768">    }</span>
+
+
+    /**
+     * @param volume the volume to set
+     * @throws IOException  .
+     * @throws RarException .
+     */
+    public void setVolume(final Volume volume) throws IOException, RarException {
+<span class="fc" id="L777">        this.volume = volume;</span>
+<span class="fc" id="L778">        setChannel(volume.getChannel(), volume.getLength());</span>
+<span class="fc" id="L779">    }</span>
+
+    @Override
+    public Iterator&lt;FileHeader&gt; iterator() {
+<span class="fc" id="L783">        return new Iterator&lt;FileHeader&gt;() {</span>
+
+            @Override
+            public FileHeader next() {
+                FileHeader next;
+<span class="pc bpc" id="L788" title="1 of 2 branches missed.">                if (Archive.this.nextFileHeader != null) {</span>
+<span class="fc" id="L789">                    next = Archive.this.nextFileHeader;</span>
+                } else {
+<span class="nc" id="L791">                    next = nextFileHeader();</span>
+                }
+<span class="fc" id="L793">                return next;</span>
+            }
+
+            @Override
+            public boolean hasNext() {
+<span class="fc" id="L798">                Archive.this.nextFileHeader = nextFileHeader();</span>
+<span class="fc bfc" id="L799" title="All 2 branches covered.">                return Archive.this.nextFileHeader != null;</span>
+            }
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

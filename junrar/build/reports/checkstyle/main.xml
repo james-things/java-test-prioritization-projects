@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="8.29">
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\Archive.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\ContentDescription.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\Junrar.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\LocalFolderExtractor.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\UnrarCallback.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\crc\RarCRC.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\crypt\Rijndael.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\BadRarArchiveException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\CorruptHeaderException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\CrcErrorException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\HeaderNotInArchiveException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\InitDeciphererFailedException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\MainHeaderNullException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\NotRarArchiveException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\RarException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\UnsupportedRarEncryptedException.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\exception\UnsupportedRarV5Exception.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\io\RandomAccessInputStream.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\io\Raw.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\io\RawDataIo.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\io\SeekableReadOnlyByteChannel.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\io\SeekableReadOnlyFile.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\io\SeekableReadOnlyInputStream.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\AVHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\BaseBlock.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\BlockHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\CommentHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\EAHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\EndArcHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\FileHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\FileNameDecoder.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\HostSystem.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\MacInfoHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\MainHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\MarkHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\NewSubHeaderType.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\ProtectHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\RARVersion.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\SignHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\SubBlockHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\SubBlockHeaderType.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\UnixOwnersHeader.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\rarfile\UnrarHeadertype.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ComprDataIO.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\Unpack.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\Unpack15.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\Unpack20.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\UnpackFilter.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\AudioVariables.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\BitDecode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\CodeType.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\Compress.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\Decode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\DistDecode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\FilterType.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\LitDecode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\LowDistDecode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\MultDecode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\decode\RepDecode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\AnalyzeHeapDump.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\BlockTypes.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\FreqData.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\ModelPPM.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\PPMContext.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\Pointer.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\RangeCoder.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\RarMemBlock.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\RarNode.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\SEE2Context.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\State.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\StateRef.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\ppm\SubAllocator.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\BitInput.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\RarVM.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMCmdFlags.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMCommands.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMFlags.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMOpType.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMPreparedCommand.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMPreparedOperand.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMPreparedProgram.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMStandardFilterSignature.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unpack\vm\VMStandardFilters.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unsigned\UnsignedByte.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unsigned\UnsignedInteger.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unsigned\UnsignedLong.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\unsigned\UnsignedShort.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\FileVolume.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\FileVolumeManager.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\InputStreamVolume.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\InputStreamVolumeManager.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\Volume.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\VolumeHelper.java">
+</file>
+<file name="C:\repos\java-projects\junrar\src\main\java\com\github\junrar\volume\VolumeManager.java">
+</file>
+</checkstyle>
