@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TInverseFunc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.functions.other</a> &gt; <span class="el_source">TInverseFunc.java</span></div><h1>TInverseFunc.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.functions.other;
+
+import com.telek.telekmath.core.functions.AbstractFunction;
+import com.telek.telekmath.core.functions.TFunction;
+import com.telek.telekmath.core.numbers.TRange;
+
+import java.util.Objects;
+
+
+/**
+ *  Defines  1 / (a * x^n)
+ */
+public class TInverseFunc extends AbstractFunction {
+
+    private final double coef;
+    private final int degree;
+
+    /*  CONSTRUCTORS  */
+
+
+    public TInverseFunc(TRange range, double coef, int degree) {
+<span class="fc" id="L22">        super(range);</span>
+<span class="fc" id="L23">        this.coef = coef;</span>
+<span class="fc" id="L24">        this.degree = degree;</span>
+<span class="fc" id="L25">    }</span>
+
+    public TInverseFunc(TRange range, double coefficient) {
+<span class="fc" id="L28">        this(range, coefficient, 1);</span>
+<span class="fc" id="L29">    }</span>
+
+    public TInverseFunc(TRange range) {
+<span class="fc" id="L32">        this(range, 1d, 1);</span>
+<span class="fc" id="L33">    }</span>
+
+    public TInverseFunc(double coefficient, int degree) {
+<span class="fc" id="L36">        this(TRange.REEL_NUMBERS, coefficient, degree);</span>
+<span class="fc" id="L37">    }</span>
+
+    public TInverseFunc(double coefficient) {
+<span class="fc" id="L40">        this(TRange.REEL_NUMBERS, coefficient, 1);</span>
+<span class="fc" id="L41">    }</span>
+
+    public TInverseFunc() {
+<span class="fc" id="L44">        this(TRange.REEL_NUMBERS, 1d, 1);</span>
+<span class="fc" id="L45">    }</span>
+
+
+
+    /*  METHODS  */
+
+    @Override
+    public double value(double x) {
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if( !this.range.isInRange(x) ) return 0;</span>
+<span class="fc" id="L54">        return 1d / (this.coef * Math.pow(x, this.degree) ) ; // 1 / (a * x^n)</span>
+    }
+
+
+
+    @Override
+    public TFunction derivative() {
+<span class="fc" id="L61">        return new TFunction( //  1 / a'x^n' =  1 / ( (-a/n) x^n+1 )</span>
+            new TInverseFunc(this.range, - this.coef / this.degree, this.degree + 1)
+        );
+    }
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L69">        double a = 1d / this.coef;</span>
+<span class="nc" id="L70">        int n = this.degree;</span>
+
+<span class="nc" id="L72">        return String.format(&quot;%f / x^%d&quot;, a, n)</span>
+<span class="nc" id="L73">                .replaceAll(&quot;1.000000&quot;, &quot;1&quot;)</span>
+<span class="nc" id="L74">                .replaceAll(&quot;\\^1&quot;, &quot;&quot;)</span>
+<span class="nc" id="L75">                .replaceAll(&quot; / x\\^0&quot;, &quot;&quot;)</span>
+<span class="nc" id="L76">                .replaceAll(&quot; / x\\^-&quot;, &quot; x^&quot;);</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (!super.equals(o)) return false;</span>
+<span class="fc" id="L84">        TInverseFunc that = (TInverseFunc) o;</span>
+<span class="pc bpc" id="L85" title="2 of 4 branches missed.">        return Double.compare(that.coef, coef) == 0 &amp;&amp; degree == that.degree;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L90">        return Objects.hash(super.hashCode(), coef, degree);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

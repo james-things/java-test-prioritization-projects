@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComprDataIO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack</a> &gt; <span class="el_source">ComprDataIO.java</span></div><h1>ComprDataIO.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack;
+
+import com.github.junrar.Archive;
+import com.github.junrar.UnrarCallback;
+import com.github.junrar.crc.RarCRC;
+import com.github.junrar.crypt.Rijndael;
+import com.github.junrar.exception.CrcErrorException;
+import com.github.junrar.exception.InitDeciphererFailedException;
+import com.github.junrar.exception.RarException;
+import com.github.junrar.io.RawDataIo;
+import com.github.junrar.rarfile.FileHeader;
+import com.github.junrar.volume.Volume;
+
+import javax.crypto.Cipher;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.OutputStream;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class ComprDataIO {
+
+    private final Archive archive;
+
+    private long unpPackedSize;
+
+    private boolean testMode;
+
+    private boolean skipUnpCRC;
+
+    private OutputStream outputStream;
+
+    private FileHeader subHead;
+
+    // cryptData Crypt;
+    // cryptData Decrypt;
+    private boolean packVolume;
+
+    private boolean unpVolume;
+
+    private boolean nextVolumeMissing;
+
+    private long totalPackRead;
+
+    private long unpArcSize;
+
+    private long curPackRead, curPackWrite, curUnpRead, curUnpWrite;
+
+    private long processedArcSize, totalArcSize;
+
+    private long packFileCRC, unpFileCRC, packedCRC;
+
+    private int encryption;
+
+    private int decryption;
+
+    private RawDataIo underlyingDataIo;
+
+<span class="fc" id="L80">    public ComprDataIO(Archive arc) {</span>
+<span class="fc" id="L81">        this.archive = arc;</span>
+<span class="fc" id="L82">    }</span>
+
+    public void init(OutputStream outputStream) {
+<span class="fc" id="L85">        this.outputStream = outputStream;</span>
+<span class="fc" id="L86">        unpPackedSize = 0;</span>
+<span class="fc" id="L87">        testMode = false;</span>
+<span class="fc" id="L88">        skipUnpCRC = false;</span>
+<span class="fc" id="L89">        packVolume = false;</span>
+<span class="fc" id="L90">        unpVolume = false;</span>
+<span class="fc" id="L91">        nextVolumeMissing = false;</span>
+        // command = null;
+<span class="fc" id="L93">        encryption = 0;</span>
+<span class="fc" id="L94">        decryption = 0;</span>
+<span class="fc" id="L95">        totalPackRead = 0;</span>
+<span class="fc" id="L96">        curPackRead = curPackWrite = curUnpRead = curUnpWrite = 0;</span>
+<span class="fc" id="L97">        packFileCRC = unpFileCRC = packedCRC = 0xffffffff;</span>
+<span class="fc" id="L98">        subHead = null;</span>
+<span class="fc" id="L99">        processedArcSize = totalArcSize = 0;</span>
+<span class="fc" id="L100">    }</span>
+
+    public void init(FileHeader hd) throws IOException, RarException {
+<span class="fc" id="L103">        long startPos = hd.getPositionInFile() + hd.getHeaderSize(archive.isEncrypted());</span>
+<span class="fc" id="L104">        unpPackedSize = hd.getFullPackSize();</span>
+<span class="fc" id="L105">        archive.getChannel().setPosition(startPos);</span>
+<span class="fc" id="L106">        this.underlyingDataIo = new RawDataIo(archive.getChannel());</span>
+<span class="fc" id="L107">        subHead = hd;</span>
+<span class="fc" id="L108">        curUnpRead = 0;</span>
+<span class="fc" id="L109">        curPackWrite = 0;</span>
+<span class="fc" id="L110">        packedCRC = 0xFFffFFff;</span>
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (hd.isEncrypted()) {</span>
+            try {
+<span class="fc" id="L114">                Cipher cipher = Rijndael.buildDecipherer(archive.getPassword(), hd.getSalt());</span>
+<span class="fc" id="L115">                this.underlyingDataIo.setCipher(cipher);</span>
+<span class="nc" id="L116">            } catch (Exception e) {</span>
+<span class="nc" id="L117">                throw new InitDeciphererFailedException(e);</span>
+<span class="fc" id="L118">            }</span>
+        }
+<span class="fc" id="L120">    }</span>
+
+    public int unpRead(byte[] addr, int offset, int count) throws IOException, RarException {
+<span class="fc" id="L123">        int retCode = 0, totalRead = 0;</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        while (count &gt; 0) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            int readSize = (count &gt; unpPackedSize) ? (int) unpPackedSize : count;</span>
+<span class="fc" id="L126">            retCode = underlyingDataIo.read(addr, offset, readSize);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">            if (retCode &lt; 0) {</span>
+<span class="nc" id="L128">                throw new EOFException();</span>
+            }
+
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (subHead.isSplitAfter()) {</span>
+<span class="fc" id="L132">                packedCRC = RarCRC.checkCrc((int) packedCRC, addr, offset, retCode);</span>
+            }
+
+<span class="fc" id="L135">            totalRead += retCode;</span>
+<span class="fc" id="L136">            count -= retCode;</span>
+<span class="fc" id="L137">            offset += retCode;</span>
+<span class="fc" id="L138">            unpPackedSize -= retCode;</span>
+<span class="fc" id="L139">            curUnpRead += retCode;</span>
+
+<span class="fc" id="L141">            archive.bytesReadRead(retCode);</span>
+
+<span class="fc bfc" id="L143" title="All 4 branches covered.">            if (unpPackedSize == 0 &amp;&amp; subHead.isSplitAfter()) {</span>
+<span class="fc" id="L144">                Volume nextVolume = archive.getVolumeManager().nextVolume(archive, archive.getVolume());</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">                if (nextVolume == null) {</span>
+<span class="nc" id="L146">                    nextVolumeMissing = true;</span>
+<span class="nc" id="L147">                    return -1;</span>
+                }
+
+<span class="fc" id="L150">                FileHeader hd = this.getSubHeader();</span>
+<span class="pc bpc" id="L151" title="2 of 4 branches missed.">                if (hd.getUnpVersion() &gt;= 20 &amp;&amp; hd.getFileCRC() != 0xffffffff</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">                        &amp;&amp; this.getPackedCRC() != ~hd.getFileCRC()) {</span>
+<span class="nc" id="L153">                    throw new CrcErrorException();</span>
+                }
+<span class="fc" id="L155">                UnrarCallback callback = archive.getUnrarCallback();</span>
+<span class="pc bpc" id="L156" title="3 of 4 branches missed.">                if ((callback != null) &amp;&amp; !callback.isNextVolumeReady(nextVolume)) {</span>
+<span class="nc" id="L157">                    return -1;</span>
+                }
+<span class="fc" id="L159">                archive.setVolume(nextVolume);</span>
+<span class="fc" id="L160">                hd = archive.nextFileHeader();</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">                if (hd == null) {</span>
+<span class="nc" id="L162">                    return -1;</span>
+                }
+<span class="fc" id="L164">                this.init(hd);</span>
+            } else {
+                break;
+            }
+<span class="fc" id="L168">        }</span>
+
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (retCode != -1) {</span>
+<span class="fc" id="L171">            retCode = totalRead;</span>
+        }
+<span class="fc" id="L173">        return retCode;</span>
+
+    }
+
+    public void unpWrite(byte[] addr, int offset, int count) throws IOException {
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (!testMode) {</span>
+            // DestFile-&gt;Write(Addr,Count);
+<span class="fc" id="L180">            outputStream.write(addr, offset, count);</span>
+        }
+
+<span class="fc" id="L183">        curUnpWrite += count;</span>
+
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">        if (!skipUnpCRC) {</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">            if (archive.isOldFormat()) {</span>
+<span class="nc" id="L187">                unpFileCRC = RarCRC.checkOldCrc((short) unpFileCRC, addr, count);</span>
+            } else {
+<span class="fc" id="L189">                unpFileCRC = RarCRC.checkCrc((int) unpFileCRC, addr, offset, count);</span>
+            }
+        }
+        // if (!skipArcCRC) {
+        // archive.updateDataCRC(Addr, offset, ReadSize);
+        // }
+<span class="fc" id="L195">    }</span>
+
+    public void setPackedSizeToRead(long size) {
+<span class="nc" id="L198">        unpPackedSize = size;</span>
+<span class="nc" id="L199">    }</span>
+
+    public void setTestMode(boolean mode) {
+<span class="nc" id="L202">        testMode = mode;</span>
+<span class="nc" id="L203">    }</span>
+
+    public void setSkipUnpCRC(boolean skip) {
+<span class="nc" id="L206">        skipUnpCRC = skip;</span>
+<span class="nc" id="L207">    }</span>
+
+    public void setSubHeader(FileHeader hd) {
+<span class="nc" id="L210">        subHead = hd;</span>
+
+<span class="nc" id="L212">    }</span>
+
+    public long getCurPackRead() {
+<span class="nc" id="L215">        return curPackRead;</span>
+    }
+
+    public void setCurPackRead(long curPackRead) {
+<span class="nc" id="L219">        this.curPackRead = curPackRead;</span>
+<span class="nc" id="L220">    }</span>
+
+    public long getCurPackWrite() {
+<span class="nc" id="L223">        return curPackWrite;</span>
+    }
+
+    public void setCurPackWrite(long curPackWrite) {
+<span class="nc" id="L227">        this.curPackWrite = curPackWrite;</span>
+<span class="nc" id="L228">    }</span>
+
+    public long getCurUnpRead() {
+<span class="nc" id="L231">        return curUnpRead;</span>
+    }
+
+    public void setCurUnpRead(long curUnpRead) {
+<span class="nc" id="L235">        this.curUnpRead = curUnpRead;</span>
+<span class="nc" id="L236">    }</span>
+
+    public long getCurUnpWrite() {
+<span class="nc" id="L239">        return curUnpWrite;</span>
+    }
+
+    public void setCurUnpWrite(long curUnpWrite) {
+<span class="nc" id="L243">        this.curUnpWrite = curUnpWrite;</span>
+<span class="nc" id="L244">    }</span>
+
+    public int getDecryption() {
+<span class="nc" id="L247">        return decryption;</span>
+    }
+
+    public void setDecryption(int decryption) {
+<span class="nc" id="L251">        this.decryption = decryption;</span>
+<span class="nc" id="L252">    }</span>
+
+    public int getEncryption() {
+<span class="nc" id="L255">        return encryption;</span>
+    }
+
+    public void setEncryption(int encryption) {
+<span class="nc" id="L259">        this.encryption = encryption;</span>
+<span class="nc" id="L260">    }</span>
+
+    public boolean isNextVolumeMissing() {
+<span class="nc" id="L263">        return nextVolumeMissing;</span>
+    }
+
+    public void setNextVolumeMissing(boolean nextVolumeMissing) {
+<span class="nc" id="L267">        this.nextVolumeMissing = nextVolumeMissing;</span>
+<span class="nc" id="L268">    }</span>
+
+    public long getPackedCRC() {
+<span class="fc" id="L271">        return packedCRC;</span>
+    }
+
+    public void setPackedCRC(long packedCRC) {
+<span class="nc" id="L275">        this.packedCRC = packedCRC;</span>
+<span class="nc" id="L276">    }</span>
+
+    public long getPackFileCRC() {
+<span class="nc" id="L279">        return packFileCRC;</span>
+    }
+
+    public void setPackFileCRC(long packFileCRC) {
+<span class="nc" id="L283">        this.packFileCRC = packFileCRC;</span>
+<span class="nc" id="L284">    }</span>
+
+    public boolean isPackVolume() {
+<span class="nc" id="L287">        return packVolume;</span>
+    }
+
+    public void setPackVolume(boolean packVolume) {
+<span class="nc" id="L291">        this.packVolume = packVolume;</span>
+<span class="nc" id="L292">    }</span>
+
+    public long getProcessedArcSize() {
+<span class="nc" id="L295">        return processedArcSize;</span>
+    }
+
+    public void setProcessedArcSize(long processedArcSize) {
+<span class="nc" id="L299">        this.processedArcSize = processedArcSize;</span>
+<span class="nc" id="L300">    }</span>
+
+    public long getTotalArcSize() {
+<span class="nc" id="L303">        return totalArcSize;</span>
+    }
+
+    public void setTotalArcSize(long totalArcSize) {
+<span class="nc" id="L307">        this.totalArcSize = totalArcSize;</span>
+<span class="nc" id="L308">    }</span>
+
+    public long getTotalPackRead() {
+<span class="nc" id="L311">        return totalPackRead;</span>
+    }
+
+    public void setTotalPackRead(long totalPackRead) {
+<span class="nc" id="L315">        this.totalPackRead = totalPackRead;</span>
+<span class="nc" id="L316">    }</span>
+
+    public long getUnpArcSize() {
+<span class="nc" id="L319">        return unpArcSize;</span>
+    }
+
+    public void setUnpArcSize(long unpArcSize) {
+<span class="nc" id="L323">        this.unpArcSize = unpArcSize;</span>
+<span class="nc" id="L324">    }</span>
+
+    public long getUnpFileCRC() {
+<span class="fc" id="L327">        return unpFileCRC;</span>
+    }
+
+    public void setUnpFileCRC(long unpFileCRC) {
+<span class="fc" id="L331">        this.unpFileCRC = unpFileCRC;</span>
+<span class="fc" id="L332">    }</span>
+
+    public boolean isUnpVolume() {
+<span class="nc" id="L335">        return unpVolume;</span>
+    }
+
+    public void setUnpVolume(boolean unpVolume) {
+<span class="nc" id="L339">        this.unpVolume = unpVolume;</span>
+<span class="nc" id="L340">    }</span>
+
+    public FileHeader getSubHeader() {
+<span class="fc" id="L343">        return subHead;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

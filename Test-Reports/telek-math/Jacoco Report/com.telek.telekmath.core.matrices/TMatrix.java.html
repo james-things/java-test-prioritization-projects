@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TMatrix.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.matrices</a> &gt; <span class="el_source">TMatrix.java</span></div><h1>TMatrix.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.matrices;
+
+
+import com.telek.telekmath.core.functions.amnfuncs.TCeil;
+import com.telek.telekmath.core.functions.amnfuncs.TCos;
+import com.telek.telekmath.core.geometry.vectors.TVector3D;
+import com.telek.telekutils.containers.TArrays;
+import com.telek.telekmath.utils.TelekMathException.*;
+import java.util.Arrays;
+import java.util.Objects;
+
+
+
+/**
+ * A matrix class with a lot of properties. &lt;br&gt;
+ * &lt;b&gt;WARNING&lt;/b&gt;: Most math libraries will have very fast and efficient matrix classes in
+ * them to do fast calculations. This class isn't built like that and no where close to doing fast calculations.
+ * This is a class merely have as many functionality as possible without worrying about performance. If you want a
+ * fast matrix class look at other math libraries.
+ */
+public class TMatrix {
+
+    private double[][] matrix;
+    private int rowSize, colSize;
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+
+    /**
+     * This is the recommended constructor.
+     * @param matrix any two dimensional double array
+     */
+<span class="fc" id="L36">    public TMatrix(double[][] matrix){</span>
+<span class="fc" id="L37">        this.matrix = matrix;</span>
+<span class="fc" id="L38">        this.rowSize = matrix.length;</span>
+<span class="fc" id="L39">        this.colSize = matrix[0].length;</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Copy constructor
+     * @param other other object to copy
+     */
+    public TMatrix(TMatrix other){
+<span class="fc" id="L47">        this(TArrays.getCopyOf(other.matrix));</span>
+<span class="fc" id="L48">    }</span>
+
+
+    /**
+     * This method iterates over a float[][] to fill this matrix. &lt;br&gt;
+     * It's recommended to use double[][] with {@link #TMatrix(double[][])} constructor for better performance.
+     * @param matrix any two dimensional float array
+     */
+    public TMatrix(float[][] matrix){
+<span class="fc" id="L57">        this(TArrays.getCastedDouble2CopyOf(matrix));</span>
+<span class="fc" id="L58">    }</span>
+
+
+    /**
+     * This method iterates over a int[][] to fill this matrix. &lt;br&gt;
+     * It's recommended to use double[][] with {@link #TMatrix(double[][])} constructor for better performance.
+     * @param matrix any two dimensional int array
+     */
+    public TMatrix(int[][] matrix){
+<span class="fc" id="L67">        this(TArrays.getCastedDouble2CopyOf(matrix));</span>
+<span class="fc" id="L68">    }</span>
+
+
+    /**
+     * This method iterates over a Number[][] to fill this matrix. &lt;br&gt;
+     * It's recommended to use double[][] with {@link #TMatrix(double[][])} constructor for better performance.
+     * @param matrix any two dimensional Number array
+     */
+    public TMatrix(Number[][] matrix){
+<span class="fc" id="L77">        this(TArrays.getCastedDouble2CopyOf(matrix));</span>
+<span class="fc" id="L78">    }</span>
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+    /**
+     * Calculates A + B and assigns that to A (this matrix). &lt;br&gt;
+     * This method only changes the first matrix.
+     * @param matrix2 a second matrix
+     * @return this matrix for method chaining
+     */
+    public TMatrix add(TMatrix matrix2){
+
+<span class="pc bpc" id="L94" title="2 of 4 branches missed.">        if( this.colSize != matrix2.colSize || this.rowSize != matrix2.rowSize )</span>
+<span class="nc" id="L95">            throw new DifferentMatrixDimensionException();</span>
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for(int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            for(int j = 0; j &lt; this.colSize; j++)</span>
+<span class="fc" id="L99">                this.matrix[i][j] += matrix2.getCell(i,j);</span>
+
+<span class="fc" id="L101">        return this;</span>
+    }
+
+
+
+    /**
+     * Calculates A - B and assigns that to A (this matrix). &lt;br&gt;
+     * This method only changes the first matrix.
+     * @param matrix2 a second matrix
+     * @return this matrix for method chaining
+     */
+    public TMatrix subtract(TMatrix matrix2){
+
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        if( this.colSize != matrix2.colSize || this.rowSize != matrix2.rowSize )</span>
+<span class="nc" id="L115">            throw new DifferentMatrixDimensionException();</span>
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for(int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            for(int j = 0; j &lt; this.colSize; j++)</span>
+<span class="fc" id="L119">                this.matrix[i][j] -= matrix2.getCell(i,j);</span>
+
+<span class="fc" id="L121">        return this;</span>
+    }
+
+
+
+    public double getCell(int row, int col){
+<span class="fc" id="L127">        return this.matrix[row][col];</span>
+    }
+
+    public void setCell(int row, int col, double value){
+<span class="fc" id="L131">        this.matrix[row][col] = value;</span>
+<span class="fc" id="L132">    }</span>
+
+
+
+    /**
+     * Multiplies every cell (scales the matrix) with the specified amount.
+     * @param scaleAmount any double to multiply every single element with
+     * @return this matrix for method chaining
+     */
+    public TMatrix scale(double scaleAmount){
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        for(int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            for(int j = 0; j &lt; this.colSize; j++)</span>
+<span class="fc" id="L144">                this.matrix[i][j] *= scaleAmount;</span>
+
+<span class="fc" id="L146">        return this;</span>
+    }
+
+
+    /**  @return this matrix for method chaining  */
+    public TMatrix transpose(){
+<span class="fc" id="L152">        double[][] newData = new double[this.colSize][this.rowSize];</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for(int i = 0; i &lt; this.colSize; i++){</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            for(int j = 0; j &lt; this.rowSize; j++){</span>
+<span class="fc" id="L155">                newData[i][j] = this.getCell(j,i);</span>
+            }
+        }
+
+<span class="fc" id="L159">        this.matrix = newData;</span>
+<span class="fc" id="L160">        this.rowSize = newData.length;</span>
+<span class="fc" id="L161">        this.colSize = newData[0].length;</span>
+
+<span class="fc" id="L163">        return this;</span>
+    }
+
+
+
+    public double[] getDiagonal(){
+<span class="fc" id="L169">        this.checkForSquareMatrix();</span>
+<span class="fc" id="L170">        double[] diagonal = new double[this.rowSize];</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        for(int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="fc" id="L172">            diagonal[i] = this.getCell(i,i);</span>
+
+<span class="fc" id="L174">        return diagonal;</span>
+    }
+
+
+    /**
+     * Creates a copy of this matrix and returns it.
+     * @return a copy of this matrix
+     */
+    public TMatrix copy(){
+<span class="fc" id="L183">        double[][] newMatrix = new double[this.rowSize][this.colSize];</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        for (int i = 0; i &lt; this.rowSize; i++) {</span>
+<span class="fc" id="L185">            newMatrix[i] = TArrays.getCopyOf(this.matrix[i]);</span>
+        }
+
+<span class="fc" id="L188">        return new TMatrix(newMatrix);</span>
+    }
+
+
+    /**
+     * Creates a copy of this matrix with increased/decreased size and returns it. &lt;br&gt;
+     * Any additional (added) cells will be filled with 0.
+     * @return a copy of this matrix
+     */
+    public TMatrix copy(int newRow, int newCol){
+<span class="fc" id="L198">        double[][] newMatrix = new double[newRow][newCol];</span>
+
+<span class="fc bfc" id="L200" title="All 2 branches covered.">        for (int i = 0; i &lt; this.rowSize; i++) {</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            for (int j = 0; j &lt; this.colSize; j++) {</span>
+<span class="fc" id="L202">                newMatrix[i][j] = this.matrix[i][j];</span>
+            }
+        }
+
+<span class="fc" id="L206">        return new TMatrix(newMatrix);</span>
+    }
+
+
+
+
+    public double trace(){
+<span class="fc" id="L213">        checkForSquareMatrix();</span>
+<span class="fc" id="L214">        double sum = 0;</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        for (int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="fc" id="L216">            sum += this.getCell(i, i);</span>
+
+<span class="fc" id="L218">        return sum;</span>
+    }
+
+
+
+    public double determinant() {
+<span class="fc" id="L224">        checkForSquareMatrix();</span>
+
+<span class="fc" id="L226">        int result = 0, sign = 1;</span>
+
+<span class="fc" id="L228">        double[][] temp = new double[this.rowSize-1][this.colSize-1];</span>
+
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (this.rowSize == 1) return matrix[0][0];</span>
+
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        for (int f = 0; f &lt; this.rowSize; f++) {</span>
+<span class="fc" id="L233">            int i = 0, j = 0;</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            for (int row = 0; row &lt; this.rowSize; row++) {</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">                for (int col = 0; col &lt; this.rowSize; col++) {</span>
+<span class="fc bfc" id="L236" title="All 4 branches covered.">                    if (row != 0 &amp;&amp; col != f) {</span>
+<span class="fc" id="L237">                        temp[i][j++] = this.getCell(row,col);</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">                        if (j == this.rowSize - 1) {</span>
+<span class="fc" id="L239">                            j = 0;</span>
+<span class="fc" id="L240">                            i++;</span>
+                        }
+                    }
+                }
+            }
+<span class="fc" id="L245">            result += sign * this.getCell(0,f) * new TMatrix(temp).determinant();</span>
+<span class="fc" id="L246">            sign = -sign;</span>
+        }
+<span class="fc" id="L248">        return result;</span>
+    }
+
+
+    /**  @return this matrix for method chaining  */
+    public TMatrix rotate90DegClockwise(){
+<span class="fc" id="L254">        this.transpose();</span>
+<span class="fc" id="L255">        this.flipLeftRight();</span>
+
+<span class="fc" id="L257">        return this;</span>
+    }
+
+
+    /**  @return this matrix for method chaining  */
+    public TMatrix flipLeftRight(){
+<span class="fc" id="L263">        int iterCount = this.colSize / 2;</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">        for (int i = 0; i &lt; this.rowSize; i++) {</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">            for (int j = 0; j &lt; iterCount; j++) {</span>
+<span class="fc" id="L266">                double heldValue = this.getCell(i,j);</span>
+<span class="fc" id="L267">                this.matrix[i][j] = this.matrix[i][this.colSize - (j + 1)];</span>
+<span class="fc" id="L268">                this.matrix[i][this.colSize - (j + 1)] = heldValue;</span>
+            }
+        }
+
+<span class="fc" id="L272">        return this;</span>
+    }
+
+
+
+    /**
+     * Calculates thisMatrix * matrix2 and assigns that to this matrix. &lt;br&gt;
+     * This method doesn't change the any of the matrices, it creates a new matrix and returns that.
+     * @param matrix2 the second matrix (usually called B in A*B)
+     * @return A * B matrix
+     */
+     public TMatrix matrixMultiplication(TMatrix matrix2){
+<span class="fc" id="L284">         int m1RowSize = this.rowSize;</span>
+<span class="fc" id="L285">         int m1ColSize = this.colSize;</span>
+<span class="fc" id="L286">         int m2RowSize = matrix2.rowSize;</span>
+<span class="fc" id="L287">         int m2ColSize = matrix2.colSize;</span>
+
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">        if(m1ColSize != m2RowSize) throw new MatricesCantBeMultipliedException(m1ColSize, m2RowSize);</span>
+
+<span class="fc" id="L291">        double[][] newMatrix = new double[m1RowSize][m2ColSize];</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        for(int i = 0; i &lt; m1RowSize; i++){</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">            for(int k = 0; k &lt; m2ColSize; k++){</span>
+<span class="fc" id="L294">                double result = 0;</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">                for(int j = 0; j &lt; m2RowSize; j++) {</span>
+<span class="fc" id="L296">                    result += this.getCell(i,j) * matrix2.getCell(j,k);</span>
+                }
+<span class="fc" id="L298">                newMatrix[i][k] = result;</span>
+            }
+        }
+
+<span class="fc" id="L302">        return new TMatrix(newMatrix);</span>
+    }
+
+
+
+
+
+    public boolean isSquareMatrix(){
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        return this.rowSize == this.colSize;</span>
+    }
+
+
+
+    ///////////////////////////
+    /*  GETTERS AND SETTERS  */
+    ///////////////////////////
+
+    public double[][] getMatrix() {
+<span class="nc" id="L320">        return matrix;</span>
+    }
+
+    public int getRowSize() {
+<span class="fc" id="L324">        return rowSize;</span>
+    }
+
+    public int getColSize() {
+<span class="fc" id="L328">        return colSize;</span>
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+<span class="nc" id="L338">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        for (int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="nc" id="L340">            sb.append(Arrays.toString(matrix[i]) + &quot;\n&quot;);</span>
+<span class="nc" id="L341">        return sb.toString();</span>
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L348" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="fc" id="L350">        TMatrix matrix2 = (TMatrix) o;</span>
+
+<span class="pc bpc" id="L352" title="1 of 4 branches missed.">        if( this.colSize != matrix2.colSize || this.rowSize != matrix2.rowSize )</span>
+<span class="fc" id="L353">            return false;</span>
+
+<span class="fc bfc" id="L355" title="All 2 branches covered.">        for(int i = 0; i &lt; this.rowSize; i++)</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">            for(int j = 0; j &lt; this.colSize; j++)</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">                if(this.getCell(i,j) != matrix2.getCell(i,j))</span>
+<span class="fc" id="L358">                    return false;</span>
+
+<span class="fc" id="L360">        return true;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L365">        return 31 * Objects.hash(rowSize, colSize) + Arrays.hashCode(matrix);</span>
+    }
+
+
+    ///////////////
+    /*  HELPERS  */
+    ///////////////
+
+
+    private void checkForSquareMatrix(){
+<span class="fc bfc" id="L375" title="All 2 branches covered.">        if(!this.isSquareMatrix())</span>
+<span class="fc" id="L376">            throw new NotASquareMatrixException();</span>
+<span class="fc" id="L377">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

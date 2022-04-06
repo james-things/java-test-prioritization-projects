@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumberOps.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.utils</a> &gt; <span class="el_source">NumberOps.java</span></div><h1>NumberOps.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.utils;
+
+import com.sl.algorithms.core.interfaces.base.Constants;
+import com.sl.algorithms.core.list.ListNode;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
+
+public class NumberOps implements Constants {
+
+<span class="fc" id="L11">  NumberOps() {</span>
+    /**
+     * This is a utility class.&lt;br&gt;
+     */
+<span class="fc" id="L15">  }</span>
+
+  public static int countDigits(int n) {
+<span class="fc" id="L18">    int count = 0;</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">    if (n &lt; 0) {</span>
+<span class="fc" id="L20">      n *= -1;</span>
+    }
+<span class="fc bfc" id="L22" title="All 2 branches covered.">    if (n &lt; DECIMAL_RADIX) {</span>
+<span class="fc" id="L23">      return 1;</span>
+    }
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    for (int i = n; i &gt; 0; i = i / DECIMAL_RADIX) {</span>
+<span class="fc" id="L26">      count++;</span>
+    }
+<span class="fc" id="L28">    return count;</span>
+  }
+
+  // handle overflow while reversing a given integer
+  public static int reverse(int n) {
+<span class="fc" id="L33">    long r = 0;</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    while (n != 0) {</span>
+<span class="fc" id="L35">      r = r * DECIMAL_RADIX + n % DECIMAL_RADIX;</span>
+<span class="pc bpc" id="L36" title="1 of 4 branches missed.">      if (r &gt; Integer.MAX_VALUE || r &lt; Integer.MIN_VALUE) {</span>
+<span class="fc" id="L37">        return 0;</span>
+      }
+<span class="fc" id="L39">      n /= DECIMAL_RADIX;</span>
+    }
+<span class="fc" id="L41">    return (int) r;</span>
+  }
+
+  // n&gt;=0
+  public static int[] convertToArray(int n) {
+<span class="fc" id="L46">    int length = countDigits(n);</span>
+<span class="fc" id="L47">    int[] digits = new int[length];</span>
+<span class="fc" id="L48">    Arrays.fill(digits, 0);</span>
+<span class="fc" id="L49">    int index = length - 1;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    for (int i = n; i &gt; 0; i /= DECIMAL_RADIX) {</span>
+<span class="fc" id="L51">      digits[index--] = i % DECIMAL_RADIX;</span>
+    }
+<span class="fc" id="L53">    return digits;</span>
+  }
+
+  // n&gt;=0 and 32-bit
+  public static int convertToNumber(int[] a) {
+<span class="fc" id="L58">    long n = 0;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    for (int digit : a) {</span>
+<span class="fc" id="L60">      n = n * DECIMAL_RADIX + digit;</span>
+    }
+<span class="fc bfc" id="L62" title="All 4 branches covered.">    if (n &gt; Integer.MAX_VALUE || n &lt; 0) {</span>
+<span class="fc" id="L63">      return ELEMENT_NOT_FOUND;</span>
+    }
+<span class="fc" id="L65">    return (int) n;</span>
+  }
+
+  // n&gt;=0 and 32-bit
+  public static int convertToNumber(ListNode&lt;Integer&gt; list) {
+<span class="fc" id="L70">    long n = 0;</span>
+<span class="fc" id="L71">    ListNode&lt;Integer&gt; ptr = list;</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    while (ptr != null) {</span>
+<span class="fc" id="L73">      n = n * DECIMAL_RADIX + ptr.data;</span>
+<span class="fc" id="L74">      ptr = ptr.next;</span>
+    }
+<span class="fc bfc" id="L76" title="All 2 branches covered.">    if (n &gt; Integer.MAX_VALUE) {</span>
+<span class="fc" id="L77">      return ELEMENT_NOT_FOUND;</span>
+    }
+<span class="fc" id="L79">    return (int) n;</span>
+  }
+
+  // n&gt;=0 and 32-bit
+  public static int convertToNumberUsingPower(int[] a) {
+<span class="fc" id="L84">    long n = 0;</span>
+<span class="fc" id="L85">    int length = a.length;</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    for (int i = length - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L87">      long update = Formulas.raiseTo(DECIMAL_RADIX, length - i - 1);</span>
+<span class="fc" id="L88">      n += update * a[i];</span>
+    }
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    if (n &gt; Integer.MAX_VALUE) {</span>
+<span class="fc" id="L91">      return ELEMENT_NOT_FOUND;</span>
+    }
+<span class="fc" id="L93">    return (int) n;</span>
+  }
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes&quot;&gt;Sieve of Eratosthenes&lt;/a&gt;&lt;br&gt;
+   * &lt;br&gt;&lt;u&gt;Complexity&lt;/u&gt;: O(nlog(log(n))&lt;br&gt;
+   *
+   * @param n number to introspect
+   * @return count of prime-numbers before n
+   */
+  public static int countPrimes(int n) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    if (n &lt; 2) {</span>
+<span class="fc" id="L105">      return 0;</span>
+    }
+<span class="fc" id="L107">    int primeCount = 0;</span>
+<span class="fc" id="L108">    boolean[] isNotPrime = new boolean[n];</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">    for (int i = 2; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">      if (isNotPrime[i]) {</span>
+<span class="fc" id="L111">        continue;</span>
+      }
+<span class="fc" id="L113">      primeCount++;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">      for (int j = 2; i * j &lt; n; j++) {</span>
+<span class="fc" id="L115">        isNotPrime[i * j] = true;</span>
+      }
+    }
+<span class="fc" id="L118">    return primeCount;</span>
+  }
+
+  // n &gt;= 0
+  public static String convertToBinary(int decimalNum) {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">    if (decimalNum == 0) {</span>
+<span class="fc" id="L124">      return &quot;0&quot;;</span>
+    }
+<span class="fc" id="L126">    Deque&lt;Integer&gt; bitStack = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L127">    StringBuilder bits = new StringBuilder();</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">    for (int i = decimalNum; i &gt; 0; i &gt;&gt;= 1) {</span>
+<span class="fc" id="L129">      bitStack.push(i % 2);</span>
+    }
+<span class="fc bfc" id="L131" title="All 2 branches covered.">    while (!bitStack.isEmpty()) {</span>
+<span class="fc" id="L132">      bits.append(bitStack.pop());</span>
+    }
+<span class="fc" id="L134">    return bits.toString();</span>
+  }
+
+  // n &gt;= 0
+  public static int convertToDecimal(int binaryNum) {
+<span class="fc" id="L139">    int result = 0;</span>
+<span class="fc" id="L140">    int index = 0;</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    for (int i = binaryNum; i &gt; 0; i /= DECIMAL_RADIX) {</span>
+<span class="fc" id="L142">      int bit = i % DECIMAL_RADIX;</span>
+<span class="fc" id="L143">      result += bit * Formulas.raiseTo(2, index);</span>
+<span class="fc" id="L144">      ++index;</span>
+    }
+<span class="fc" id="L146">    return result;</span>
+  }
+
+  public static int convertToDecimal(String binaryStr) {
+<span class="fc" id="L150">    return convertToDecimal(Integer.parseInt(binaryStr));</span>
+  }
+
+  // O(n) time and O(n) space
+  public static Integer[] plusOne(Integer[] digits) {
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">    if (digits == null || digits.length == 0) {</span>
+<span class="fc" id="L156">      return digits;</span>
+    }
+<span class="fc" id="L158">    int length = digits.length;</span>
+<span class="fc" id="L159">    boolean addOne = true;</span>
+<span class="fc" id="L160">    int numberToAdd = 1;</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">    for (int i = length - 1; i &gt;= 0; i--) {</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">      if (addOne) {</span>
+<span class="fc" id="L163">        digits[i] += numberToAdd;</span>
+      }
+<span class="fc bfc" id="L165" title="All 2 branches covered.">      if (digits[i] &gt; 9) {</span>
+<span class="fc" id="L166">        digits[i] = digits[i] % DECIMAL_RADIX;</span>
+<span class="fc" id="L167">        addOne = true;</span>
+      } else {
+<span class="fc" id="L169">        addOne = false;</span>
+      }
+    }
+<span class="fc bfc" id="L172" title="All 2 branches covered.">    if (addOne) {</span>
+<span class="fc" id="L173">      Integer[] plusOneNumber = new Integer[length + 1];</span>
+<span class="fc" id="L174">      Arrays.fill(plusOneNumber, 0);</span>
+<span class="fc" id="L175">      plusOneNumber[0] = numberToAdd;</span>
+<span class="fc" id="L176">      return plusOneNumber;</span>
+    }
+<span class="fc" id="L178">    return digits;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TRandom.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.random</a> &gt; <span class="el_source">TRandom.java</span></div><h1>TRandom.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.random;
+
+import com.telek.telekutils.containers.TCollections;
+
+import java.util.ArrayList;
+
+public class TRandom {
+
+    //////////////
+    /*  FIELDS  */
+    //////////////
+
+    /** Defines how many times the linear-congruential generation algorithm will be iterated in each method */
+<span class="nc" id="L14">    public static int LCG_DEFAULT_ITERATION_COUNT = 20;</span>
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+    /* No constructor */
+    private TRandom(){}
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+    /**
+     * Returns a random number in range [0, M] using linear-congruential generation algorithm.
+     * M value should be a prime for good generations
+     * @param a a constant number to multiply
+     * @param seed your seed
+     * @param c constant number to add
+     * @param M a constant number take the modulus, this value should be a prime for good results
+     * @param iterationCount how many times this process will be applied
+     * @return a random number in range [0,M]
+     */
+    public static int linearCongruential(int a, int seed, int c, int M, int iterationCount){
+<span class="nc" id="L40">        int result = seed;</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        for (int i = 0; i &lt; iterationCount; i++) {</span>
+<span class="nc" id="L42">            result = (a * result + c) % M;</span>
+        }
+<span class="nc" id="L44">        return result;</span>
+    }
+
+
+
+
+    /**
+     * Returns a random number in range [0, 2^31-1] using linear-congruential generation algorithm.
+     * Uses Park and Miller numbers.  a = 16807, M = 2^31-1 (mersenne prime).
+     * Also uses {@link #LCG_DEFAULT_ITERATION_COUNT} as iterationCount
+     * @param seed your seed
+     * @param c constant number to add
+     * @return a random number in range [0, 2^31-1]
+     */
+    public static int linearCongruential(int seed, int c){
+<span class="nc" id="L59">        return linearCongruential(16807, seed, c, 214748647, LCG_DEFAULT_ITERATION_COUNT);</span>
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Returns the generated steps using the number seed, if number is even then do x/2, if odd then do 3x+1
+     * @param seed any number to start
+     * @return the steps as a int array
+     */
+    public static int[] getStepsForCollatzConjecture(int seed){
+<span class="nc" id="L72">        ArrayList&lt;Integer&gt; steps = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L73">        steps.add(seed);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        while(seed != 1){</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if(seed % 2 == 0) seed /= 2;</span>
+<span class="nc" id="L76">            else seed = 3 * seed + 1;</span>
+<span class="nc" id="L77">            steps.add(seed);</span>
+        }
+<span class="nc" id="L79">        return TCollections.collectionToArray(steps);</span>
+    }
+
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

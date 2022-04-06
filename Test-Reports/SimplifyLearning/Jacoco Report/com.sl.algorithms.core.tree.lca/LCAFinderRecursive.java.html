@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LCAFinderRecursive.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.tree.lca</a> &gt; <span class="el_source">LCAFinderRecursive.java</span></div><h1>LCAFinderRecursive.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.tree.lca;
+
+import com.sl.algorithms.core.interfaces.search.LowestCommonAncestor;
+import com.sl.algorithms.core.tree.TreeNode;
+
+<span class="fc" id="L6">public class LCAFinderRecursive&lt;T extends Comparable&gt; implements LowestCommonAncestor&lt;T&gt; {</span>
+
+  @Override
+  public TreeNode&lt;T&gt; findLCA(TreeNode&lt;T&gt; root, TreeNode&lt;T&gt; p, TreeNode&lt;T&gt; q) {
+<span class="fc bfc" id="L10" title="All 6 branches covered.">    if (root == null || root == p || root == q) {</span>
+<span class="fc" id="L11">      return root;</span>
+    }
+<span class="fc" id="L13">    TreeNode&lt;T&gt; lNode = findLCA(root.left, p, q);</span>
+<span class="fc" id="L14">    TreeNode&lt;T&gt; rNode = findLCA(root.right, p, q);</span>
+<span class="fc bfc" id="L15" title="All 4 branches covered.">    if (lNode != null &amp;&amp; rNode != null) {</span>
+<span class="fc" id="L16">      return root;</span>
+    }
+<span class="fc bfc" id="L18" title="All 2 branches covered.">    if (lNode != null) {</span>
+<span class="fc" id="L19">      return lNode;</span>
+    }
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">    if (rNode != null) {</span>
+<span class="fc" id="L22">      return rNode;</span>
+    }
+<span class="nc" id="L24">    return null;</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public TreeNode&lt;T&gt; findLCABST(TreeNode&lt;T&gt; root, TreeNode&lt;T&gt; p, TreeNode&lt;T&gt; q) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">    if (root == null) {</span>
+<span class="fc" id="L31">      return root;</span>
+    }
+<span class="pc bpc" id="L33" title="1 of 4 branches missed.">    if (root.data.compareTo(p.data) &lt; 0 &amp;&amp; root.data.compareTo(q.data) &lt; 0) {</span>
+<span class="fc" id="L34">      return findLCABST(root.right, p, q);</span>
+<span class="fc bfc" id="L35" title="All 4 branches covered.">    } else if (root.data.compareTo(p.data) &gt; 0 &amp;&amp; root.data.compareTo(q.data) &gt; 0) {</span>
+<span class="fc" id="L36">      return findLCABST(root.left, p, q);</span>
+    }
+<span class="fc" id="L38">    return root;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

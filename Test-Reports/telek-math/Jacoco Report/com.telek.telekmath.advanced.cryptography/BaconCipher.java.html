@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BaconCipher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.cryptography</a> &gt; <span class="el_source">BaconCipher.java</span></div><h1>BaconCipher.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.cryptography;
+
+import com.telek.telekmath.core.constants.CryptoConstants;
+import com.telek.telekmath.utils.TelekMathException.*;
+
+import java.util.Locale;
+
+public class BaconCipher {
+
+    /* No constructor */
+    private BaconCipher(){}
+
+    // look here for more info: https://www.youtube.com/watch?v=ctA38iXUpYg
+    public static String decode(String code){
+<span class="fc" id="L15">        final StringBuilder alphabetString = CryptoConstants.ENGLISH_ALPHABET;</span>
+<span class="fc" id="L16">        StringBuilder answer = new StringBuilder();</span>
+<span class="fc" id="L17">        String text = code.replaceAll(&quot;[^a-zA-Z]&quot;, &quot;&quot;); // remove all non-alphabetic words</span>
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if(text.length() % 5 != 0) throw new NotAMultiplyOfNException(&quot;code's length&quot;, 5);</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        for(int i = 0; i &lt; text.length(); i++) {</span>
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">            if( !alphabetString.toString().contains(String.valueOf(text.charAt(i)).toUpperCase(Locale.ROOT) ) )</span>
+<span class="nc" id="L21">                throw new HasNonLetterCharactersException();</span>
+        }
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        for(int i = 0; i != text.length(); i+=5){</span>
+<span class="fc" id="L24">            StringBuilder currentCode = new StringBuilder();</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">            currentCode.append(alphabetString.toString().contains(String.valueOf(text.charAt(i))) ? &quot;0&quot; : &quot;1&quot;);</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">            currentCode.append(alphabetString.toString().contains(String.valueOf(text.charAt(i+1))) ? &quot;0&quot; : &quot;1&quot;);</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">            currentCode.append(alphabetString.toString().contains(String.valueOf(text.charAt(i+2))) ? &quot;0&quot; : &quot;1&quot;);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">            currentCode.append(alphabetString.toString().contains(String.valueOf(text.charAt(i+3))) ? &quot;0&quot; : &quot;1&quot;);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">            currentCode.append(alphabetString.toString().contains(String.valueOf(text.charAt(i+4))) ? &quot;0&quot; : &quot;1&quot;);</span>
+<span class="fc" id="L30">            answer.append( alphabetString.toString().charAt( Integer.parseInt(currentCode.toString(), 2) ) );</span>
+        }
+<span class="fc" id="L32">        return answer.toString();</span>
+    }
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

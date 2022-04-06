@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TVector2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.geometry.vectors</a> &gt; <span class="el_source">TVector2D.java</span></div><h1>TVector2D.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.geometry.vectors;
+
+
+import com.telek.telekmath.core.geometry.TLine2D;
+import com.telek.telekmath.core.geometry.points.TPoint2D;
+import com.telek.telekmath.utils.TMath;
+import java.util.Objects;
+
+
+/**
+ * An immutable 2D vector class. &lt;br&gt;
+ * All methods either return a numeric value or &lt;b&gt;a new {@link TVector2D} instance&lt;/b&gt;.
+ */
+public class TVector2D {
+
+<span class="fc" id="L16">    public static final TVector2D ZERO = new TVector2D(0d, 0d);</span>
+
+    public double x, y;
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+<span class="fc" id="L25">    public TVector2D(double x, double y){</span>
+<span class="fc" id="L26">        this.x = x;</span>
+<span class="fc" id="L27">        this.y = y;</span>
+<span class="fc" id="L28">    }</span>
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+
+
+    public TVector2D add(TVector2D vector2){
+<span class="nc" id="L39">        return new TVector2D(this.x + vector2.x, this.y + vector2.y);</span>
+    }
+
+
+    public TVector2D add(double x, double y){
+<span class="fc" id="L44">        return new TVector2D(this.x + x, this.y + y);</span>
+    }
+
+    public TVector2D subtract(TVector2D vector2){
+<span class="fc" id="L48">        return new TVector2D(this.x - vector2.x, this.y - vector2.y);</span>
+    }
+
+    public TVector2D subtract(double x, double y){
+<span class="nc" id="L52">        return new TVector2D(this.x - x, this.y - y);</span>
+    }
+
+
+    public TVector2D scale(double scaleAmount){
+<span class="fc" id="L57">        return new TVector2D(this.x * scaleAmount, this.y * scaleAmount);</span>
+    }
+
+    public TVector2D scale(double scaleX, double scaleY){
+<span class="nc" id="L61">        return new TVector2D(this.x * scaleX, this.y * scaleY);</span>
+    }
+
+
+    public TVector2D unitVector(){
+<span class="fc" id="L66">        return this.scale( 1d/ this.length() );</span>
+    }
+
+
+    public TVector2D projection(TVector2D vector2) {
+<span class="nc" id="L71">        return vector2.scale(this.dot(vector2) / (vector2.length() * vector2.length()));</span>
+    }
+
+
+    public TVector2D orthogonalProjection(TVector2D vector2){
+<span class="nc" id="L76">        return this.subtract( this.projection(vector2) );</span>
+    }
+
+
+
+    public double length() {
+<span class="fc" id="L82">        return Math.sqrt( this.x * this.x + this.y * this.y );</span>
+    }
+
+    public double dot(TVector2D vector2){
+<span class="fc" id="L86">        return this.x * vector2.x + this.y * vector2.y;</span>
+    }
+
+
+
+    public boolean isUnitVector() {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        return this.length() == 1;</span>
+    }
+
+    public boolean isZeroVector() {
+<span class="pc bpc" id="L96" title="1 of 4 branches missed.">        return this.x == 0d &amp;&amp; this.y == 0d;</span>
+    }
+
+
+    public TPoint2D toTPoint2D(){
+<span class="nc" id="L101">        return new TPoint2D(this.x, this.y);</span>
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    public static double angleBetweenTwoVectors(TVector2D vector1, TVector2D vector2) {
+<span class="fc" id="L111">        return Math.acos( vector1.dot(vector2) / ( vector1.length() * vector2.length()) );</span>
+    }
+
+    public static double distanceBetweenTwoVectors(TVector2D vector1, TVector2D vector2) {
+<span class="fc" id="L115">        return vector1.subtract(vector2).length(); // len(vec1- vec2)</span>
+    }
+
+
+    public static boolean areOrthogonal(TVector2D vector1, TVector2D vector2, TVector2D vector3){
+<span class="nc bnc" id="L120" title="All 6 branches missed.">        return (vector1.dot(vector2) == 0 &amp;&amp; vector1.dot(vector3) == 0 &amp;&amp; vector2.dot(vector3) == 0);</span>
+    }
+
+    public static boolean areOrthonormal(TVector2D vector1, TVector2D vector2, TVector2D vector3) {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        return areOrthogonal(vector1, vector2, vector3)</span>
+<span class="nc bnc" id="L125" title="All 6 branches missed.">                &amp;&amp; vector1.isUnitVector() &amp;&amp; vector2.isUnitVector() &amp;&amp; vector3.isUnitVector();</span>
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+<span class="nc" id="L135">        return String.format(&quot;&lt;%f, %f&gt;&quot;, this.x, this.y)</span>
+<span class="nc" id="L136">                .replaceAll(&quot;&lt;0.000000&quot;, &quot;&lt;0&quot;)</span>
+<span class="nc" id="L137">                .replaceAll(&quot;0.000000&gt;&quot;, &quot;0&gt;&quot;)</span>
+<span class="nc" id="L138">                .replaceAll(&quot;&lt;1.000000&quot;, &quot;&lt;1&quot;)</span>
+<span class="nc" id="L139">                .replaceAll(&quot;1.000000&gt;&quot;, &quot;1&gt;&quot;)</span>
+<span class="nc" id="L140">                .replaceAll(&quot;&lt;-1.000000&quot;, &quot;&lt;-1&quot;)</span>
+<span class="nc" id="L141">                .replaceAll(&quot;-1.000000&gt;&quot;, &quot;-1&gt;&quot;);</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L148">        TVector2D tVector2D = (TVector2D) o;</span>
+<span class="fc bfc" id="L149" title="All 4 branches covered.">        return TMath.areEqual(tVector2D.x, x) &amp;&amp; TMath.areEqual(tVector2D.y, y);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L154">        return Objects.hash(x, y);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

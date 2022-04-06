@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomAccessInputStream.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.io</a> &gt; <span class="el_source">RandomAccessInputStream.java</span></div><h1>RandomAccessInputStream.java</h1><pre class="source lang-java linenums">/*
+ * public domain as of http://rsbweb.nih.gov/ij/disclaimer.html
+ */
+package com.github.junrar.io;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Vector;
+
+/**
+ * This is a class that uses a memory cache to allow seeking within an
+ * InputStream. Based on the JAI MemoryCacheSeekableStream class.
+ */
+@SuppressWarnings(&quot;rawtypes&quot;)
+public final class RandomAccessInputStream extends InputStream {
+
+    private static final int BLOCK_SIZE = 512;
+    private static final int BLOCK_MASK = 511;
+    private static final int BLOCK_SHIFT = 9;
+
+    private final InputStream src;
+    private long pointer;
+    private final Vector data;
+    private int length;
+    private boolean foundEOS;
+
+    /**
+     * Constructs a RandomAccessStream from an InputStream. Seeking backwards is
+     * supported using a memory cache.
+     *
+     * @param inputstream .
+     */
+<span class="fc" id="L34">    public RandomAccessInputStream(InputStream inputstream) {</span>
+<span class="fc" id="L35">        pointer = 0L;</span>
+<span class="fc" id="L36">        data = new Vector();</span>
+<span class="fc" id="L37">        length = 0;</span>
+<span class="fc" id="L38">        foundEOS = false;</span>
+<span class="fc" id="L39">        src = inputstream;</span>
+<span class="fc" id="L40">    }</span>
+
+    public int getFilePointer() throws IOException {
+<span class="nc" id="L43">        return (int) pointer;</span>
+    }
+
+    public long getLongFilePointer() throws IOException {
+<span class="fc" id="L47">        return pointer;</span>
+    }
+
+    public int read() throws IOException {
+<span class="nc" id="L51">        long l = pointer + 1L;</span>
+<span class="nc" id="L52">        long l1 = readUntil(l);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (l1 &gt;= l) {</span>
+<span class="nc" id="L54">            byte[] abyte0 = (byte[]) data</span>
+<span class="nc" id="L55">                .elementAt((int) (pointer &gt;&gt;&gt; BLOCK_SHIFT));</span>
+<span class="nc" id="L56">            return abyte0[(int) (pointer++ &amp; BLOCK_MASK)] &amp; 0xff;</span>
+        } else {
+<span class="nc" id="L58">            return -1;</span>
+        }
+    }
+
+    public int read(byte[] bytes, int off, int len) throws IOException {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (bytes == null) {</span>
+<span class="nc" id="L64">            throw new NullPointerException();</span>
+        }
+<span class="pc bpc" id="L66" title="3 of 6 branches missed.">        if (off &lt; 0 || len &lt; 0 || off + len &gt; bytes.length) {</span>
+<span class="nc" id="L67">            throw new IndexOutOfBoundsException();</span>
+        }
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (len == 0) {</span>
+<span class="fc" id="L70">            return 0;</span>
+        }
+<span class="fc" id="L72">        long l = readUntil(pointer + len);</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (l &lt;= pointer) {</span>
+<span class="nc" id="L74">            return -1;</span>
+        } else {
+<span class="fc" id="L76">            byte[] abyte1 = (byte[]) data</span>
+<span class="fc" id="L77">                .elementAt((int) (pointer &gt;&gt;&gt; BLOCK_SHIFT));</span>
+<span class="fc" id="L78">            int k = Math.min(len, BLOCK_SIZE - (int) (pointer &amp; BLOCK_MASK));</span>
+<span class="fc" id="L79">            System.arraycopy(abyte1, (int) (pointer &amp; BLOCK_MASK), bytes, off,</span>
+                k);
+<span class="fc" id="L81">            pointer += k;</span>
+<span class="fc" id="L82">            return k;</span>
+        }
+    }
+
+    public void readFully(byte[] bytes) throws IOException {
+<span class="nc" id="L87">        readFully(bytes, bytes.length);</span>
+<span class="nc" id="L88">    }</span>
+
+    public void readFully(byte[] bytes, int len) throws IOException {
+<span class="fc" id="L91">        int read = 0;</span>
+        do {
+<span class="fc" id="L93">            int l = read(bytes, read, len - read);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (l &lt; 0) {</span>
+<span class="nc" id="L95">                break;</span>
+            }
+<span class="fc" id="L97">            read += l;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        } while (read &lt; len);</span>
+<span class="fc" id="L99">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private long readUntil(long l) throws IOException {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (l &lt; length) {</span>
+<span class="fc" id="L104">            return l;</span>
+        }
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (foundEOS) {</span>
+<span class="fc" id="L107">            return length;</span>
+        }
+<span class="fc" id="L109">        int i = (int) (l &gt;&gt;&gt; BLOCK_SHIFT);</span>
+<span class="fc" id="L110">        int j = length &gt;&gt;&gt; BLOCK_SHIFT;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int k = j; k &lt;= i; k++) {</span>
+<span class="fc" id="L112">            byte[] abyte0 = new byte[BLOCK_SIZE];</span>
+<span class="fc" id="L113">            data.addElement(abyte0);</span>
+<span class="fc" id="L114">            int i1 = BLOCK_SIZE;</span>
+<span class="fc" id="L115">            int j1 = 0;</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            while (i1 &gt; 0) {</span>
+<span class="fc" id="L117">                int k1 = src.read(abyte0, j1, i1);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                if (k1 == -1) {</span>
+<span class="fc" id="L119">                    foundEOS = true;</span>
+<span class="fc" id="L120">                    return length;</span>
+                }
+<span class="fc" id="L122">                j1 += k1;</span>
+<span class="fc" id="L123">                i1 -= k1;</span>
+<span class="fc" id="L124">                length += k1;</span>
+<span class="fc" id="L125">            }</span>
+
+        }
+
+<span class="fc" id="L129">        return length;</span>
+    }
+
+    public void seek(long loc) throws IOException {
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (loc &lt; 0L) {</span>
+<span class="nc" id="L134">            pointer = 0L;</span>
+        } else {
+<span class="fc" id="L136">            pointer = loc;</span>
+        }
+<span class="fc" id="L138">    }</span>
+
+    public void seek(int loc) throws IOException {
+<span class="nc" id="L141">        long lloc = ((long) loc) &amp; 0xffffffffL;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (lloc &lt; 0L) {</span>
+<span class="nc" id="L143">            pointer = 0L;</span>
+        } else {
+<span class="nc" id="L145">            pointer = lloc;</span>
+        }
+<span class="nc" id="L147">    }</span>
+
+    public int readInt() throws IOException {
+<span class="nc" id="L150">        int i = read();</span>
+<span class="nc" id="L151">        int j = read();</span>
+<span class="nc" id="L152">        int k = read();</span>
+<span class="nc" id="L153">        int l = read();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if ((i | j | k | l) &lt; 0) {</span>
+<span class="nc" id="L155">            throw new EOFException();</span>
+        } else {
+<span class="nc" id="L157">            return (i &lt;&lt; 24) + (j &lt;&lt; 16) + (k &lt;&lt; 8) + l;</span>
+        }
+    }
+
+    public long readLong() throws IOException {
+<span class="nc" id="L162">        return ((long) readInt() &lt;&lt; 32) + ((long) readInt() &amp; 0xffffffffL);</span>
+    }
+
+    public double readDouble() throws IOException {
+<span class="nc" id="L166">        return Double.longBitsToDouble(readLong());</span>
+    }
+
+    public short readShort() throws IOException {
+<span class="nc" id="L170">        int i = read();</span>
+<span class="nc" id="L171">        int j = read();</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if ((i | j) &lt; 0) {</span>
+<span class="nc" id="L173">            throw new EOFException();</span>
+        } else {
+<span class="nc" id="L175">            return (short) ((i &lt;&lt; 8) + j);</span>
+        }
+    }
+
+    public float readFloat() throws IOException {
+<span class="nc" id="L180">        return Float.intBitsToFloat(readInt());</span>
+    }
+
+    public void close() throws IOException {
+<span class="fc" id="L184">        data.removeAllElements();</span>
+<span class="fc" id="L185">        src.close();</span>
+<span class="fc" id="L186">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TMatrixUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.matrices</a> &gt; <span class="el_source">TMatrixUtils.java</span></div><h1>TMatrixUtils.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.matrices;
+
+
+
+
+public class TMatrixUtils {
+
+
+    /* No constructor */
+    private TMatrixUtils(){}
+
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+
+    public static TMatrix createIdentityMatrix(int dimension){
+<span class="fc" id="L20">        double[][] newMatrix = new double[dimension][dimension];</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        for(int i = 0; i &lt; dimension ; i++){</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">            for(int j = 0 ; j &lt; dimension ; j++){</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">                if(i == j) newMatrix[i][j] = 1;</span>
+<span class="fc" id="L24">                else newMatrix[i][j] = 0;</span>
+            }
+        }
+<span class="fc" id="L27">        return new TMatrix(newMatrix);</span>
+    }
+
+
+
+    /**
+     * Please look here for more information: &lt;a&gt;https://en.wikipedia.org/wiki/Hilbert_matrix&lt;/a&gt;
+     * @param dimension the dimension of this Hilbert (also a square) matrix
+     * @return a Hilbert matrix
+     */
+    public static TMatrix createHilbertMatrix(int dimension){
+<span class="fc" id="L38">        double[][] newMatrix = new double[dimension][dimension];</span>
+
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++)</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">            for (int j = 0; j &lt; dimension; j++)</span>
+<span class="fc" id="L42">                newMatrix[i][j] = 1d / (i+j+1);</span>
+
+<span class="fc" id="L44">        return new TMatrix(newMatrix);</span>
+    }
+
+
+    /**
+     * Please look here for more information: &lt;a&gt;https://en.wikipedia.org/wiki/Lehmer_matrix&lt;/a&gt;
+     * @param dimension the dimension of this Lehmer (also a square) matrix
+     * @return a Lehmer matrix
+     */
+    public static TMatrix createLehmerMatrix(int dimension){
+<span class="fc" id="L54">        double[][] newMatrix = new double[dimension][dimension];</span>
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++)</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            for (int j = 0; j &lt; dimension; j++)</span>
+<span class="fc" id="L58">                newMatrix[i][j] = (double) Math.min(i+1, j+1) / (double) Math.max(i+1, j+1);</span>
+
+<span class="fc" id="L60">        return new TMatrix(newMatrix);</span>
+    }
+
+
+
+    /**
+     * @param rowSize the row size of this matrix
+     * @param colSize the column size of this matrix
+     * @param value any double value
+     * @return A matrix filled with the specified value
+     */
+    public static TMatrix allValues(int rowSize, int colSize, double value){
+<span class="fc" id="L72">        double[][] newMatrix = new double[rowSize][colSize];</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        for (int i = 0; i &lt; rowSize; i++)</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            for (int j = 0; j &lt; colSize; j++)</span>
+<span class="fc" id="L76">                newMatrix[i][j] = value;</span>
+
+<span class="fc" id="L78">        return new TMatrix(newMatrix);</span>
+    }
+
+
+    public static TMatrix allValues(int dimension, double value){
+<span class="nc" id="L83">        return allValues(dimension, dimension, value);</span>
+    }
+
+
+    // same as ones() in MATLAB
+    public static TMatrix allOnes(int rowSize, int colSize){
+<span class="nc" id="L89">        return allValues(rowSize, colSize, 1d);</span>
+    }
+
+    // same as ones() in MATLAB
+    public static TMatrix allOnes(int dimension){
+<span class="nc" id="L94">        return allValues(dimension, dimension, 1d);</span>
+    }
+
+
+    // same as zeros() in MATLAB
+    public static TMatrix allZeros(int rowSize, int colSize){
+<span class="nc" id="L100">        return allValues(rowSize, colSize, 0d);</span>
+    }
+
+    // same as zeros() in MATLAB
+    public static TMatrix allZeros(int dimension){
+<span class="nc" id="L105">        return allValues(dimension, dimension, 0d);</span>
+    }
+
+
+
+
+    //////////////////////////////
+    /*  SPECIAL MATRIX METHODS  */
+    //////////////////////////////
+
+
+
+    public static boolean isOrthogonal(TMatrix matrix){
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        return matrix.determinant() == 1;</span>
+    }
+
+    public static boolean isSingular(TMatrix matrix){
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        return matrix.determinant() == 0;</span>
+    }
+
+    public static boolean isRegular(TMatrix matrix){
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        return matrix.determinant() != 0;</span>
+    }
+
+
+    public static boolean isIdentityMatrix(TMatrix matrix){
+<span class="fc" id="L131">        int mColSize = matrix.getColSize();</span>
+<span class="fc" id="L132">        int mRowSize = matrix.getRowSize();</span>
+
+        // check for square matrices
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        if( mRowSize != mColSize ) return false;</span>
+
+        // Check for zeros
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for(int i = 0; i &lt; mRowSize; i++){</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">            for(int j = 0; j &lt; mColSize; j++){</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">                if(i == j) continue;</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                else if( matrix.getCell(i,j) != 0d ) return false;</span>
+            }
+        }
+
+        // Check for ones
+<span class="fc" id="L146">        double[] diagonal = matrix.getDiagonal();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for( double d : diagonal ){</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if(d != 1) return false;</span>
+        }
+
+<span class="fc" id="L151">        return true;</span>
+    }
+
+
+
+    public static boolean isSymmetrical(TMatrix matrix){
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if( matrix.getRowSize() != matrix.getColSize() ) return false;</span>
+
+<span class="fc" id="L159">        return matrix.equals(matrix.copy().transpose());</span>
+   }
+
+
+
+
+    ////////////////////////////////
+    /*  IMPLEMENTATION FUNCTIONS  */
+    ////////////////////////////////
+
+
+    /**
+     * Solves AX = B and returns X matrix. &lt;br&gt;
+     * This method will return null if a solution doesn't exist.
+     * @param A any square matrix
+     * @param B any matrix
+     * @return The solution matrix X
+     */
+    public static TMatrix cramerMethod(TMatrix A, TMatrix B){
+<span class="fc" id="L178">        int equationCount = A.getRowSize();</span>
+<span class="pc bpc" id="L179" title="2 of 4 branches missed.">        if( B.getRowSize() != A.getRowSize() || B.getColSize() != 1)</span>
+<span class="nc" id="L180">            return null;</span>
+
+<span class="fc" id="L182">        double detA = A.determinant();</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        if(detA == 0) return null;</span>
+
+<span class="fc" id="L185">        double[] answers = new double[equationCount];</span>
+
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        for(int i = 0; i &lt; equationCount; i++){</span>
+            // GET THE MATRIX
+<span class="fc" id="L189">            int mRowSize = A.getRowSize(), mColSize = A.getColSize();</span>
+<span class="fc" id="L190">            double[][] newMatrix = new double[mRowSize][mColSize];</span>
+
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            for(int row = 0; row &lt; mRowSize; row++)</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                for(int col = 0; col &lt; mColSize; col++)</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">                    newMatrix[row][col] = (col == i) ? B.getCell(row, 0) : A.getCell(row, col);</span>
+
+            // CALCULATE THE ANSWER
+<span class="fc" id="L197">            answers[i] = new TMatrix(newMatrix).determinant() / detA;</span>
+        }
+
+<span class="fc" id="L200">        return new TMatrix(new double[][]{ answers }).transpose();</span>
+    }
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

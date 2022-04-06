@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Sampler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.random</a> &gt; <span class="el_source">Sampler.java</span></div><h1>Sampler.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.random;
+
+
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.utils.TelekMathException.*;
+import java.lang.reflect.Array;
+import java.util.HashMap;
+import java.util.Random;
+
+
+
+/**
+ * Uses different algorithms to pick random values from an array
+ * and returns a new array containing those randomly selected values.
+ */
+public class Sampler {
+
+<span class="fc" id="L18">    private static Random random = new Random();</span>
+
+    /* No constructor */
+    private Sampler(){}
+
+
+    ///////////////////////
+    /*  GENERIC METHODS  */
+    ///////////////////////
+
+
+    /**
+     * Randomly picks values from the population array and puts it into the sample.
+     * @param sampleSize sample's size
+     * @return sample array
+     */
+    public static &lt;T&gt; T[] simpleRandomSampling(T[] population, Class&lt;T&gt; clazz, int sampleSize) {
+<span class="fc" id="L35">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L37">        final int N = population.length; // population size</span>
+<span class="fc" id="L38">        T[] sample = (T[]) Array.newInstance(clazz, sampleSize);</span>
+
+        // using hashmap for performance purposes, the values won't be used
+<span class="fc" id="L41">        HashMap&lt;Integer, Integer&gt; chosenIndexes = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        while(chosenIndexes.size() != sampleSize){</span>
+<span class="fc" id="L44">            int randomIndex = random.nextInt(N);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if(!chosenIndexes.containsKey(randomIndex)){</span>
+<span class="fc" id="L46">                sample[chosenIndexes.size()] = population[randomIndex];</span>
+<span class="fc" id="L47">                chosenIndexes.put(randomIndex, 0);</span>
+            }
+<span class="fc" id="L49">        }</span>
+
+<span class="fc" id="L51">        return sample;</span>
+    }
+
+
+    /**
+     * Picks a random index and than takes k values starting from that index and puts those terms into the sample
+     * @param sampleSize sample's size
+     * @return sample array
+     */
+    public static &lt;T&gt; T[] systematicSampling(T[] population, Class&lt;T&gt; clazz, int sampleSize) {
+<span class="fc" id="L61">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L63">        final int N = population.length; // population size</span>
+<span class="fc" id="L64">        T[] sample = (T[]) Array.newInstance(clazz, sampleSize);</span>
+
+<span class="fc" id="L66">        int randi = random.nextInt(N);</span>
+
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if(N - randi &lt; sampleSize){ // we need to wrap this around</span>
+<span class="nc" id="L69">            int index = 0;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            for (int i = 0; i &lt; N - randi; i++)</span>
+<span class="nc" id="L71">                sample[index++] = population[randi + i];</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            for (int i = 0; i &lt; sampleSize + randi - N; i++)</span>
+<span class="nc" id="L74">                sample[index++] = population[i];</span>
+<span class="nc" id="L75">        }</span>
+        else{
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            for (int i = 0, index = 0; i &lt; sampleSize; i++)</span>
+<span class="fc" id="L78">                sample[index++] = population[randi + i];</span>
+        }
+
+<span class="fc" id="L81">        return sample;</span>
+    }
+
+
+    /**
+     * Divides the population into sampleSize clusters and choses a random term
+     * from each cluster and adds it to the sample array.
+     * @param sampleSize sample's size
+     * @return sample array
+     */
+    public static &lt;T&gt; T[] clusterSampling(T[] population, Class&lt;T&gt; clazz, int sampleSize) {
+<span class="fc" id="L92">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L94">        final int N = population.length; // population size</span>
+<span class="fc" id="L95">        T[] sample = (T[]) Array.newInstance(clazz, sampleSize);</span>
+
+<span class="fc" id="L97">        TRange[] clusters = new TRange[sampleSize];</span>
+<span class="fc" id="L98">        int clusterTermCount = (int) Math.floor(N / sampleSize); // x = 3,</span>
+
+<span class="fc" id="L100">        int j = 0;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        for (int i = 0; i &lt; clusters.length; i++) {</span>
+<span class="fc" id="L102">            clusters[i] = new TRange(j, j + clusterTermCount - 1); // 0, 2</span>
+<span class="fc" id="L103">            j += clusterTermCount;</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            clusterTermCount = (i % 2 == 0) ? clusterTermCount + 1 : clusterTermCount - 1 ;</span>
+        }
+<span class="fc" id="L106">        TRange lastRange = clusters[clusters.length - 1];</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if(lastRange.right != N - 1)</span>
+<span class="fc" id="L108">            clusters[clusters.length - 1] = new TRange(lastRange.left, N - 1);</span>
+
+<span class="fc" id="L110">        int sampleIndex = 0;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for(TRange range : clusters){</span>
+<span class="fc" id="L112">            int index = random.nextInt((int) (range.right + 1d - range.left)) + (int) range.left;</span>
+<span class="fc" id="L113">            sample[sampleIndex++] = population[index];</span>
+        }
+
+<span class="fc" id="L116">        return sample;</span>
+    }
+
+
+    /////////////////////////
+    /*  PRIMITIVE METHODS  */
+    /////////////////////////
+
+    public static int[] simpleRandomSampling(int[] population, int sampleSize) {
+<span class="fc" id="L125">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L127">        final int N = population.length; // population size</span>
+<span class="fc" id="L128">        int[] sample = new int[sampleSize];</span>
+
+        // using hashmap for performance purposes, the values won't be used
+<span class="fc" id="L131">        HashMap&lt;Integer, Integer&gt; chosenIndexes = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        while(chosenIndexes.size() != sampleSize){</span>
+<span class="fc" id="L134">            int randomIndex = random.nextInt(N);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            if(!chosenIndexes.containsKey(randomIndex)){</span>
+<span class="fc" id="L136">                sample[chosenIndexes.size()] = population[randomIndex];</span>
+<span class="fc" id="L137">                chosenIndexes.put(randomIndex, 0);</span>
+            }
+<span class="fc" id="L139">        }</span>
+
+<span class="fc" id="L141">        return sample;</span>
+    }
+
+
+    public static int[] systematicSampling(int[] population, int sampleSize) {
+<span class="fc" id="L146">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L148">        final int N = population.length; // population size</span>
+<span class="fc" id="L149">        int[] sample = new int[sampleSize];</span>
+
+<span class="fc" id="L151">        int randi = random.nextInt(N);</span>
+
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if(N - randi &lt; sampleSize){ // we need to wrap this around</span>
+<span class="nc" id="L154">            int index = 0;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            for (int i = 0; i &lt; N - randi; i++)</span>
+<span class="nc" id="L156">                sample[index++] = population[randi + i];</span>
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">            for (int i = 0; i &lt; sampleSize + randi - N; i++)</span>
+<span class="nc" id="L159">                sample[index++] = population[i];</span>
+<span class="nc" id="L160">        }</span>
+        else{
+<span class="fc bfc" id="L162" title="All 2 branches covered.">            for (int i = 0, index = 0; i &lt; sampleSize; i++)</span>
+<span class="fc" id="L163">                sample[index++] = population[randi + i];</span>
+        }
+
+<span class="fc" id="L166">        return sample;</span>
+    }
+
+
+    public static int[] clusterSampling(int[] population, int sampleSize) {
+<span class="fc" id="L171">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L173">        final int N = population.length; // population size</span>
+<span class="fc" id="L174">        int[] sample = new int[sampleSize];</span>
+
+<span class="fc" id="L176">        TRange[] clusters = new TRange[sampleSize];</span>
+<span class="fc" id="L177">        int clusterTermCount = (int) Math.floor(N / sampleSize); // x = 3,</span>
+
+<span class="fc" id="L179">        int j = 0;</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        for (int i = 0; i &lt; clusters.length; i++) {</span>
+<span class="fc" id="L181">            clusters[i] = new TRange(j, j + clusterTermCount - 1); // 0, 2</span>
+<span class="fc" id="L182">            j += clusterTermCount;</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            clusterTermCount = (i % 2 == 0) ? clusterTermCount + 1 : clusterTermCount - 1 ;</span>
+        }
+<span class="fc" id="L185">        TRange lastRange = clusters[clusters.length - 1];</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        if(lastRange.right != N - 1)</span>
+<span class="fc" id="L187">            clusters[clusters.length - 1] = new TRange(lastRange.left, N - 1);</span>
+
+<span class="fc" id="L189">        int sampleIndex = 0;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        for(TRange range : clusters){</span>
+<span class="fc" id="L191">            int index = random.nextInt((int) (range.right + 1d - range.left)) + (int) range.left;</span>
+<span class="fc" id="L192">            sample[sampleIndex++] = population[index];</span>
+        }
+
+<span class="fc" id="L195">        return sample;</span>
+    }
+
+    //////////////
+
+    public static float[] simpleRandomSampling(float[] population, int sampleSize) {
+<span class="fc" id="L201">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L203">        final int N = population.length; // population size</span>
+<span class="fc" id="L204">        float[] sample = new float[sampleSize];</span>
+
+        // using hashmap for performance purposes, the values won't be used
+<span class="fc" id="L207">        HashMap&lt;Integer, Integer&gt; chosenIndexes = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        while(chosenIndexes.size() != sampleSize){</span>
+<span class="fc" id="L210">            int randomIndex = random.nextInt(N);</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            if(!chosenIndexes.containsKey(randomIndex)){</span>
+<span class="fc" id="L212">                sample[chosenIndexes.size()] = population[randomIndex];</span>
+<span class="fc" id="L213">                chosenIndexes.put(randomIndex, 0);</span>
+            }
+<span class="fc" id="L215">        }</span>
+
+<span class="fc" id="L217">        return sample;</span>
+    }
+
+
+    public static float[] systematicSampling(float[] population, int sampleSize) {
+<span class="fc" id="L222">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L224">        final int N = population.length; // population size</span>
+<span class="fc" id="L225">        float[] sample = new float[sampleSize];</span>
+
+<span class="fc" id="L227">        int randi = random.nextInt(N);</span>
+
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        if(N - randi &lt; sampleSize){ // we need to wrap this around</span>
+<span class="fc" id="L230">            int index = 0;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            for (int i = 0; i &lt; N - randi; i++)</span>
+<span class="fc" id="L232">                sample[index++] = population[randi + i];</span>
+
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            for (int i = 0; i &lt; sampleSize + randi - N; i++)</span>
+<span class="fc" id="L235">                sample[index++] = population[i];</span>
+<span class="fc" id="L236">        }</span>
+        else{
+<span class="nc bnc" id="L238" title="All 2 branches missed.">            for (int i = 0, index = 0; i &lt; sampleSize; i++)</span>
+<span class="nc" id="L239">                sample[index++] = population[randi + i];</span>
+        }
+
+<span class="fc" id="L242">        return sample;</span>
+    }
+
+
+    public static float[] clusterSampling(float[] population, int sampleSize) {
+<span class="fc" id="L247">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="fc" id="L249">        final int N = population.length; // population size</span>
+<span class="fc" id="L250">        float[] sample = new float[sampleSize];</span>
+
+<span class="fc" id="L252">        TRange[] clusters = new TRange[sampleSize];</span>
+<span class="fc" id="L253">        int clusterTermCount = (int) Math.floor(N / sampleSize); // x = 3,</span>
+
+<span class="fc" id="L255">        int j = 0;</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        for (int i = 0; i &lt; clusters.length; i++) {</span>
+<span class="fc" id="L257">            clusters[i] = new TRange(j, j + clusterTermCount - 1); // 0, 2</span>
+<span class="fc" id="L258">            j += clusterTermCount;</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">            clusterTermCount = (i % 2 == 0) ? clusterTermCount + 1 : clusterTermCount - 1 ;</span>
+        }
+<span class="fc" id="L261">        TRange lastRange = clusters[clusters.length - 1];</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">        if(lastRange.right != N - 1)</span>
+<span class="fc" id="L263">            clusters[clusters.length - 1] = new TRange(lastRange.left, N - 1);</span>
+
+<span class="fc" id="L265">        int sampleIndex = 0;</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        for(TRange range : clusters){</span>
+<span class="fc" id="L267">            int index = random.nextInt((int) (range.right + 1d - range.left)) + (int) range.left;</span>
+<span class="fc" id="L268">            sample[sampleIndex++] = population[index];</span>
+        }
+
+<span class="fc" id="L271">        return sample;</span>
+    }
+
+    //////////////
+
+    public static double[] simpleRandomSampling(double[] population, int sampleSize) {
+<span class="nc" id="L277">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="nc" id="L279">        final int N = population.length; // population size</span>
+<span class="nc" id="L280">        double[] sample = new double[sampleSize];</span>
+
+        // using hashmap for performance purposes, the values won't be used
+<span class="nc" id="L283">        HashMap&lt;Integer, Integer&gt; chosenIndexes = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L285" title="All 2 branches missed.">        while(chosenIndexes.size() != sampleSize){</span>
+<span class="nc" id="L286">            int randomIndex = random.nextInt(N);</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">            if(!chosenIndexes.containsKey(randomIndex)){</span>
+<span class="nc" id="L288">                sample[chosenIndexes.size()] = population[randomIndex];</span>
+<span class="nc" id="L289">                chosenIndexes.put(randomIndex, 0);</span>
+            }
+<span class="nc" id="L291">        }</span>
+
+<span class="nc" id="L293">        return sample;</span>
+    }
+
+    public static double[] systematicSampling(double[] population, int sampleSize) {
+<span class="nc" id="L297">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="nc" id="L299">        final int N = population.length; // population size</span>
+<span class="nc" id="L300">        double[] sample = new double[sampleSize];</span>
+
+<span class="nc" id="L302">        int randi = random.nextInt(N);</span>
+
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        if(N - randi &lt; sampleSize){ // we need to wrap this around</span>
+<span class="nc" id="L305">            int index = 0;</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">            for (int i = 0; i &lt; N - randi; i++)</span>
+<span class="nc" id="L307">                sample[index++] = population[randi + i];</span>
+
+<span class="nc bnc" id="L309" title="All 2 branches missed.">            for (int i = 0; i &lt; sampleSize + randi - N; i++)</span>
+<span class="nc" id="L310">                sample[index++] = population[i];</span>
+<span class="nc" id="L311">        }</span>
+        else{
+<span class="nc bnc" id="L313" title="All 2 branches missed.">            for (int i = 0, index = 0; i &lt; sampleSize; i++)</span>
+<span class="nc" id="L314">                sample[index++] = population[randi + i];</span>
+        }
+
+<span class="nc" id="L317">        return sample;</span>
+    }
+
+    public static double[] clusterSampling(double[] population, int sampleSize) {
+<span class="nc" id="L321">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="nc" id="L323">        final int N = population.length; // population size</span>
+<span class="nc" id="L324">        double[] sample = new double[sampleSize];</span>
+
+<span class="nc" id="L326">        TRange[] clusters = new TRange[sampleSize];</span>
+<span class="nc" id="L327">        int clusterTermCount = (int) Math.floor(N / sampleSize); // x = 3,</span>
+
+<span class="nc" id="L329">        int j = 0;</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        for (int i = 0; i &lt; clusters.length; i++) {</span>
+<span class="nc" id="L331">            clusters[i] = new TRange(j, j + clusterTermCount - 1); // 0, 2</span>
+<span class="nc" id="L332">            j += clusterTermCount;</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">            clusterTermCount = (i % 2 == 0) ? clusterTermCount + 1 : clusterTermCount - 1 ;</span>
+        }
+<span class="nc" id="L335">        TRange lastRange = clusters[clusters.length - 1];</span>
+<span class="nc bnc" id="L336" title="All 2 branches missed.">        if(lastRange.right != N - 1)</span>
+<span class="nc" id="L337">            clusters[clusters.length - 1] = new TRange(lastRange.left, N - 1);</span>
+
+<span class="nc" id="L339">        int sampleIndex = 0;</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        for(TRange range : clusters){</span>
+<span class="nc" id="L341">            int index = random.nextInt((int) (range.right + 1d - range.left)) + (int) range.left;</span>
+<span class="nc" id="L342">            sample[sampleIndex++] = population[index];</span>
+        }
+
+<span class="nc" id="L345">        return sample;</span>
+    }
+
+    //////////////
+
+    public static long[] simpleRandomSampling(long[] population, int sampleSize) {
+<span class="nc" id="L351">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="nc" id="L353">        final int N = population.length; // population size</span>
+<span class="nc" id="L354">        long[] sample = new long[sampleSize];</span>
+
+        // using hashmap for performance purposes, the values won't be used
+<span class="nc" id="L357">        HashMap&lt;Integer, Integer&gt; chosenIndexes = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L359" title="All 2 branches missed.">        while(chosenIndexes.size() != sampleSize){</span>
+<span class="nc" id="L360">            int randomIndex = random.nextInt(N);</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            if(!chosenIndexes.containsKey(randomIndex)){</span>
+<span class="nc" id="L362">                sample[chosenIndexes.size()] = population[randomIndex];</span>
+<span class="nc" id="L363">                chosenIndexes.put(randomIndex, 0);</span>
+            }
+<span class="nc" id="L365">        }</span>
+
+<span class="nc" id="L367">        return sample;</span>
+    }
+
+    public static long[] systematicSampling(long[] population, int sampleSize) {
+<span class="nc" id="L371">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="nc" id="L373">        final int N = population.length; // population size</span>
+<span class="nc" id="L374">        long[] sample = new long[sampleSize];</span>
+
+<span class="nc" id="L376">        int randi = random.nextInt(N);</span>
+
+<span class="nc bnc" id="L378" title="All 2 branches missed.">        if(N - randi &lt; sampleSize){ // we need to wrap this around</span>
+<span class="nc" id="L379">            int index = 0;</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">            for (int i = 0; i &lt; N - randi; i++)</span>
+<span class="nc" id="L381">                sample[index++] = population[randi + i];</span>
+
+<span class="nc bnc" id="L383" title="All 2 branches missed.">            for (int i = 0; i &lt; sampleSize + randi - N; i++)</span>
+<span class="nc" id="L384">                sample[index++] = population[i];</span>
+<span class="nc" id="L385">        }</span>
+        else{
+<span class="nc bnc" id="L387" title="All 2 branches missed.">            for (int i = 0, index = 0; i &lt; sampleSize; i++)</span>
+<span class="nc" id="L388">                sample[index++] = population[randi + i];</span>
+        }
+
+<span class="nc" id="L391">        return sample;</span>
+    }
+
+    public static long[] clusterSampling(long[] population, int sampleSize) {
+<span class="nc" id="L395">        checkForSampleSize(population, sampleSize); // error checking</span>
+
+<span class="nc" id="L397">        final int N = population.length; // population size</span>
+<span class="nc" id="L398">        long[] sample = new long[sampleSize];</span>
+
+<span class="nc" id="L400">        TRange[] clusters = new TRange[sampleSize];</span>
+<span class="nc" id="L401">        int clusterTermCount = (int) Math.floor(N / sampleSize); // x = 3,</span>
+
+<span class="nc" id="L403">        int j = 0;</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        for (int i = 0; i &lt; clusters.length; i++) {</span>
+<span class="nc" id="L405">            clusters[i] = new TRange(j, j + clusterTermCount - 1); // 0, 2</span>
+<span class="nc" id="L406">            j += clusterTermCount;</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">            clusterTermCount = (i % 2 == 0) ? clusterTermCount + 1 : clusterTermCount - 1 ;</span>
+        }
+<span class="nc" id="L409">        TRange lastRange = clusters[clusters.length - 1];</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">        if(lastRange.right != N - 1)</span>
+<span class="nc" id="L411">            clusters[clusters.length - 1] = new TRange(lastRange.left, N - 1);</span>
+
+<span class="nc" id="L413">        int sampleIndex = 0;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">        for(TRange range : clusters){</span>
+<span class="nc" id="L415">            int index = random.nextInt((int) (range.right + 1d - range.left)) + (int) range.left;</span>
+<span class="nc" id="L416">            sample[sampleIndex++] = population[index];</span>
+        }
+
+<span class="nc" id="L419">        return sample;</span>
+    }
+
+
+    ///////////////
+    /*  HELPERS  */
+    ///////////////
+
+    private static &lt;T&gt; void checkForSampleSize(T[] population, int sampleSize){
+<span class="pc bpc" id="L428" title="2 of 4 branches missed.">        if(sampleSize &gt;= population.length || sampleSize &lt;= 0)</span>
+<span class="nc" id="L429">            throw new SampleSizeIsGreaterThanPopulationSizeException();</span>
+<span class="fc" id="L430">    }</span>
+
+    private static void checkForSampleSize(int[] population, int sampleSize){
+<span class="pc bpc" id="L433" title="2 of 4 branches missed.">        if(sampleSize &gt;= population.length || sampleSize &lt;= 0)</span>
+<span class="nc" id="L434">            throw new SampleSizeIsGreaterThanPopulationSizeException();</span>
+<span class="fc" id="L435">    }</span>
+
+    private static void checkForSampleSize(float[] population, int sampleSize){
+<span class="pc bpc" id="L438" title="2 of 4 branches missed.">        if(sampleSize &gt;= population.length || sampleSize &lt;= 0)</span>
+<span class="nc" id="L439">            throw new SampleSizeIsGreaterThanPopulationSizeException();</span>
+<span class="fc" id="L440">    }</span>
+
+    private static void checkForSampleSize(double[] population, int sampleSize){
+<span class="nc bnc" id="L443" title="All 4 branches missed.">        if(sampleSize &gt;= population.length || sampleSize &lt;= 0)</span>
+<span class="nc" id="L444">            throw new SampleSizeIsGreaterThanPopulationSizeException();</span>
+<span class="nc" id="L445">    }</span>
+
+    private static void checkForSampleSize(long[] population, int sampleSize){
+<span class="nc bnc" id="L448" title="All 4 branches missed.">        if(sampleSize &gt;= population.length || sampleSize &lt;= 0)</span>
+<span class="nc" id="L449">            throw new SampleSizeIsGreaterThanPopulationSizeException();</span>
+<span class="nc" id="L450">    }</span>
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

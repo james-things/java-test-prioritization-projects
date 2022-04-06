@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileNameDecoder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">FileNameDecoder.java</span></div><h1>FileNameDecoder.java</h1><pre class="source lang-java linenums">/*
+ *
+ * Original author: alpha_lam
+ * Creation date: ?
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+<span class="nc" id="L21">public class FileNameDecoder {</span>
+    public static int getChar(byte[] name, int pos) {
+<span class="fc" id="L23">        return name[pos] &amp; 0xff;</span>
+    }
+
+    public static String decode(byte[] name, int encPos) {
+<span class="fc" id="L27">        int decPos = 0;</span>
+<span class="fc" id="L28">        int flags = 0;</span>
+<span class="fc" id="L29">        int flagBits = 0;</span>
+
+<span class="fc" id="L31">        int low = 0;</span>
+<span class="fc" id="L32">        int high = 0;</span>
+<span class="fc" id="L33">        int highByte = getChar(name, encPos++);</span>
+<span class="fc" id="L34">        StringBuilder buf = new StringBuilder();</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        while (encPos &lt; name.length) {</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">            if (flagBits == 0) {</span>
+<span class="fc" id="L37">                flags = getChar(name, encPos++);</span>
+<span class="fc" id="L38">                flagBits = 8;</span>
+            }
+<span class="pc bpc" id="L40" title="2 of 5 branches missed.">            switch (flags &gt;&gt;&gt; 6) {</span>
+                case 0:
+<span class="fc" id="L42">                    buf.append((char) (getChar(name, encPos++)));</span>
+<span class="fc" id="L43">                    ++decPos;</span>
+<span class="fc" id="L44">                    break;</span>
+                case 1:
+<span class="fc" id="L46">                    buf.append((char) (getChar(name, encPos++) + (highByte &lt;&lt; 8)));</span>
+<span class="fc" id="L47">                    ++decPos;</span>
+<span class="fc" id="L48">                    break;</span>
+                case 2:
+<span class="fc" id="L50">                    low = getChar(name, encPos);</span>
+<span class="fc" id="L51">                    high = getChar(name, encPos + 1);</span>
+<span class="fc" id="L52">                    buf.append((char) ((high &lt;&lt; 8) + low));</span>
+<span class="fc" id="L53">                    ++decPos;</span>
+<span class="fc" id="L54">                    encPos += 2;</span>
+<span class="fc" id="L55">                    break;</span>
+                case 3:
+<span class="nc" id="L57">                    int length = getChar(name, encPos++);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                    if ((length &amp; 0x80) != 0) {</span>
+<span class="nc" id="L59">                        int correction = getChar(name, encPos++);</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">                        for (length = (length &amp; 0x7f) + 2; length &gt; 0 &amp;&amp; decPos &lt; name.length; length--, decPos++) {</span>
+<span class="nc" id="L61">                            low = (getChar(name, decPos) + correction) &amp; 0xff;</span>
+<span class="nc" id="L62">                            buf.append((char) ((highByte &lt;&lt; 8) + low));</span>
+                        }
+<span class="nc" id="L64">                    } else {</span>
+<span class="nc bnc" id="L65" title="All 4 branches missed.">                        for (length += 2; length &gt; 0 &amp;&amp; decPos &lt; name.length; length--, decPos++) {</span>
+<span class="nc" id="L66">                            buf.append((char) (getChar(name, decPos)));</span>
+                        }
+                    }
+                    break;
+            }
+<span class="fc" id="L71">            flags = (flags &lt;&lt; 2) &amp; 0xff;</span>
+<span class="fc" id="L72">            flagBits -= 2;</span>
+        }
+<span class="fc" id="L74">        return buf.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

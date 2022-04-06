@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BruteForceMedianFinder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.search.median</a> &gt; <span class="el_source">BruteForceMedianFinder.java</span></div><h1>BruteForceMedianFinder.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.search.median;
+
+import com.sl.algorithms.core.interfaces.select.MedianFinder;
+import java.util.Arrays;
+
+/**
+ * &lt;br&gt;Brute-force solution, for reference only.&lt;br&gt; &lt;br&gt;Time : O(N logN) &lt;br&gt;Space: O(N)
+ */
+@SuppressWarnings(&quot;unchecked&quot;) // because of Arrays.parallelSort call
+<span class="fc" id="L10">public class BruteForceMedianFinder&lt;T extends Comparable&gt; implements MedianFinder&lt;T&gt; {</span>
+
+  @Override
+  public T findKthSmallest(T[] objects, int k) {
+<span class="fc" id="L14">    checkArray(objects);</span>
+<span class="fc" id="L15">    int n = objects.length;</span>
+<span class="fc" id="L16">    kCheck(n, k);</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">    if (n == 1) {</span>
+<span class="fc" id="L18">      return objects[0];</span>
+    }
+<span class="fc" id="L20">    Arrays.parallelSort(objects);</span>
+<span class="fc" id="L21">    return objects[--k]; // because 1 &lt;= kMax &lt;= N, while an array starts from 0 index</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

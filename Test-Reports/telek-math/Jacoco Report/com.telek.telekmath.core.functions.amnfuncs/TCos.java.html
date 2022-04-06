@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TCos.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.functions.amnfuncs</a> &gt; <span class="el_source">TCos.java</span></div><h1>TCos.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.functions.amnfuncs;
+
+import com.telek.telekmath.core.functions.TFunction;
+import com.telek.telekmath.core.numbers.TRange;
+
+
+
+/**
+ * Defines  A * cos(mx+n)
+ */
+public class TCos extends AbstractAMNFunction {
+
+
+    /*  CONSTRUCTORS  */
+
+<span class="fc" id="L16">    public TCos(TRange range, double A, double m, double n) {super(FuncType.COS, range, A, m, n);}</span>
+<span class="fc" id="L17">    public TCos(TRange range, double A, double m) {super(FuncType.COS, range, A, m);}</span>
+<span class="fc" id="L18">    public TCos(TRange range, double A) {super(FuncType.COS, range, A);}</span>
+<span class="fc" id="L19">    public TCos(TRange range) {super(FuncType.COS, range);}</span>
+<span class="fc" id="L20">    public TCos(double A, double m, double n) {super(FuncType.COS, A, m, n);}</span>
+<span class="fc" id="L21">    public TCos(double A, double m) {super(FuncType.COS, A, m);}</span>
+<span class="fc" id="L22">    public TCos(double m) {super(FuncType.COS, m);}</span>
+<span class="fc" id="L23">    public TCos(){super(FuncType.COS);}</span>
+
+
+
+    /*  METHODS  */
+
+    @Override
+    public double value(double degInRadians) {
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if( !this.range.isInRange(degInRadians) ) return 0;</span>
+<span class="fc" id="L32">        return this.A * Math.cos(this.m * degInRadians + this.n); // A * cos(mx+n)</span>
+    }
+
+
+    @Override
+    public TFunction derivative() {
+<span class="fc" id="L38">        return new TFunction(</span>
+            new TSin(this.range, -A*m, m, n)
+        );
+    }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

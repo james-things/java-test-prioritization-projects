@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommentHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">CommentHeader.java</span></div><h1>CommentHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 23.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+
+/**
+ * Comment header
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class CommentHeader extends BaseBlock {
+
+    public static final short commentHeaderSize = 6;
+
+    private final short unpSize;
+    private byte unpVersion;
+    private byte unpMethod;
+    private final short commCRC;
+
+
+    public CommentHeader(BaseBlock bb, byte[] commentHeader) {
+<span class="nc" id="L41">        super(bb);</span>
+
+<span class="nc" id="L43">        int pos = 0;</span>
+<span class="nc" id="L44">        unpSize = Raw.readShortLittleEndian(commentHeader, pos);</span>
+<span class="nc" id="L45">        pos += 2;</span>
+<span class="nc" id="L46">        unpVersion |= commentHeader[pos] &amp; 0xff;</span>
+<span class="nc" id="L47">        pos++;</span>
+
+<span class="nc" id="L49">        unpMethod |= commentHeader[pos] &amp; 0xff;</span>
+<span class="nc" id="L50">        pos++;</span>
+<span class="nc" id="L51">        commCRC = Raw.readShortLittleEndian(commentHeader, pos);</span>
+
+<span class="nc" id="L53">    }</span>
+
+    public short getCommCRC() {
+<span class="nc" id="L56">        return commCRC;</span>
+    }
+
+    public byte getUnpMethod() {
+<span class="nc" id="L60">        return unpMethod;</span>
+    }
+
+    public short getUnpSize() {
+<span class="nc" id="L64">        return unpSize;</span>
+    }
+
+    public byte getUnpVersion() {
+<span class="nc" id="L68">        return unpVersion;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

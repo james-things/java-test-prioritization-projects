@@ -1,0 +1,1042 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TMath.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.utils</a> &gt; <span class="el_source">TMath.java</span></div><h1>TMath.java</h1><pre class="source lang-java linenums">/*
+* Licensed to the Apache Software Foundation (ASF) under one or more
+* contributor license agreements.  See the NOTICE file distributed with
+* this work for additional information regarding copyright ownership.
+* The ASF licenses this file to You under the Apache License, Version 2.0
+* (the &quot;License&quot;); you may not use this file except in compliance with
+* the License.  You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+package com.telek.telekmath.utils;
+
+
+import com.telek.telekmath.core.constants.TMathConstants;
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.utils.TelekMathException.*;
+
+
+
+/**
+ * A class that has a lot of utility functions. &lt;br&gt;
+ * Few methods in this class were written by &lt;a href=&quot;https://github.com/tommyettinger&quot;&gt;Tommy Ettinger&lt;/a&gt;. &lt;br&gt;
+ * Few methods in this class were taken from Apache Commons Math, most of these methods were &lt;b&gt;changed&lt;/b&gt; in
+ * many ways to fit telek-math. &lt;br&gt;
+ * To see every method that wasn't written by &lt;a href=&quot;https://github.com/oziris78&quot;&gt;me&lt;/a&gt;, see the
+ * sections below in this class that were seperated by big multiline comments.
+ */
+public final class TMath {
+
+
+
+    //////////////
+    /*  FIELDS  */
+    //////////////
+
+    // empty for now
+
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+
+    /* No constructor */
+    private TMath(){}
+
+
+    ////////////////////
+    /*  MATH METHODS  */
+    ////////////////////
+
+
+
+    /**
+     * @param z any value
+     * @return erf(z)
+     */
+    public static double erf(double z) {
+<span class="fc" id="L66">        double t = 1.0 / (1.0 + 0.5 * Math.abs(z));</span>
+<span class="fc" id="L67">        double ans = 1 - t * Math.exp(-z*z - 1.26551223 + t * (1.00002368 + t *</span>
+                (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 +
+                        t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * (0.17087277))))))))));
+<span class="fc" id="L70">        return Math.copySign(ans, z);</span>
+    }
+
+
+
+
+
+
+    /**
+     * Works in linear time aka O(n)
+     * @param n any long
+     * @return true if n is prime, else false
+     */
+    public static boolean isPrime(int n){
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if(n &lt;= 1) return false;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for(int i = 2; i &lt; n; i++)</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if(n % i == 0) return false;</span>
+<span class="fc" id="L87">        return true;</span>
+    }
+
+
+
+    /**
+     * Fast power function that only works with integers
+     * @param base any integer
+     * @param exponent any integer
+     * @return base ^ exponent
+     */
+    public static int pow(int base, int exponent){
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if(exponent &lt; 0) throw new InvalidValueException(&quot;exponent&quot;, exponent);</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if(exponent == 0) return 1;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if(exponent == 1) return base;</span>
+<span class="fc" id="L102">        int result = 1;</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (int i = 0; i &lt; exponent; i++)</span>
+<span class="fc" id="L104">            result *= base;</span>
+<span class="fc" id="L105">        return result;</span>
+    }
+
+
+
+    /**
+     * Fast factorial function that only works with integers &lt;br&gt;
+     * This method only works for num &lt; 14.
+     * @param num any integer
+     * @return factorial(num)
+     */
+    public static int ifactorial(int num){
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        return (num != 0) ? num * ifactorial(num-1) : 1;</span>
+    }
+
+
+
+    /**
+     * Uses the {@link #gamma(double)} function to calculate the factorial.
+     * @param num any number
+     * @return factorial(num)
+     */
+    public static double factorial(double num){
+<span class="fc" id="L128">        return gamma(num + 1);</span>
+    }
+
+
+
+
+    public static int permutation(int n, int r){
+<span class="nc bnc" id="L135" title="All 4 branches missed.">        if( !(n&gt;=r &amp;&amp; r&gt;=0) ) throw new PermutationException(n, r);</span>
+<span class="nc" id="L136">        return TMath.ifactorial(n) / TMath.ifactorial(n - r);</span>
+    }
+
+
+
+    public static int repeatedPermutation(int n, int... rValues){
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        for(int r : rValues) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if( !(n &gt;= r) ) throw new RepeatedPermutationException(n, rValues);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            if( !(r &gt;= 0) ) throw new RepeatedPermutationException(n, rValues);</span>
+        }
+<span class="nc" id="L146">        int result = TMath.ifactorial(n);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for(int r : rValues) result /= TMath.ifactorial(r);</span>
+<span class="nc" id="L148">        return result;</span>
+    }
+
+
+    public static int combination(int n, int r){
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">        if( !(n&gt;=r &amp;&amp; r&gt;=0) ) throw new CombinationException(n,r);</span>
+<span class="fc" id="L154">        return TMath.ifactorial(n) / (TMath.ifactorial( n - r ) * TMath.ifactorial(r));</span>
+    }
+
+
+    public static int repeatedCombination(int n, int r){
+<span class="nc bnc" id="L159" title="All 4 branches missed.">        if( !(n&gt;=r &amp;&amp; r&gt;=0) ) throw new RepeatedCombinationException(n,r);</span>
+<span class="nc" id="L160">        return combination(n+r-1, r);</span>
+    }
+
+
+    public static long gcd(long a, long b) {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        return b == 0 ? a : gcd(b, a % b);</span>
+    }
+
+    public static int gcd(int a, int b) {
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        return b == 0 ? a : gcd(b, a % b);</span>
+    }
+
+
+
+    public static int abs(final int x) {
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        return (x &lt; 0) ? -x : x;</span>
+    }
+
+    public static long abs(final long x) {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        return (x &lt; 0L) ? -x : x;</span>
+    }
+
+    public static float abs(final float x) {
+<span class="nc bnc" id="L183" title="All 4 branches missed.">        return (x &lt; 0.0f) ? -x : (x == 0.0f) ? 0.0f : x; // -0.0 =&gt; +0.0</span>
+    }
+
+    public static double abs(double x) {
+<span class="fc bfc" id="L187" title="All 4 branches covered.">        return (x &lt; 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 =&gt; +0.0</span>
+    }
+
+
+
+
+    /**
+     * Takes oldValue from the range [oldA, oldB] and returns what it would represent if it was in range [newA, newB]
+     * @param oldRangeLeft start value of old interval (left value)
+     * @param oldRangeRight end value of old interval (right value)
+     * @param newRangeLeft start value of new interval (left value)
+     * @param newRangeRight end value of new interval (right value)
+     * @param oldValue any value from the old interval aka [oldRangeLeft, oldRangeRight]
+     * @return The new value of oldX in the new interval aka [newRangeLeft, newRangeRight]
+     */
+    public static double mapRange(double oldRangeLeft, double oldRangeRight,
+                                  double newRangeLeft, double newRangeRight, double oldValue){
+<span class="nc" id="L204">        return newRangeLeft + ( (oldValue-oldRangeLeft) * (newRangeRight-newRangeLeft) ) / (oldRangeRight - oldRangeLeft);</span>
+    }
+
+
+
+    /**  @see #mapRange(double, double, double, double, double)  */
+    public static double mapRange(TRange oldRange, TRange newRange, double oldValue){
+<span class="nc" id="L211">        return mapRange(oldRange.left, oldRange.right, newRange.left, newRange.right, oldValue);</span>
+    }
+
+
+
+    /**
+     * Takes oldValue from [-1,1] and returns what it would be in [0,1]
+     * @param oldValue any value from [-1,1] interval
+     * @return the value of oldX in [0,1] interval
+     */
+    public static double mapRange(double oldValue){
+<span class="nc" id="L222">        return mapRange(-1d, 1d, 0d, 1d, oldValue);</span>
+    }
+
+
+
+    /**
+     * This method is A lot faster than using '(int) Math.floor(x)'
+     * @param x any double value
+     * @return floor(x)
+     */
+    public static int floor(double x) {
+<span class="fc" id="L233">        int xi = (int) x;</span>
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">        return (x &lt; xi) ? (xi - 1) : xi;</span>
+    }
+
+
+    public static double sqrt(double x) {
+<span class="fc" id="L239">        return Math.sqrt(x);</span>
+    }
+
+
+
+
+    /*  ---------------  */
+    /*  SPECIAL METHODS  */
+    /*  ---------------  */
+
+
+
+    public static boolean areEqual(double d1, double d2){
+<span class="fc" id="L252">        boolean b1 = Double.isNaN(d1);</span>
+<span class="fc" id="L253">        boolean b2 = Double.isNaN(d2);</span>
+<span class="pc bpc" id="L254" title="3 of 8 branches missed.">        if(b1 || b2) return b1 &amp;&amp; b2;</span>
+
+<span class="fc" id="L256">        boolean b3 = Double.isInfinite(d1);</span>
+<span class="fc" id="L257">        boolean b4 = Double.isInfinite(d2);</span>
+<span class="pc bpc" id="L258" title="6 of 8 branches missed.">        if(b3 || b4) return b3 &amp;&amp; b4;</span>
+
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        return Math.abs(d1 - d2) &lt; TMathConstants.EPSILON;</span>
+    }
+
+
+
+
+    /*  -------  */
+    /*  HELPERS  */
+    /*  -------  */
+
+
+    // empty for now
+
+
+
+
+    /////////////////////////////////////////
+    /////////////////////////////////////////
+    /*  METHODS TAKEN FROM TOMMY ETTINGER  */
+    /////////////////////////////////////////
+    /////////////////////////////////////////
+
+
+
+    /**
+     * This method was written by Tommy Ettinger.
+     * @param a any float
+     * @return arcsin(a), it is faster than Math.asin(a) but not as accurate
+     */
+    public static float asin(float a) {
+<span class="nc" id="L290">        float a2 = a * a;  // a squared</span>
+<span class="nc" id="L291">        float a3 = a * a2; // a cubed</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (a &gt;= 0f) {</span>
+<span class="nc" id="L293">            return 1.5707963267948966f - (float) Math.sqrt(1f - a) *</span>
+                    (1.5707288f - 0.2121144f * a + 0.0742610f * a2 - 0.0187293f * a3);
+        }
+        else {
+<span class="nc" id="L297">            return -1.5707963267948966f + (float) Math.sqrt(1f + a) *</span>
+                    (1.5707288f + 0.2121144f * a + 0.0742610f * a2 + 0.0187293f * a3);
+        }
+    }
+
+
+    /**
+     * This method was written by Tommy Ettinger.
+     * @param a any float
+     * @return arccos(a), it is faster than Math.acos(a) but not as accurate
+     */
+    public static float acos(float a) {
+<span class="nc" id="L309">        float a2 = a * a;  // a squared</span>
+<span class="nc" id="L310">        float a3 = a * a2; // a cubed</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (a &gt;= 0f) {</span>
+<span class="nc" id="L312">            return (float) Math.sqrt(1f - a) *</span>
+                    (1.5707288f - 0.2121144f * a + 0.0742610f * a2 - 0.0187293f * a3);
+        }
+        else {
+<span class="nc" id="L316">            return 3.14159265358979323846f - (float) Math.sqrt(1f + a) *</span>
+                    (1.5707288f + 0.2121144f * a + 0.0742610f * a2 + 0.0187293f * a3);
+        }
+    }
+
+
+
+    /**
+     * This uses an algorithm by Peter John Acklam, as implemented by Sherali Karimov.
+     * &lt;a href=&quot;https://web.archive.org/web/20150910002142/http://home.online.no/~pjacklam/notes/invnorm/impl/karimov/StatUtil.java&quot;&gt;
+     *     Original source&lt;/a&gt;.
+     * &lt;a href=&quot;https://web.archive.org/web/20151030215612/http://home.online.no/~pjacklam/notes/invnorm/&quot;&gt;
+     *     Information on the algorithm&lt;/a&gt;.
+     * &lt;a href=&quot;https://en.wikipedia.org/wiki/Probit_function&quot;&gt;Wikipedia's page on the probit function&lt;/a&gt; may help, but
+     * is more likely to just be confusing.
+     * &lt;br&gt;
+     *
+     * @param d should be between 0 and 1, exclusive, but other values are tolerated
+     * @return a normal-distributed double centered on 0.0; all results will be between -38.5 and 38.5, both inclusive
+     */
+    public static double probit(double d) {
+<span class="pc bpc" id="L337" title="2 of 4 branches missed.">        if (d &lt;= 0 || d &gt;= 1) {</span>
+<span class="nc" id="L338">            return Math.copySign(38.5, d - 0.5);</span>
+        }
+<span class="fc bfc" id="L340" title="All 2 branches covered.">        else if (d &lt; 0.02425) {</span>
+<span class="fc" id="L341">            final double q = Math.sqrt(-2.0 * Math.log(d));</span>
+<span class="fc" id="L342">            return (((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) *</span>
+                    q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00) / (
+                    (((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) *
+                            q + 3.754408661907416e+00) * q + 1.0);
+        }
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        else if (0.97575 &lt; d) {</span>
+<span class="fc" id="L348">            final double q = Math.sqrt(-2.0 * Math.log(1 - d));</span>
+<span class="fc" id="L349">            return -(((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) *</span>
+                    q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00) / (
+                    (((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) *
+                            q + 3.754408661907416e+00) * q + 1.0);
+        }
+        else {
+<span class="fc" id="L355">            final double q = d - 0.5;</span>
+<span class="fc" id="L356">            final double r = q * q;</span>
+<span class="fc" id="L357">            return (((((-3.969683028665376e+01 * r + 2.209460984245205e+02) * r + -2.759285104469687e+02)</span>
+                    * r + 1.383577518672690e+02) * r + -3.066479806614716e+01) * r + 2.506628277459239e+00) * q / (
+                    ((((-5.447609879822406e+01 * r + 1.615858368580409e+02) * r + -1.556989798598866e+02)
+                            * r + 6.680131188771972e+01) * r + -1.328068155288572e+01) * r + 1.0);
+        }
+    }
+
+
+
+
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+    /*  METHODS TAKEN FROM APACHE COMMONS MATH  */
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    private static final int EXP_INT_TABLE_MAX_INDEX = 750;
+    private static final double LN_2_A = 0.693147063255310059;
+    private static final long HEX_40000000 = 0x40000000L; // 1073741824L
+    private static final double LN_2_B = 1.17304635250823482e-7;
+    private static final double TWO_POWER_52 = 4503599627370496.0;
+
+
+    public static double gamma(double x){
+<span class="fc" id="L381">        return exp( logGamma(x) );</span>
+    }
+
+
+    public static double beta(double a, double b){
+<span class="nc" id="L386">        return exp( logBeta(a,b) );</span>
+    }
+
+
+    public static double regularizedBeta(double x, double funcAlpha, double funcBeta) {
+
+<span class="pc bpc" id="L392" title="7 of 14 branches missed.">        if (Double.isNaN(x) || Double.isNaN(funcAlpha) || Double.isNaN(funcBeta) || x &lt; 0 || x &gt; 1 || funcAlpha &lt;= 0.0 || funcBeta &lt;= 0.0)</span>
+<span class="nc" id="L393">            return Double.NaN;</span>
+
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        if (x &gt; (funcAlpha + 1d) / (funcAlpha + funcBeta + 2d)) {</span>
+<span class="fc" id="L396">            return 1d - regularizedBeta(1d - x, funcBeta, funcAlpha);</span>
+        }
+
+        // start of evaluate function
+<span class="fc" id="L400">        double p0 = 1d, p1 = 1d, q0 = 0d, q1 = 1d;</span>
+<span class="fc" id="L401">        double c = p1 / q1;</span>
+<span class="fc" id="L402">        int n = 0;</span>
+<span class="fc" id="L403">        double relativeError = Double.MAX_VALUE;</span>
+<span class="pc bpc" id="L404" title="1 of 4 branches missed.">        while (n &lt; Integer.MAX_VALUE &amp;&amp; relativeError &gt; 10e-15) {</span>
+<span class="fc" id="L405">            ++n;</span>
+
+            double b;
+<span class="fc bfc" id="L408" title="All 2 branches covered.">            if (n % 2 == 0) {</span>
+<span class="fc" id="L409">                double m = n / 2d;</span>
+<span class="fc" id="L410">                b = (m * (funcBeta - m) * x) / ((funcAlpha + (2 * m) - 1) * (funcAlpha + (2 * m)));</span>
+<span class="fc" id="L411">            }</span>
+            else {
+<span class="fc" id="L413">                double m = (n - 1.0) / 2.0;</span>
+<span class="fc" id="L414">                b = -((funcAlpha + m) * (funcAlpha + funcBeta + m) * x) / ((funcAlpha + (2 * m)) * (funcAlpha + (2 * m) + 1.0));</span>
+            }
+
+<span class="fc" id="L417">            double p2 = p1 + b * p0;</span>
+<span class="fc" id="L418">            double q2 = q1 + b * q0;</span>
+<span class="fc" id="L419">            boolean infinite = false;</span>
+<span class="pc bpc" id="L420" title="2 of 4 branches missed.">            if (Double.isInfinite(p2) || Double.isInfinite(q2)) {</span>
+<span class="nc" id="L421">                double scaleFactor = 1d;</span>
+                double lastScaleFactor;
+<span class="nc" id="L423">                final int maxPower = 5;</span>
+<span class="nc" id="L424">                final double scale = Math.max(1d, b);</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">                for (int i = 0; i &lt; maxPower; i++) {</span>
+<span class="nc" id="L426">                    lastScaleFactor = scaleFactor;</span>
+<span class="nc" id="L427">                    scaleFactor *= scale;</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">                    if (1d &gt; b) {</span>
+<span class="nc" id="L429">                        p2 = p1 / lastScaleFactor + (b / scaleFactor * p0);</span>
+<span class="nc" id="L430">                        q2 = q1 / lastScaleFactor + (b / scaleFactor * q0);</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">                    } else if (b != 0) {</span>
+<span class="nc" id="L432">                        p2 = (1d / scaleFactor * p1) + p0 / lastScaleFactor;</span>
+<span class="nc" id="L433">                        q2 = (1d / scaleFactor * q1) + q0 / lastScaleFactor;</span>
+                    }
+<span class="nc bnc" id="L435" title="All 4 branches missed.">                    infinite = Double.isInfinite(p2) || Double.isInfinite(q2);</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">                    if (!infinite) {</span>
+<span class="nc" id="L437">                        break;</span>
+                    }
+                }
+            }
+
+<span class="pc bpc" id="L442" title="1 of 2 branches missed.">            if (infinite) throw new RuntimeException(&quot;ConvergenceException from Apache code&quot;);</span>
+<span class="fc" id="L443">            double r = p2 / q2;</span>
+<span class="pc bpc" id="L444" title="1 of 2 branches missed.">            if (Double.isNaN(r)) throw new RuntimeException(&quot;ConvergenceException from Apache code&quot;);</span>
+<span class="fc" id="L445">            relativeError = Math.abs(r / c - 1.0);</span>
+
+<span class="fc" id="L447">            c = p2 / q2;</span>
+<span class="fc" id="L448">            p0 = p1;</span>
+<span class="fc" id="L449">            p1 = p2;</span>
+<span class="fc" id="L450">            q0 = q1;</span>
+<span class="fc" id="L451">            q1 = q2;</span>
+<span class="fc" id="L452">        }</span>
+
+<span class="pc bpc" id="L454" title="1 of 2 branches missed.">        if (n &gt;= Integer.MAX_VALUE) throw new RuntimeException(&quot;MaxCountExceededException from Apache code&quot;);</span>
+        // end of eval
+
+<span class="fc" id="L457">        return TMath.exp((funcAlpha * TMath.log(x)) + (funcBeta * TMath.log(1.0 - x)) - TMath.log(funcAlpha) - TMath.logBeta(funcAlpha, funcBeta)) *</span>
+                1d / c;
+
+    }
+
+
+    public static double logBeta(double a, double b) {
+<span class="pc bpc" id="L464" title="4 of 8 branches missed.">        if (Double.isNaN(a) || Double.isNaN(b) || a &lt;= 0.0 || b &lt;= 0.0)</span>
+<span class="nc" id="L465">            return Double.NaN;</span>
+        else
+<span class="fc" id="L467">            return logGamma(a) + logGamma(b) - logGamma(a + b);</span>
+    }
+
+
+    public static double logGamma(double x) {
+<span class="pc bpc" id="L472" title="2 of 4 branches missed.">        if (Double.isNaN(x) || (x &lt;= 0.0)) {</span>
+<span class="nc" id="L473">            return Double.NaN;</span>
+        }
+        else {
+<span class="fc" id="L476">            double sum = 0.0;</span>
+<span class="fc bfc" id="L477" title="All 2 branches covered.">            for (int i = ApacheArrays.LANCZOS.length - 1; i &gt; 0; --i) {</span>
+<span class="fc" id="L478">                sum += (ApacheArrays.LANCZOS[i] / (x + i));</span>
+            }
+<span class="fc" id="L480">            sum += ApacheArrays.LANCZOS[0];</span>
+
+<span class="fc" id="L482">            double tmp = x + 4.7421875d + .5;</span>
+<span class="fc" id="L483">            return ( (x + .5) * Math.log(tmp) ) - tmp + TMathConstants.HALF_LOG_2_PI + Math.log(sum / x);</span>
+        }
+    }
+
+
+    public static double pow(double x, double y) {
+<span class="fc" id="L489">        final double lns[] = new double[2];</span>
+
+<span class="pc bpc" id="L491" title="1 of 2 branches missed.">        if (y == 0.0) {</span>
+<span class="nc" id="L492">            return 1.0;</span>
+        }
+
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">        if (x != x) { // X is NaN</span>
+<span class="nc" id="L496">            return x;</span>
+        }
+
+
+<span class="fc bfc" id="L500" title="All 2 branches covered.">        if (x == 0) {</span>
+<span class="fc" id="L501">            long bits = Double.doubleToLongBits(x);</span>
+<span class="pc bpc" id="L502" title="1 of 2 branches missed.">            if ((bits &amp; 0x8000000000000000L) != 0) {</span>
+                // -zero
+<span class="nc" id="L504">                long yi = (long) y;</span>
+
+<span class="nc bnc" id="L506" title="All 6 branches missed.">                if (y &lt; 0 &amp;&amp; y == yi &amp;&amp; (yi &amp; 1) == 1) {</span>
+<span class="nc" id="L507">                    return Double.NEGATIVE_INFINITY;</span>
+                }
+
+<span class="nc bnc" id="L510" title="All 6 branches missed.">                if (y &gt; 0 &amp;&amp; y == yi &amp;&amp; (yi &amp; 1) == 1) {</span>
+<span class="nc" id="L511">                    return -0.0;</span>
+                }
+            }
+
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">            if (y &lt; 0) {</span>
+<span class="nc" id="L516">                return Double.POSITIVE_INFINITY;</span>
+            }
+<span class="pc bpc" id="L518" title="1 of 2 branches missed.">            if (y &gt; 0) {</span>
+<span class="fc" id="L519">                return 0.0;</span>
+            }
+
+<span class="nc" id="L522">            return Double.NaN;</span>
+        }
+
+<span class="pc bpc" id="L525" title="1 of 2 branches missed.">        if (x == Double.POSITIVE_INFINITY) {</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">            if (y != y) { // y is NaN</span>
+<span class="nc" id="L527">                return y;</span>
+            }
+<span class="nc bnc" id="L529" title="All 2 branches missed.">            if (y &lt; 0.0) {</span>
+<span class="nc" id="L530">                return 0.0;</span>
+            } else {
+<span class="nc" id="L532">                return Double.POSITIVE_INFINITY;</span>
+            }
+        }
+
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">        if (y == Double.POSITIVE_INFINITY) {</span>
+<span class="nc bnc" id="L537" title="All 2 branches missed.">            if (x * x == 1.0) {</span>
+<span class="nc" id="L538">                return Double.NaN;</span>
+            }
+
+<span class="nc bnc" id="L541" title="All 2 branches missed.">            if (x * x &gt; 1.0) {</span>
+<span class="nc" id="L542">                return Double.POSITIVE_INFINITY;</span>
+            } else {
+<span class="nc" id="L544">                return 0.0;</span>
+            }
+        }
+
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">        if (x == Double.NEGATIVE_INFINITY) {</span>
+<span class="nc bnc" id="L549" title="All 2 branches missed.">            if (y != y) { // y is NaN</span>
+<span class="nc" id="L550">                return y;</span>
+            }
+
+<span class="nc bnc" id="L553" title="All 2 branches missed.">            if (y &lt; 0) {</span>
+<span class="nc" id="L554">                long yi = (long) y;</span>
+<span class="nc bnc" id="L555" title="All 4 branches missed.">                if (y == yi &amp;&amp; (yi &amp; 1) == 1) {</span>
+<span class="nc" id="L556">                    return -0.0;</span>
+                }
+
+<span class="nc" id="L559">                return 0.0;</span>
+            }
+
+<span class="nc bnc" id="L562" title="All 2 branches missed.">            if (y &gt; 0)  {</span>
+<span class="nc" id="L563">                long yi = (long) y;</span>
+<span class="nc bnc" id="L564" title="All 4 branches missed.">                if (y == yi &amp;&amp; (yi &amp; 1) == 1) {</span>
+<span class="nc" id="L565">                    return Double.NEGATIVE_INFINITY;</span>
+                }
+
+<span class="nc" id="L568">                return Double.POSITIVE_INFINITY;</span>
+            }
+        }
+
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">        if (y == Double.NEGATIVE_INFINITY) {</span>
+
+<span class="nc bnc" id="L574" title="All 2 branches missed.">            if (x * x == 1.0) {</span>
+<span class="nc" id="L575">                return Double.NaN;</span>
+            }
+
+<span class="nc bnc" id="L578" title="All 2 branches missed.">            if (x * x &lt; 1.0) {</span>
+<span class="nc" id="L579">                return Double.POSITIVE_INFINITY;</span>
+            } else {
+<span class="nc" id="L581">                return 0.0;</span>
+            }
+        }
+
+        /* Handle special case x&lt;0 */
+<span class="pc bpc" id="L586" title="1 of 2 branches missed.">        if (x &lt; 0) {</span>
+            // y is an even integer in this case
+<span class="nc bnc" id="L588" title="All 4 branches missed.">            if (y &gt;= TWO_POWER_52 || y &lt;= -TWO_POWER_52) {</span>
+<span class="nc" id="L589">                return pow(-x, y);</span>
+            }
+
+<span class="nc bnc" id="L592" title="All 2 branches missed.">            if (y == (long) y) {</span>
+                // If y is an integer
+<span class="nc bnc" id="L594" title="All 2 branches missed.">                return ((long)y &amp; 1) == 0 ? pow(-x, y) : -pow(-x, y);</span>
+            } else {
+<span class="nc" id="L596">                return Double.NaN;</span>
+            }
+        }
+
+        /* Split y into ya and yb such that y = ya+yb */
+        double ya;
+        double yb;
+<span class="pc bpc" id="L603" title="2 of 4 branches missed.">        if (y &lt; 8e298 &amp;&amp; y &gt; -8e298) {</span>
+<span class="fc" id="L604">            double tmp1 = y * HEX_40000000;</span>
+<span class="fc" id="L605">            ya = y + tmp1 - tmp1;</span>
+<span class="fc" id="L606">            yb = y - ya;</span>
+<span class="fc" id="L607">        } else {</span>
+<span class="nc" id="L608">            double tmp1 = y * 9.31322574615478515625E-10;</span>
+<span class="nc" id="L609">            double tmp2 = tmp1 * 9.31322574615478515625E-10;</span>
+<span class="nc" id="L610">            ya = (tmp1 + tmp2 - tmp1) * HEX_40000000 * HEX_40000000;</span>
+<span class="nc" id="L611">            yb = y - ya;</span>
+        }
+
+        /* Compute ln(x) */
+<span class="fc" id="L615">        final double lores = log(x, lns);</span>
+<span class="pc bpc" id="L616" title="1 of 2 branches missed.">        if (Double.isInfinite(lores)){ // don't allow this to be converted to NaN</span>
+<span class="nc" id="L617">            return lores;</span>
+        }
+
+<span class="fc" id="L620">        double lna = lns[0];</span>
+<span class="fc" id="L621">        double lnb = lns[1];</span>
+
+        /* resplit lns */
+<span class="fc" id="L624">        double tmp1 = lna * HEX_40000000;</span>
+<span class="fc" id="L625">        double tmp2 = lna + tmp1 - tmp1;</span>
+<span class="fc" id="L626">        lnb += lna - tmp2;</span>
+<span class="fc" id="L627">        lna = tmp2;</span>
+
+        // y*ln(x) = (aa+ab)
+<span class="fc" id="L630">        final double aa = lna * ya;</span>
+<span class="fc" id="L631">        final double ab = lna * yb + lnb * ya + lnb * yb;</span>
+
+<span class="fc" id="L633">        lna = aa+ab;</span>
+<span class="fc" id="L634">        lnb = -(lna - aa - ab);</span>
+
+<span class="fc" id="L636">        double z = 1.0 / 120.0;</span>
+<span class="fc" id="L637">        z = z * lnb + (1.0 / 24.0);</span>
+<span class="fc" id="L638">        z = z * lnb + (1.0 / 6.0);</span>
+<span class="fc" id="L639">        z = z * lnb + 0.5;</span>
+<span class="fc" id="L640">        z = z * lnb + 1.0;</span>
+<span class="fc" id="L641">        z = z * lnb;</span>
+
+<span class="fc" id="L643">        final double result = exp(lna, z, null);</span>
+        //result = result + result * z;
+<span class="fc" id="L645">        return result;</span>
+    }
+
+
+    /**
+     * Can be always used instead of Math.log(x)
+     * @param x any val
+     * @return ln(x)
+     */
+    public static double log(final double x) {
+<span class="fc" id="L655">        return log(x, null);</span>
+    }
+
+
+    public static double exp(double x) {
+<span class="fc" id="L660">        return exp(x, 0.0, null);</span>
+    }
+
+
+    public static double regularizedGammaP(double a, double x) {
+<span class="fc" id="L665">        return regularizedGammaP(a, x, 10e-15, Integer.MAX_VALUE);</span>
+    }
+
+
+    /* HELPERS FOR APACHE */
+
+
+    private static double exp(double x, double extra, double[] hiPrec) {
+        double intPartA;
+        double intPartB;
+        int intVal;
+<span class="fc bfc" id="L676" title="All 2 branches covered.">        if (x &lt; 0.0) {</span>
+<span class="fc" id="L677">            intVal = (int) -x;</span>
+
+<span class="fc bfc" id="L679" title="All 2 branches covered.">            if (intVal &gt; 746) {</span>
+<span class="pc bpc" id="L680" title="1 of 2 branches missed.">                if (hiPrec != null) {</span>
+<span class="nc" id="L681">                    hiPrec[0] = 0.0;</span>
+<span class="nc" id="L682">                    hiPrec[1] = 0.0;</span>
+                }
+<span class="fc" id="L684">                return 0.0;</span>
+            }
+
+<span class="fc bfc" id="L687" title="All 2 branches covered.">            if (intVal &gt; 709) {</span>
+<span class="fc" id="L688">                final double result = exp(x+40.19140625, extra, hiPrec) / 285040095144011776.0;</span>
+<span class="pc bpc" id="L689" title="1 of 2 branches missed.">                if (hiPrec != null) {</span>
+<span class="nc" id="L690">                    hiPrec[0] /= 285040095144011776.0;</span>
+<span class="nc" id="L691">                    hiPrec[1] /= 285040095144011776.0;</span>
+                }
+<span class="fc" id="L693">                return result;</span>
+            }
+
+<span class="pc bpc" id="L696" title="1 of 2 branches missed.">            if (intVal == 709) {</span>
+<span class="nc" id="L697">                final double result = exp(x+1.494140625, extra, hiPrec) / 4.455505956692756620;</span>
+<span class="nc bnc" id="L698" title="All 2 branches missed.">                if (hiPrec != null) {</span>
+<span class="nc" id="L699">                    hiPrec[0] /= 4.455505956692756620;</span>
+<span class="nc" id="L700">                    hiPrec[1] /= 4.455505956692756620;</span>
+                }
+<span class="nc" id="L702">                return result;</span>
+            }
+
+<span class="fc" id="L705">            intVal++;</span>
+
+<span class="fc" id="L707">            intPartA = ApacheArrays.EXP_INT_TABLE_A[EXP_INT_TABLE_MAX_INDEX-intVal];</span>
+<span class="fc" id="L708">            intPartB = ApacheArrays.EXP_INT_TABLE_B[EXP_INT_TABLE_MAX_INDEX-intVal];</span>
+
+<span class="fc" id="L710">            intVal = -intVal;</span>
+        } else {
+<span class="fc" id="L712">            intVal = (int) x;</span>
+
+<span class="fc bfc" id="L714" title="All 2 branches covered.">            if (intVal &gt; 709) {</span>
+<span class="pc bpc" id="L715" title="1 of 2 branches missed.">                if (hiPrec != null) {</span>
+<span class="nc" id="L716">                    hiPrec[0] = Double.POSITIVE_INFINITY;</span>
+<span class="nc" id="L717">                    hiPrec[1] = 0.0;</span>
+                }
+<span class="fc" id="L719">                return Double.POSITIVE_INFINITY;</span>
+            }
+
+<span class="fc" id="L722">            intPartA = ApacheArrays.EXP_INT_TABLE_A[EXP_INT_TABLE_MAX_INDEX+intVal];</span>
+<span class="fc" id="L723">            intPartB = ApacheArrays.EXP_INT_TABLE_B[EXP_INT_TABLE_MAX_INDEX+intVal];</span>
+        }
+
+<span class="fc" id="L726">        final int intFrac = (int) ((x - intVal) * 1024.0);</span>
+<span class="fc" id="L727">        final double fracPartA = ApacheArrays.EXP_FRAC_TABLE_A[intFrac];</span>
+<span class="fc" id="L728">        final double fracPartB = ApacheArrays.EXP_FRAC_TABLE_B[intFrac];</span>
+<span class="fc" id="L729">        final double epsilon = x - (intVal + intFrac / 1024.0);</span>
+<span class="fc" id="L730">        double z = 0.04168701738764507;</span>
+<span class="fc" id="L731">        z = z * epsilon + 0.1666666505023083;</span>
+<span class="fc" id="L732">        z = z * epsilon + 0.5000000000042687;</span>
+<span class="fc" id="L733">        z = z * epsilon + 1.0;</span>
+<span class="fc" id="L734">        z = z * epsilon + -3.940510424527919E-20;</span>
+<span class="fc" id="L735">        double tempA = intPartA * fracPartA;</span>
+<span class="fc" id="L736">        double tempB = intPartA * fracPartB + intPartB * fracPartA + intPartB * fracPartB;</span>
+<span class="fc" id="L737">        final double tempC = tempB + tempA;</span>
+        final double result;
+<span class="fc bfc" id="L739" title="All 2 branches covered.">        if (extra != 0.0) {</span>
+<span class="fc" id="L740">            result = tempC*extra*z + tempC*extra + tempC*z + tempB + tempA;</span>
+        } else {
+<span class="fc" id="L742">            result = tempC*z + tempB + tempA;</span>
+        }
+
+<span class="pc bpc" id="L745" title="1 of 2 branches missed.">        if (hiPrec != null) {</span>
+<span class="nc" id="L746">            hiPrec[0] = tempA;</span>
+<span class="nc" id="L747">            hiPrec[1] = tempC*extra*z + tempC*extra + tempC*z + tempB;</span>
+        }
+
+<span class="fc" id="L750">        return result;</span>
+    }
+
+    private static double log(final double x, final double[] hiPrec) {
+<span class="pc bpc" id="L754" title="1 of 2 branches missed.">        if (x==0) { // Handle special case of +0/-0</span>
+<span class="nc" id="L755">            return Double.NEGATIVE_INFINITY;</span>
+        }
+<span class="fc" id="L757">        long bits = Double.doubleToLongBits(x);</span>
+
+<span class="pc bpc" id="L759" title="2 of 4 branches missed.">        if ((bits &amp; 0x8000000000000000L) != 0 || x != x) {</span>
+<span class="nc bnc" id="L760" title="All 2 branches missed.">            if (x != 0.0) {</span>
+<span class="nc bnc" id="L761" title="All 2 branches missed.">                if (hiPrec != null) {</span>
+<span class="nc" id="L762">                    hiPrec[0] = Double.NaN;</span>
+                }
+
+<span class="nc" id="L765">                return Double.NaN;</span>
+            }
+        }
+
+<span class="pc bpc" id="L769" title="1 of 2 branches missed.">        if (x == Double.POSITIVE_INFINITY) {</span>
+<span class="nc bnc" id="L770" title="All 2 branches missed.">            if (hiPrec != null) {</span>
+<span class="nc" id="L771">                hiPrec[0] = Double.POSITIVE_INFINITY;</span>
+            }
+
+<span class="nc" id="L774">            return Double.POSITIVE_INFINITY;</span>
+        }
+
+<span class="fc" id="L777">        int exp = (int)(bits &gt;&gt; 52)-1023;</span>
+
+<span class="pc bpc" id="L779" title="1 of 2 branches missed.">        if ((bits &amp; 0x7ff0000000000000L) == 0) {</span>
+<span class="nc bnc" id="L780" title="All 2 branches missed.">            if (x == 0) {</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">                if (hiPrec != null) {</span>
+<span class="nc" id="L782">                    hiPrec[0] = Double.NEGATIVE_INFINITY;</span>
+                }
+
+<span class="nc" id="L785">                return Double.NEGATIVE_INFINITY;</span>
+            }
+
+<span class="nc" id="L788">            bits &lt;&lt;= 1;</span>
+<span class="nc bnc" id="L789" title="All 2 branches missed.">            while ( (bits &amp; 0x0010000000000000L) == 0) {</span>
+<span class="nc" id="L790">                exp--;</span>
+<span class="nc" id="L791">                bits &lt;&lt;= 1;</span>
+            }
+        }
+
+
+<span class="fc bfc" id="L796" title="All 4 branches covered.">        if (exp == -1 || exp == 0) {</span>
+<span class="pc bpc" id="L797" title="1 of 6 branches missed.">            if (x &lt; 1.01 &amp;&amp; x &gt; 0.99 &amp;&amp; hiPrec == null) {</span>
+<span class="fc" id="L798">                double xa = x - 1.0;</span>
+<span class="fc" id="L799">                double xb = xa - x + 1.0;</span>
+<span class="fc" id="L800">                double tmp = xa * HEX_40000000;</span>
+<span class="fc" id="L801">                double aa = xa + tmp - tmp;</span>
+<span class="fc" id="L802">                double ab = xa - aa;</span>
+<span class="fc" id="L803">                xa = aa;</span>
+<span class="fc" id="L804">                xb = ab;</span>
+
+<span class="fc" id="L806">                double ya = ApacheArrays.LN_QUICK_COEF[ApacheArrays.LN_QUICK_COEF.length-1][0];</span>
+<span class="fc" id="L807">                double yb = ApacheArrays.LN_QUICK_COEF[ApacheArrays.LN_QUICK_COEF.length-1][1];</span>
+
+<span class="fc bfc" id="L809" title="All 2 branches covered.">                for (int i = ApacheArrays.LN_QUICK_COEF.length - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L810">                    aa = ya * xa;</span>
+<span class="fc" id="L811">                    ab = ya * xb + yb * xa + yb * xb;</span>
+<span class="fc" id="L812">                    tmp = aa * HEX_40000000;</span>
+<span class="fc" id="L813">                    ya = aa + tmp - tmp;</span>
+<span class="fc" id="L814">                    yb = aa - ya + ab;</span>
+
+<span class="fc" id="L816">                    aa = ya + ApacheArrays.LN_QUICK_COEF[i][0];</span>
+<span class="fc" id="L817">                    ab = yb + ApacheArrays.LN_QUICK_COEF[i][1];</span>
+<span class="fc" id="L818">                    tmp = aa * HEX_40000000;</span>
+<span class="fc" id="L819">                    ya = aa + tmp - tmp;</span>
+<span class="fc" id="L820">                    yb = aa - ya + ab;</span>
+                }
+
+<span class="fc" id="L823">                aa = ya * xa;</span>
+<span class="fc" id="L824">                ab = ya * xb + yb * xa + yb * xb;</span>
+<span class="fc" id="L825">                tmp = aa * HEX_40000000;</span>
+<span class="fc" id="L826">                ya = aa + tmp - tmp;</span>
+<span class="fc" id="L827">                yb = aa - ya + ab;</span>
+
+<span class="fc" id="L829">                return ya + yb;</span>
+            }
+        }
+
+<span class="fc" id="L833">        double lnm[] = ApacheArrays.LN_MANT[(int)((bits &amp; 0x000ffc0000000000L) &gt;&gt; 42)];</span>
+
+<span class="fc" id="L835">        double epsilon = (bits &amp; 0x3ffffffffffL) / (TWO_POWER_52 + (bits &amp; 0x000ffc0000000000L));</span>
+
+<span class="fc" id="L837">        double lnza = 0.0;</span>
+<span class="fc" id="L838">        double lnzb = 0.0;</span>
+
+<span class="fc bfc" id="L840" title="All 2 branches covered.">        if (hiPrec != null) {</span>
+<span class="fc" id="L841">            double tmp = epsilon * HEX_40000000;</span>
+<span class="fc" id="L842">            double aa = epsilon + tmp - tmp;</span>
+<span class="fc" id="L843">            double ab = epsilon - aa;</span>
+<span class="fc" id="L844">            double xa = aa;</span>
+<span class="fc" id="L845">            double xb = ab;</span>
+
+<span class="fc" id="L847">            double numer = bits &amp; 0x3ffffffffffL;</span>
+<span class="fc" id="L848">            double denom = TWO_POWER_52 + (bits &amp; 0x000ffc0000000000L);</span>
+<span class="fc" id="L849">            aa = numer - xa*denom - xb * denom;</span>
+<span class="fc" id="L850">            xb += aa / denom;</span>
+
+<span class="fc" id="L852">            double ya = ApacheArrays.LN_HI_PREC_COEF[ApacheArrays.LN_HI_PREC_COEF.length-1][0];</span>
+<span class="fc" id="L853">            double yb = ApacheArrays.LN_HI_PREC_COEF[ApacheArrays.LN_HI_PREC_COEF.length-1][1];</span>
+
+<span class="fc bfc" id="L855" title="All 2 branches covered.">            for (int i = ApacheArrays.LN_HI_PREC_COEF.length - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L856">                aa = ya * xa;</span>
+<span class="fc" id="L857">                ab = ya * xb + yb * xa + yb * xb;</span>
+<span class="fc" id="L858">                tmp = aa * HEX_40000000;</span>
+<span class="fc" id="L859">                ya = aa + tmp - tmp;</span>
+<span class="fc" id="L860">                yb = aa - ya + ab;</span>
+
+<span class="fc" id="L862">                aa = ya + ApacheArrays.LN_HI_PREC_COEF[i][0];</span>
+<span class="fc" id="L863">                ab = yb + ApacheArrays.LN_HI_PREC_COEF[i][1];</span>
+<span class="fc" id="L864">                tmp = aa * HEX_40000000;</span>
+<span class="fc" id="L865">                ya = aa + tmp - tmp;</span>
+<span class="fc" id="L866">                yb = aa - ya + ab;</span>
+            }
+
+<span class="fc" id="L869">            aa = ya * xa;</span>
+<span class="fc" id="L870">            ab = ya * xb + yb * xa + yb * xb;</span>
+
+<span class="fc" id="L872">            lnza = aa + ab;</span>
+<span class="fc" id="L873">            lnzb = -(lnza - aa - ab);</span>
+<span class="fc" id="L874">        } else {</span>
+<span class="fc" id="L875">            lnza = -0.16624882440418567;</span>
+<span class="fc" id="L876">            lnza = lnza * epsilon + 0.19999954120254515;</span>
+<span class="fc" id="L877">            lnza = lnza * epsilon + -0.2499999997677497;</span>
+<span class="fc" id="L878">            lnza = lnza * epsilon + 0.3333333333332802;</span>
+<span class="fc" id="L879">            lnza = lnza * epsilon + -0.5;</span>
+<span class="fc" id="L880">            lnza = lnza * epsilon + 1.0;</span>
+<span class="fc" id="L881">            lnza = lnza * epsilon;</span>
+        }
+
+<span class="fc" id="L884">        double a = LN_2_A*exp;</span>
+<span class="fc" id="L885">        double b = 0.0;</span>
+<span class="fc" id="L886">        double c = a+lnm[0];</span>
+<span class="fc" id="L887">        double d = -(c-a-lnm[0]);</span>
+<span class="fc" id="L888">        a = c;</span>
+<span class="fc" id="L889">        b = b + d;</span>
+
+<span class="fc" id="L891">        c = a + lnza;</span>
+<span class="fc" id="L892">        d = -(c - a - lnza);</span>
+<span class="fc" id="L893">        a = c;</span>
+<span class="fc" id="L894">        b = b + d;</span>
+
+<span class="fc" id="L896">        c = a + LN_2_B*exp;</span>
+<span class="fc" id="L897">        d = -(c - a - LN_2_B*exp);</span>
+<span class="fc" id="L898">        a = c;</span>
+<span class="fc" id="L899">        b = b + d;</span>
+
+<span class="fc" id="L901">        c = a + lnm[1];</span>
+<span class="fc" id="L902">        d = -(c - a - lnm[1]);</span>
+<span class="fc" id="L903">        a = c;</span>
+<span class="fc" id="L904">        b = b + d;</span>
+
+<span class="fc" id="L906">        c = a + lnzb;</span>
+<span class="fc" id="L907">        d = -(c - a - lnzb);</span>
+<span class="fc" id="L908">        a = c;</span>
+<span class="fc" id="L909">        b = b + d;</span>
+
+<span class="fc bfc" id="L911" title="All 2 branches covered.">        if (hiPrec != null) {</span>
+<span class="fc" id="L912">            hiPrec[0] = a;</span>
+<span class="fc" id="L913">            hiPrec[1] = b;</span>
+        }
+
+<span class="fc" id="L916">        return a + b;</span>
+    }
+
+    private static double regularizedGammaP(double a, double x, double epsilon, int maxIterations) {
+        double ret;
+
+<span class="pc bpc" id="L922" title="4 of 8 branches missed.">        if (Double.isNaN(a) || Double.isNaN(x) || (a &lt;= 0.0) || (x &lt; 0.0)) {</span>
+<span class="nc" id="L923">            ret = Double.NaN;</span>
+<span class="pc bpc" id="L924" title="1 of 2 branches missed.">        } else if (x == 0.0) {</span>
+<span class="nc" id="L925">            ret = 0.0;</span>
+<span class="fc bfc" id="L926" title="All 2 branches covered.">        } else if (x &gt;= a + 1) {</span>
+            // use regularizedGammaQ because it should converge faster in this
+            // case.
+<span class="fc" id="L929">            ret = 1.0 - regularizedGammaQ(a, x, epsilon, maxIterations);</span>
+        } else {
+            // calculate series
+<span class="fc" id="L932">            double n = 0.0; // current element index</span>
+<span class="fc" id="L933">            double an = 1.0 / a; // n-th element in the series</span>
+<span class="fc" id="L934">            double sum = an; // partial sum</span>
+<span class="pc bpc" id="L935" title="2 of 6 branches missed.">            while (Math.abs(an/sum) &gt; epsilon &amp;&amp;</span>
+                    n &lt; maxIterations &amp;&amp;
+                    sum &lt; Double.POSITIVE_INFINITY) {
+                // compute next element in the series
+<span class="fc" id="L939">                n = n + 1.0;</span>
+<span class="fc" id="L940">                an = an * (x / (a + n));</span>
+
+                // update partial sum
+<span class="fc" id="L943">                sum = sum + an;</span>
+            }
+<span class="pc bpc" id="L945" title="1 of 2 branches missed.">            if (n &gt;= maxIterations) {</span>
+<span class="nc" id="L946">                throw new RuntimeException(&quot;MaxCountExceededException from Apache&quot;);</span>
+<span class="pc bpc" id="L947" title="1 of 2 branches missed.">            } else if (Double.isInfinite(sum)) {</span>
+<span class="nc" id="L948">                ret = 1.0;</span>
+            } else {
+<span class="fc" id="L950">                ret = exp(-x + (a * log(x)) - logGamma(a)) * sum;</span>
+            }
+        }
+
+<span class="fc" id="L954">        return ret;</span>
+    }
+
+    private static double regularizedGammaQ(double regA, double x, double epsilon, int maxIterations) {
+        double ret;
+
+<span class="pc bpc" id="L960" title="4 of 8 branches missed.">        if (Double.isNaN(regA) || Double.isNaN(x) || (regA &lt;= 0.0) || (x &lt; 0.0)) {</span>
+<span class="nc" id="L961">            ret = Double.NaN;</span>
+<span class="pc bpc" id="L962" title="1 of 2 branches missed.">        } else if (x == 0.0) {</span>
+<span class="nc" id="L963">            ret = 1.0;</span>
+<span class="pc bpc" id="L964" title="1 of 2 branches missed.">        } else if (x &lt; regA + 1.0) {</span>
+            // use regularizedGammaP because it should converge faster in this
+            // case.
+<span class="nc" id="L967">            ret = 1.0 - regularizedGammaP(regA, x, epsilon, maxIterations);</span>
+        } else {
+            // create continued fraction
+
+            // start of evaluate function
+            {
+<span class="fc" id="L973">                double p0 = 1.0;</span>
+<span class="fc" id="L974">                double p1 = 1d - regA + x;</span>
+<span class="fc" id="L975">                double q0 = 0.0;</span>
+<span class="fc" id="L976">                double q1 = 1.0;</span>
+<span class="fc" id="L977">                double c = p1 / q1;</span>
+<span class="fc" id="L978">                int n = 0;</span>
+<span class="fc" id="L979">                double relativeError = Double.MAX_VALUE;</span>
+<span class="pc bpc" id="L980" title="1 of 4 branches missed.">                while (n &lt; maxIterations &amp;&amp; relativeError &gt; epsilon) {</span>
+<span class="fc" id="L981">                    ++n;</span>
+<span class="fc" id="L982">                    double a = ((2.0 * n) + 1.0) - regA + x;</span>
+<span class="fc" id="L983">                    double b = n * (regA - n);</span>
+<span class="fc" id="L984">                    double p2 = a * p1 + b * p0;</span>
+<span class="fc" id="L985">                    double q2 = a * q1 + b * q0;</span>
+<span class="fc" id="L986">                    boolean infinite = false;</span>
+<span class="pc bpc" id="L987" title="1 of 4 branches missed.">                    if (Double.isInfinite(p2) || Double.isInfinite(q2)) {</span>
+<span class="fc" id="L988">                        double scaleFactor = 1d;</span>
+<span class="fc" id="L989">                        double lastScaleFactor = 1d;</span>
+<span class="fc" id="L990">                        final int maxPower = 5;</span>
+<span class="fc" id="L991">                        final double scale = Math.max(a,b);</span>
+<span class="pc bpc" id="L992" title="1 of 2 branches missed.">                        if (scale &lt;= 0) {  // Can't scale</span>
+<span class="nc" id="L993">                            throw new RuntimeException(&quot;ConvergenceException from Apache code&quot;);</span>
+                        }
+<span class="fc" id="L995">                        infinite = true;</span>
+<span class="pc bpc" id="L996" title="1 of 2 branches missed.">                        for (int i = 0; i &lt; maxPower; i++) {</span>
+<span class="fc" id="L997">                            lastScaleFactor = scaleFactor;</span>
+<span class="fc" id="L998">                            scaleFactor *= scale;</span>
+<span class="pc bpc" id="L999" title="2 of 4 branches missed.">                            if (a != 0.0 &amp;&amp; a &gt; b) {</span>
+<span class="nc" id="L1000">                                p2 = p1 / lastScaleFactor + (b / scaleFactor * p0);</span>
+<span class="nc" id="L1001">                                q2 = q1 / lastScaleFactor + (b / scaleFactor * q0);</span>
+<span class="pc bpc" id="L1002" title="1 of 2 branches missed.">                            } else if (b != 0) {</span>
+<span class="fc" id="L1003">                                p2 = (a / scaleFactor * p1) + p0 / lastScaleFactor;</span>
+<span class="fc" id="L1004">                                q2 = (a / scaleFactor * q1) + q0 / lastScaleFactor;</span>
+                            }
+<span class="pc bpc" id="L1006" title="1 of 4 branches missed.">                            infinite = Double.isInfinite(p2) || Double.isInfinite(q2);</span>
+<span class="fc bfc" id="L1007" title="All 2 branches covered.">                            if (!infinite) {</span>
+<span class="fc" id="L1008">                                break;</span>
+                            }
+                        }
+                    }
+
+<span class="pc bpc" id="L1013" title="1 of 2 branches missed.">                    if (infinite) throw new RuntimeException(&quot;ConvergenceException from Apache code&quot;);</span>
+<span class="fc" id="L1014">                    double r = p2 / q2;</span>
+<span class="pc bpc" id="L1015" title="1 of 2 branches missed.">                    if (Double.isNaN(r)) throw new RuntimeException(&quot;ConvergenceException from Apache code&quot;);</span>
+<span class="fc" id="L1016">                    relativeError = Math.abs(r / c - 1.0);</span>
+
+                    // prepare for next iteration
+<span class="fc" id="L1019">                    c = p2 / q2;</span>
+<span class="fc" id="L1020">                    p0 = p1;</span>
+<span class="fc" id="L1021">                    p1 = p2;</span>
+<span class="fc" id="L1022">                    q0 = q1;</span>
+<span class="fc" id="L1023">                    q1 = q2;</span>
+<span class="fc" id="L1024">                }</span>
+
+<span class="pc bpc" id="L1026" title="1 of 2 branches missed.">                if (n &gt;= Integer.MAX_VALUE) throw new RuntimeException(&quot;MaxCountExceededException from Apache code&quot;);</span>
+<span class="fc" id="L1027">                ret = 1.0 / c;</span>
+            }
+
+            // end of eval
+
+<span class="fc" id="L1032">            ret = exp(-x + (regA * log(x)) - logGamma(regA)) * ret;</span>
+        }
+
+<span class="fc" id="L1035">        return ret;</span>
+    }
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,1214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RarVM.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.vm</a> &gt; <span class="el_source">RarVM.java</span></div><h1>RarVM.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.vm;
+
+import com.github.junrar.crc.RarCRC;
+import com.github.junrar.io.Raw;
+
+import java.util.List;
+import java.util.Vector;
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class RarVM extends BitInput {
+
+    public static final int VM_MEMSIZE = 0x40000;
+
+    public static final int VM_MEMMASK = (VM_MEMSIZE - 1);
+
+    public static final int VM_GLOBALMEMADDR = 0x3C000;
+
+    public static final int VM_GLOBALMEMSIZE = 0x2000;
+
+    public static final int VM_FIXEDGLOBALSIZE = 64;
+
+    private static final int regCount = 8;
+
+    private static final long UINT_MASK = 0xffffFFFF; //((long)2*(long)Integer.MAX_VALUE);
+
+    private byte[] mem;
+
+<span class="fc" id="L51">    private final int[] R = new int[regCount];</span>
+
+    private int flags;
+
+<span class="fc" id="L55">    private int maxOpCount = 25000000;</span>
+
+    private int codeSize;
+
+    private int IP;
+
+<span class="fc" id="L61">    public RarVM() {</span>
+<span class="fc" id="L62">        mem = null;</span>
+<span class="fc" id="L63">    }</span>
+
+    public void init() {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (mem == null) {</span>
+<span class="fc" id="L67">            mem = new byte[VM_MEMSIZE + 4];</span>
+        }
+<span class="fc" id="L69">    }</span>
+
+    private boolean isVMMem(byte[] mem) {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        return this.mem == mem;</span>
+    }
+
+    private int getValue(boolean byteMode, byte[] mem, int offset) {
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (byteMode) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (isVMMem(mem)) {</span>
+<span class="nc" id="L78">                return (mem[offset]);</span>
+            } else {
+<span class="nc" id="L80">                return (mem[offset] &amp; 0xff);</span>
+            }
+        } else {
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            if (isVMMem(mem)) {</span>
+                //little
+<span class="fc" id="L85">                return Raw.readIntLittleEndian(mem, offset);</span>
+            } else {
+                //big endian
+<span class="nc" id="L88">                return Raw.readIntBigEndian(mem, offset);</span>
+            }
+        }
+    }
+
+    private void setValue(boolean byteMode, byte[] mem, int offset, int value) {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (byteMode) {</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            if (isVMMem(mem)) {</span>
+<span class="nc" id="L96">                mem[offset] = (byte) value;</span>
+            } else {
+<span class="nc" id="L98">                mem[offset] = (byte) ((mem[offset] &amp; 0x00) | (byte) (value &amp; 0xff));</span>
+            }
+        } else {
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">            if (isVMMem(mem)) {</span>
+<span class="fc" id="L102">                Raw.writeIntLittleEndian(mem, offset, value);</span>
+//                mem[offset + 0] = (byte) value;
+//                mem[offset + 1] = (byte) (value &gt;&gt;&gt; 8);
+//                mem[offset + 2] = (byte) (value &gt;&gt;&gt; 16);
+//                mem[offset + 3] = (byte) (value &gt;&gt;&gt; 24);
+            } else {
+<span class="nc" id="L108">                Raw.writeIntBigEndian(mem, offset, value);</span>
+//                mem[offset + 3] = (byte) value;
+//                mem[offset + 2] = (byte) (value &gt;&gt;&gt; 8);
+//                mem[offset + 1] = (byte) (value &gt;&gt;&gt; 16);
+//                mem[offset + 0] = (byte) (value &gt;&gt;&gt; 24);
+            }
+
+        }
+        // #define SET_VALUE(ByteMode,Addr,Value) SetValue(ByteMode,(uint
+        // *)Addr,Value)
+<span class="fc" id="L118">    }</span>
+
+    public void setLowEndianValue(byte[] mem, int offset, int value) {
+<span class="nc" id="L121">        Raw.writeIntLittleEndian(mem, offset, value);</span>
+//        mem[offset + 0] = (byte) (value&amp;0xff);
+//        mem[offset + 1] = (byte) ((value &gt;&gt;&gt; 8)&amp;0xff);
+//        mem[offset + 2] = (byte) ((value &gt;&gt;&gt; 16)&amp;0xff);
+//        mem[offset + 3] = (byte) ((value &gt;&gt;&gt; 24)&amp;0xff);
+<span class="nc" id="L126">    }</span>
+    public void setLowEndianValue(Vector&lt;Byte&gt; mem, int offset, int value) {
+<span class="fc" id="L128">        mem.set(offset + 0, (byte) (value &amp; 0xff));</span>
+<span class="fc" id="L129">        mem.set(offset + 1, (byte) ((value &gt;&gt;&gt; 8) &amp; 0xff));</span>
+<span class="fc" id="L130">        mem.set(offset + 2, (byte) ((value &gt;&gt;&gt; 16) &amp; 0xff));</span>
+<span class="fc" id="L131">        mem.set(offset + 3, (byte) ((value &gt;&gt;&gt; 24) &amp; 0xff));</span>
+<span class="fc" id="L132">    }</span>
+    private int getOperand(VMPreparedOperand cmdOp) {
+<span class="fc" id="L134">        int ret = 0;</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        if (cmdOp.getType() == VMOpType.VM_OPREGMEM) {</span>
+<span class="nc" id="L136">            int pos = (cmdOp.getOffset() + cmdOp.getBase()) &amp; VM_MEMMASK;</span>
+<span class="nc" id="L137">            ret = Raw.readIntLittleEndian(mem, pos);</span>
+<span class="nc" id="L138">        } else {</span>
+<span class="fc" id="L139">            int pos = cmdOp.getOffset();</span>
+<span class="fc" id="L140">            ret = Raw.readIntLittleEndian(mem, pos);</span>
+        }
+<span class="fc" id="L142">        return ret;</span>
+    }
+
+    public void execute(VMPreparedProgram prg) {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (int i = 0; i &lt; prg.getInitR().length; i++) { // memcpy(R,Prg-&gt;InitR,sizeof(Prg-&gt;InitR));</span>
+<span class="fc" id="L147">            R[i] = prg.getInitR()[i];</span>
+        }
+
+<span class="fc" id="L150">        long globalSize = Math</span>
+<span class="fc" id="L151">                .min(prg.getGlobalData().size(), VM_GLOBALMEMSIZE) &amp; 0xffFFffFF;</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        if (globalSize != 0) {</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">            for (int i = 0; i &lt; globalSize; i++) { // memcpy(Mem+VM_GLOBALMEMADDR,&amp;Prg-&gt;GlobalData[0],GlobalSize);</span>
+<span class="fc" id="L154">                mem[VM_GLOBALMEMADDR + i] = prg.getGlobalData().get(i);</span>
+            }
+
+        }
+<span class="fc" id="L158">        long staticSize = Math.min(prg.getStaticData().size(), VM_GLOBALMEMSIZE</span>
+                - globalSize) &amp; 0xffFFffFF;
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (staticSize != 0) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            for (int i = 0; i &lt; staticSize; i++) { // memcpy(Mem+VM_GLOBALMEMADDR+GlobalSize,&amp;Prg-&gt;StaticData[0],StaticSize);</span>
+<span class="nc" id="L162">                mem[VM_GLOBALMEMADDR + (int) globalSize + i] = prg</span>
+<span class="nc" id="L163">                        .getStaticData().get(i);</span>
+            }
+
+        }
+<span class="fc" id="L167">        R[7] = VM_MEMSIZE;</span>
+<span class="fc" id="L168">        flags = 0;</span>
+
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        List&lt;VMPreparedCommand&gt; preparedCode = prg.getAltCmd().size() != 0 ? prg</span>
+<span class="fc" id="L171">                .getAltCmd()</span>
+<span class="pc" id="L172">                : prg.getCmd();</span>
+
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">        if (!ExecuteCode(preparedCode, prg.getCmdCount())) {</span>
+<span class="nc" id="L175">            preparedCode.get(0).setOpCode(VMCommands.VM_RET);</span>
+        }
+<span class="fc" id="L177">        int newBlockPos = getValue(false, mem, VM_GLOBALMEMADDR + 0x20)</span>
+                &amp; VM_MEMMASK;
+<span class="fc" id="L179">        int newBlockSize = getValue(false, mem, VM_GLOBALMEMADDR + 0x1c)</span>
+                &amp; VM_MEMMASK;
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if ((newBlockPos + newBlockSize) &gt;= VM_MEMSIZE) {</span>
+<span class="nc" id="L182">            newBlockPos = 0;</span>
+<span class="nc" id="L183">            newBlockSize = 0;</span>
+        }
+
+<span class="fc" id="L186">        prg.setFilteredDataOffset(newBlockPos);</span>
+<span class="fc" id="L187">        prg.setFilteredDataSize(newBlockSize);</span>
+
+<span class="fc" id="L189">        prg.getGlobalData().clear();</span>
+
+<span class="fc" id="L191">        int dataSize = Math.min(getValue(false, mem, VM_GLOBALMEMADDR + 0x30),</span>
+                VM_GLOBALMEMSIZE - VM_FIXEDGLOBALSIZE);
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        if (dataSize != 0) {</span>
+<span class="nc" id="L194">            prg.getGlobalData().setSize(dataSize + VM_FIXEDGLOBALSIZE);</span>
+            // -&gt;GlobalData.Add(dataSize+VM_FIXEDGLOBALSIZE);
+
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            for (int i = 0; i &lt; dataSize + VM_FIXEDGLOBALSIZE; i++) { // memcpy(&amp;Prg-&gt;GlobalData[0],&amp;Mem[VM_GLOBALMEMADDR],DataSize+VM_FIXEDGLOBALSIZE);</span>
+<span class="nc" id="L198">                prg.getGlobalData().set(i, mem[VM_GLOBALMEMADDR + i]);</span>
+            }
+        }
+<span class="fc" id="L201">    }</span>
+
+    public byte[] getMem() {
+<span class="fc" id="L204">        return mem;</span>
+    }
+
+    private boolean setIP(int ip) {
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        if ((ip) &gt;= codeSize) {</span>
+<span class="nc" id="L209">            return (true);</span>
+        }
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (--maxOpCount &lt;= 0) {</span>
+<span class="nc" id="L213">            return (false);</span>
+        }
+
+<span class="nc" id="L216">        IP = ip;</span>
+<span class="nc" id="L217">        return true;</span>
+    }
+
+    private boolean ExecuteCode(List&lt;VMPreparedCommand&gt; preparedCode,
+            int cmdCount) {
+
+<span class="fc" id="L223">        maxOpCount = 25000000;</span>
+<span class="fc" id="L224">        this.codeSize = cmdCount;</span>
+<span class="fc" id="L225">        this.IP = 0;</span>
+
+        while (true) {
+<span class="fc" id="L228">            VMPreparedCommand cmd = preparedCode.get(IP);</span>
+<span class="fc" id="L229">            int op1 = getOperand(cmd.getOp1());</span>
+<span class="fc" id="L230">            int op2 = getOperand(cmd.getOp2());</span>
+<span class="pc bpc" id="L231" title="53 of 55 branches missed.">            switch (cmd.getOpCode()) {</span>
+                case VM_MOV:
+<span class="nc" id="L233">                    setValue(cmd.isByteMode(), mem, op1, getValue(cmd.isByteMode(),</span>
+                            mem, op2)); // SET_VALUE(Cmd-&gt;ByteMode,Op1,GET_VALUE(Cmd-&gt;ByteMode,Op2));
+<span class="nc" id="L235">                    break;</span>
+                case VM_MOVB:
+<span class="nc" id="L237">                    setValue(true, mem, op1, getValue(true, mem, op2));</span>
+<span class="nc" id="L238">                    break;</span>
+                case VM_MOVD:
+<span class="nc" id="L240">                    setValue(false, mem, op1, getValue(false, mem, op2));</span>
+<span class="nc" id="L241">                    break;</span>
+
+                case VM_CMP: {
+<span class="nc" id="L244">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L245">                    int result = value1 - getValue(cmd.isByteMode(), mem, op2);</span>
+
+<span class="nc bnc" id="L247" title="All 2 branches missed.">                    if (result == 0) {</span>
+<span class="nc" id="L248">                        flags = VMFlags.VM_FZ.getFlag();</span>
+                    } else {
+<span class="nc bnc" id="L250" title="All 2 branches missed.">                        flags = (result &gt; value1) ? 1 : 0 | (result &amp; VMFlags.VM_FS</span>
+<span class="nc" id="L251">                                .getFlag());</span>
+                    }
+                }
+<span class="nc" id="L254">                break;</span>
+
+                case VM_CMPB: {
+<span class="nc" id="L257">                    int value1 = getValue(true, mem, op1);</span>
+<span class="nc" id="L258">                    int result = value1 - getValue(true, mem, op2);</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                    if (result == 0) {</span>
+<span class="nc" id="L260">                        flags = VMFlags.VM_FZ.getFlag();</span>
+                    } else {
+<span class="nc bnc" id="L262" title="All 2 branches missed.">                        flags = (result &gt; value1) ? 1 : 0 | (result &amp; VMFlags.VM_FS</span>
+<span class="nc" id="L263">                                .getFlag());</span>
+                    }
+                }
+<span class="nc" id="L266">                break;</span>
+                case VM_CMPD: {
+<span class="nc" id="L268">                    int value1 = getValue(false, mem, op1);</span>
+<span class="nc" id="L269">                    int result = value1 - getValue(false, mem, op2);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">                    if (result == 0) {</span>
+<span class="nc" id="L271">                        flags = VMFlags.VM_FZ.getFlag();</span>
+                    } else {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                        flags = (result &gt; value1) ? 1 : 0 | (result &amp; VMFlags.VM_FS</span>
+<span class="nc" id="L274">                                .getFlag());</span>
+                    }
+                }
+<span class="nc" id="L277">                break;</span>
+
+                case VM_ADD: {
+<span class="nc" id="L280">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L281">                    int result = (int) ((((long) value1 + (long) getValue(cmd</span>
+<span class="nc" id="L282">                            .isByteMode(), mem, op2))) &amp; 0xffffffff);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">                    if (cmd.isByteMode()) {</span>
+<span class="nc" id="L284">                        result &amp;= 0xff;</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                        flags = (result &lt; value1) ? 1</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">                                : 0 | (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">                                : ((result &amp; 0x80) != 0) ? VMFlags.VM_FS</span>
+<span class="nc" id="L288">                                .getFlag() : 0);</span>
+                        // Flags=(Result&lt;Value1)|(Result==0 ? VM_FZ:((Result&amp;0x80) ?
+                        // VM_FS:0));
+                    } else {
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                        flags = (result &lt; value1) ? 1</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                                : 0 | (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc" id="L294">                                : (result &amp; VMFlags.VM_FS.getFlag()));</span>
+                    }
+<span class="nc" id="L296">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L298">                break;</span>
+
+                case VM_ADDB:
+<span class="nc" id="L301">                    setValue(true, mem, op1,</span>
+<span class="nc" id="L302">                            (int) ((long) getValue(true, mem, op1) &amp; 0xFFffFFff</span>
+<span class="nc" id="L303">                                    + (long) getValue(true, mem, op2) &amp; 0xFFffFFff));</span>
+<span class="nc" id="L304">                    break;</span>
+                case VM_ADDD:
+<span class="nc" id="L306">                    setValue(</span>
+                            false,
+                            mem,
+                            op1,
+<span class="nc" id="L310">                            (int) ((long) getValue(false, mem, op1) &amp; 0xFFffFFff</span>
+<span class="nc" id="L311">                                    + (long) getValue(false, mem, op2) &amp; 0xFFffFFff));</span>
+<span class="nc" id="L312">                    break;</span>
+
+                case VM_SUB: {
+<span class="nc" id="L315">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L316">                    int result = (int) ((long) value1 &amp; 0xffFFffFF</span>
+<span class="nc" id="L317">                            - (long) getValue(cmd.isByteMode(), mem, op2) &amp; 0xFFffFFff);</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">                    flags = (result == 0) ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">                            : (result &gt; value1) ? 1 : 0 | (result &amp; VMFlags.VM_FS</span>
+<span class="nc" id="L320">                            .getFlag());</span>
+<span class="nc" id="L321">                    setValue(cmd.isByteMode(), mem, op1, result); // (Cmd-&gt;ByteMode,Op1,Result);</span>
+                }
+<span class="nc" id="L323">                break;</span>
+
+                case VM_SUBB:
+<span class="nc" id="L326">                    setValue(true, mem, op1,</span>
+<span class="nc" id="L327">                            (int) ((long) getValue(true, mem, op1) &amp; 0xFFffFFff</span>
+<span class="nc" id="L328">                                    - (long) getValue(true, mem, op2) &amp; 0xFFffFFff));</span>
+<span class="nc" id="L329">                    break;</span>
+                case VM_SUBD:
+<span class="nc" id="L331">                    setValue(</span>
+                            false,
+                            mem,
+                            op1,
+<span class="nc" id="L335">                            (int) ((long) getValue(false, mem, op1) &amp; 0xFFffFFff</span>
+<span class="nc" id="L336">                                    - (long) getValue(false, mem, op2) &amp; 0xFFffFFff));</span>
+<span class="nc" id="L337">                    break;</span>
+
+                case VM_JZ:
+<span class="nc bnc" id="L340" title="All 2 branches missed.">                    if ((flags &amp; VMFlags.VM_FZ.getFlag()) != 0) {</span>
+<span class="nc" id="L341">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L342">                        continue;</span>
+                    }
+                    break;
+                case VM_JNZ:
+<span class="nc bnc" id="L346" title="All 2 branches missed.">                    if ((flags &amp; VMFlags.VM_FZ.getFlag()) == 0) {</span>
+<span class="nc" id="L347">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L348">                        continue;</span>
+                    }
+                    break;
+                case VM_INC: {
+<span class="nc" id="L352">                    int result = (int) ((long) getValue(cmd.isByteMode(), mem, op1) &amp; 0xFFffFFff + 1);</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">                    if (cmd.isByteMode()) {</span>
+<span class="nc" id="L354">                        result &amp;= 0xff;</span>
+                    }
+
+<span class="nc" id="L357">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : result</span>
+<span class="nc" id="L359">                            &amp; VMFlags.VM_FS.getFlag();</span>
+                }
+<span class="nc" id="L361">                break;</span>
+
+                case VM_INCB:
+<span class="nc" id="L364">                    setValue(</span>
+                            true,
+                            mem,
+                            op1,
+<span class="nc" id="L368">                            (int) ((long) getValue(true, mem, op1) &amp; 0xFFffFFff + 1));</span>
+<span class="nc" id="L369">                    break;</span>
+                case VM_INCD:
+<span class="nc" id="L371">                    setValue(false, mem, op1, (int) ((long) getValue(false, mem,</span>
+                            op1) &amp; 0xFFffFFff + 1));
+<span class="nc" id="L373">                    break;</span>
+
+                case VM_DEC: {
+<span class="nc" id="L376">                    int result = (int) ((long) getValue(cmd.isByteMode(), mem, op1) &amp; 0xFFffFFff - 1);</span>
+<span class="nc" id="L377">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : result</span>
+<span class="nc" id="L379">                            &amp; VMFlags.VM_FS.getFlag();</span>
+                }
+<span class="nc" id="L381">                break;</span>
+
+                case VM_DECB:
+<span class="nc" id="L384">                    setValue(</span>
+                            true,
+                            mem,
+                            op1,
+<span class="nc" id="L388">                            (int) ((long) getValue(true, mem, op1) &amp; 0xFFffFFff - 1));</span>
+<span class="nc" id="L389">                    break;</span>
+                case VM_DECD:
+<span class="nc" id="L391">                    setValue(false, mem, op1, (int) ((long) getValue(false, mem,</span>
+                            op1) &amp; 0xFFffFFff - 1));
+<span class="nc" id="L393">                    break;</span>
+
+                case VM_JMP:
+<span class="nc" id="L396">                    setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L397">                    continue;</span>
+                case VM_XOR: {
+<span class="nc" id="L399">                    int result = getValue(cmd.isByteMode(), mem, op1)</span>
+<span class="nc" id="L400">                            ^ getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : result</span>
+<span class="nc" id="L402">                            &amp; VMFlags.VM_FS.getFlag();</span>
+<span class="nc" id="L403">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L405">                break;</span>
+                case VM_AND: {
+<span class="nc" id="L407">                    int result = getValue(cmd.isByteMode(), mem, op1)</span>
+<span class="nc" id="L408">                            &amp; getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : result</span>
+<span class="nc" id="L410">                            &amp; VMFlags.VM_FS.getFlag();</span>
+<span class="nc" id="L411">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L413">                break;</span>
+                case VM_OR: {
+<span class="nc" id="L415">                    int result = getValue(cmd.isByteMode(), mem, op1)</span>
+<span class="nc" id="L416">                            | getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : result</span>
+<span class="nc" id="L418">                            &amp; VMFlags.VM_FS.getFlag();</span>
+<span class="nc" id="L419">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L421">                break;</span>
+                case VM_TEST: {
+<span class="nc" id="L423">                    int result = getValue(cmd.isByteMode(), mem, op1)</span>
+<span class="nc" id="L424">                            &amp; getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : result</span>
+<span class="nc" id="L426">                            &amp; VMFlags.VM_FS.getFlag();</span>
+                }
+<span class="nc" id="L428">                break;</span>
+                case VM_JS:
+<span class="nc bnc" id="L430" title="All 2 branches missed.">                    if ((flags &amp; VMFlags.VM_FS.getFlag()) != 0) {</span>
+<span class="nc" id="L431">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L432">                        continue;</span>
+                    }
+                    break;
+                case VM_JNS:
+<span class="nc bnc" id="L436" title="All 2 branches missed.">                    if ((flags &amp; VMFlags.VM_FS.getFlag()) == 0) {</span>
+<span class="nc" id="L437">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L438">                        continue;</span>
+                    }
+                    break;
+                case VM_JB:
+<span class="nc bnc" id="L442" title="All 2 branches missed.">                    if ((flags &amp; VMFlags.VM_FC.getFlag()) != 0) {</span>
+<span class="nc" id="L443">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L444">                        continue;</span>
+                    }
+                    break;
+                case VM_JBE:
+<span class="nc bnc" id="L448" title="All 2 branches missed.">                    if ((flags &amp; (VMFlags.VM_FC.getFlag() | VMFlags.VM_FZ.getFlag())) != 0) {</span>
+<span class="nc" id="L449">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L450">                        continue;</span>
+                    }
+                    break;
+                case VM_JA:
+<span class="nc bnc" id="L454" title="All 2 branches missed.">                    if ((flags &amp; (VMFlags.VM_FC.getFlag() | VMFlags.VM_FZ.getFlag())) == 0) {</span>
+<span class="nc" id="L455">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L456">                        continue;</span>
+                    }
+                    break;
+                case VM_JAE:
+<span class="nc bnc" id="L460" title="All 2 branches missed.">                    if ((flags &amp; VMFlags.VM_FC.getFlag()) == 0) {</span>
+<span class="nc" id="L461">                        setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L462">                        continue;</span>
+                    }
+                    break;
+                case VM_PUSH:
+<span class="nc" id="L466">                    R[7] -= 4;</span>
+<span class="nc" id="L467">                    setValue(false, mem, R[7] &amp; VM_MEMMASK, getValue(false, mem,</span>
+                            op1));
+<span class="nc" id="L469">                    break;</span>
+                case VM_POP:
+<span class="nc" id="L471">                    setValue(false, mem, op1, getValue(false, mem, R[7]</span>
+                            &amp; VM_MEMMASK));
+<span class="nc" id="L473">                    R[7] += 4;</span>
+<span class="nc" id="L474">                    break;</span>
+                case VM_CALL:
+<span class="nc" id="L476">                    R[7] -= 4;</span>
+<span class="nc" id="L477">                    setValue(false, mem, R[7] &amp; VM_MEMMASK, IP + 1);</span>
+<span class="nc" id="L478">                    setIP(getValue(false, mem, op1));</span>
+<span class="nc" id="L479">                    continue;</span>
+                case VM_NOT:
+<span class="nc" id="L481">                    setValue(cmd.isByteMode(), mem, op1, ~getValue(</span>
+<span class="nc" id="L482">                            cmd.isByteMode(), mem, op1));</span>
+<span class="nc" id="L483">                    break;</span>
+                case VM_SHL: {
+<span class="nc" id="L485">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L486">                    int value2 = getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc" id="L487">                    int result = value1 &lt;&lt; value2;</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">                    flags = (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc" id="L489">                            : (result &amp; VMFlags.VM_FS.getFlag()))</span>
+<span class="nc bnc" id="L490" title="All 2 branches missed.">                            | (((value1 &lt;&lt; (value2 - 1)) &amp; 0x80000000) != 0 ? VMFlags.VM_FC</span>
+<span class="nc" id="L491">                            .getFlag()</span>
+<span class="nc" id="L492">                            : 0);</span>
+<span class="nc" id="L493">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L495">                break;</span>
+                case VM_SHR: {
+<span class="nc" id="L497">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L498">                    int value2 = getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc" id="L499">                    int result = value1 &gt;&gt;&gt; value2;</span>
+<span class="nc bnc" id="L500" title="All 2 branches missed.">                    flags = (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc" id="L501">                            : (result &amp; VMFlags.VM_FS.getFlag()))</span>
+<span class="nc" id="L502">                            | ((value1 &gt;&gt;&gt; (value2 - 1)) &amp; VMFlags.VM_FC.getFlag());</span>
+<span class="nc" id="L503">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L505">                break;</span>
+                case VM_SAR: {
+<span class="nc" id="L507">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L508">                    int value2 = getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc" id="L509">                    int result = ((int) value1) &gt;&gt;&gt; value2;</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">                    flags = (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc" id="L511">                        : (result &amp; VMFlags.VM_FS.getFlag()))</span>
+<span class="nc" id="L512">                        | ((value1 &gt;&gt;&gt; (value2 - 1)) &amp; VMFlags.VM_FC.getFlag());</span>
+<span class="nc" id="L513">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L515">                break;</span>
+                case VM_NEG: {
+<span class="nc" id="L517">                    int result = -getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">                    flags = result == 0 ? VMFlags.VM_FZ.getFlag() : VMFlags.VM_FC</span>
+<span class="nc" id="L519">                            .getFlag()</span>
+<span class="nc" id="L520">                            | (result &amp; VMFlags.VM_FS.getFlag());</span>
+<span class="nc" id="L521">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L523">                break;</span>
+
+                case VM_NEGB:
+<span class="nc" id="L526">                    setValue(true, mem, op1, -getValue(true, mem, op1));</span>
+<span class="nc" id="L527">                    break;</span>
+                case VM_NEGD:
+<span class="nc" id="L529">                    setValue(false, mem, op1, -getValue(false, mem, op1));</span>
+<span class="nc" id="L530">                    break;</span>
+                case VM_PUSHA: {
+<span class="nc bnc" id="L532" title="All 2 branches missed.">                    for (int i = 0, SP = R[7] - 4; i &lt; regCount; i++, SP -= 4) {</span>
+<span class="nc" id="L533">                        setValue(false, mem, SP &amp; VM_MEMMASK, R[i]);</span>
+                    }
+<span class="nc" id="L535">                    R[7] -= regCount * 4;</span>
+                }
+<span class="nc" id="L537">                break;</span>
+                case VM_POPA: {
+<span class="nc bnc" id="L539" title="All 2 branches missed.">                    for (int i = 0, SP = R[7]; i &lt; regCount; i++, SP += 4) {</span>
+<span class="nc" id="L540">                        R[7 - i] = getValue(false, mem, SP &amp; VM_MEMMASK);</span>
+                    }
+                }
+<span class="nc" id="L543">                break;</span>
+                case VM_PUSHF:
+<span class="nc" id="L545">                    R[7] -= 4;</span>
+<span class="nc" id="L546">                    setValue(false, mem, R[7] &amp; VM_MEMMASK, flags);</span>
+<span class="nc" id="L547">                    break;</span>
+                case VM_POPF:
+<span class="nc" id="L549">                    flags = getValue(false, mem, R[7] &amp; VM_MEMMASK);</span>
+<span class="nc" id="L550">                    R[7] += 4;</span>
+<span class="nc" id="L551">                    break;</span>
+                case VM_MOVZX:
+<span class="nc" id="L553">                    setValue(false, mem, op1, getValue(true, mem, op2));</span>
+<span class="nc" id="L554">                    break;</span>
+                case VM_MOVSX:
+<span class="nc" id="L556">                    setValue(false, mem, op1, (byte) getValue(true, mem, op2));</span>
+<span class="nc" id="L557">                    break;</span>
+                case VM_XCHG: {
+<span class="nc" id="L559">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L560">                    setValue(cmd.isByteMode(), mem, op1, getValue(cmd.isByteMode(),</span>
+                            mem, op2));
+<span class="nc" id="L562">                    setValue(cmd.isByteMode(), mem, op2, value1);</span>
+                }
+<span class="nc" id="L564">                break;</span>
+                case VM_MUL: {
+<span class="nc" id="L566">                    int result = (int) (((long) getValue(cmd.isByteMode(), mem, op1)</span>
+                            &amp; 0xFFffFFff
+<span class="nc" id="L568">                            * (long) getValue(cmd.isByteMode(), mem, op2) &amp; 0xFFffFFff) &amp; 0xFFffFFff);</span>
+<span class="nc" id="L569">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L571">                break;</span>
+                case VM_DIV: {
+<span class="nc" id="L573">                    int divider = getValue(cmd.isByteMode(), mem, op2);</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">                    if (divider != 0) {</span>
+<span class="nc" id="L575">                        int result = getValue(cmd.isByteMode(), mem, op1) / divider;</span>
+<span class="nc" id="L576">                        setValue(cmd.isByteMode(), mem, op1, result);</span>
+                    }
+                }
+<span class="nc" id="L579">                break;</span>
+                case VM_ADC: {
+<span class="nc" id="L581">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L582">                    int FC = (flags &amp; VMFlags.VM_FC.getFlag());</span>
+<span class="nc" id="L583">                    int result = (int) ((long) value1 &amp; 0xFFffFFff</span>
+<span class="nc" id="L584">                            + (long) getValue(cmd.isByteMode(), mem, op2)</span>
+                            &amp; 0xFFffFFff + (long) FC &amp; 0xFFffFFff);
+<span class="nc bnc" id="L586" title="All 2 branches missed.">                    if (cmd.isByteMode()) {</span>
+<span class="nc" id="L587">                        result &amp;= 0xff;</span>
+                    }
+
+<span class="nc bnc" id="L590" title="All 6 branches missed.">                    flags = (result &lt; value1 || result == value1 &amp;&amp; FC != 0) ? 1</span>
+<span class="nc bnc" id="L591" title="All 2 branches missed.">                            : 0 | (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc" id="L592">                            : (result &amp; VMFlags.VM_FS.getFlag()));</span>
+<span class="nc" id="L593">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L595">                break;</span>
+                case VM_SBB: {
+<span class="nc" id="L597">                    int value1 = getValue(cmd.isByteMode(), mem, op1);</span>
+<span class="nc" id="L598">                    int FC = (flags &amp; VMFlags.VM_FC.getFlag());</span>
+<span class="nc" id="L599">                    int result = (int) ((long) value1 &amp; 0xFFffFFff</span>
+<span class="nc" id="L600">                            - (long) getValue(cmd.isByteMode(), mem, op2)</span>
+                            &amp; 0xFFffFFff - (long) FC &amp; 0xFFffFFff);
+<span class="nc bnc" id="L602" title="All 2 branches missed.">                    if (cmd.isByteMode()) {</span>
+<span class="nc" id="L603">                        result &amp;= 0xff;</span>
+                    }
+<span class="nc bnc" id="L605" title="All 6 branches missed.">                    flags = (result &gt; value1 || result == value1 &amp;&amp; FC != 0) ? 1</span>
+<span class="nc bnc" id="L606" title="All 2 branches missed.">                            : 0 | (result == 0 ? VMFlags.VM_FZ.getFlag()</span>
+<span class="nc" id="L607">                            : (result &amp; VMFlags.VM_FS.getFlag()));</span>
+<span class="nc" id="L608">                    setValue(cmd.isByteMode(), mem, op1, result);</span>
+                }
+<span class="nc" id="L610">                break;</span>
+
+                case VM_RET:
+<span class="pc bpc" id="L613" title="1 of 2 branches missed.">                    if (R[7] &gt;= VM_MEMSIZE) {</span>
+<span class="fc" id="L614">                        return (true);</span>
+                    }
+<span class="nc" id="L616">                    setIP(getValue(false, mem, R[7] &amp; VM_MEMMASK));</span>
+<span class="nc" id="L617">                    R[7] += 4;</span>
+<span class="nc" id="L618">                    continue;</span>
+
+                case VM_STANDARD:
+<span class="fc" id="L621">                    ExecuteStandardFilter(VMStandardFilters.findFilter(cmd.getOp1()</span>
+<span class="fc" id="L622">                            .getData()));</span>
+<span class="fc" id="L623">                    break;</span>
+                case VM_PRINT:
+                    break;
+            }
+<span class="fc" id="L627">            IP++;</span>
+<span class="fc" id="L628">            --maxOpCount;</span>
+<span class="fc" id="L629">        }</span>
+    }
+
+    public void prepare(byte[] code, int codeSize, VMPreparedProgram prg) {
+<span class="fc" id="L633">        InitBitInput();</span>
+<span class="fc" id="L634">        int cpLength = Math.min(MAX_SIZE, codeSize);</span>
+<span class="fc bfc" id="L635" title="All 2 branches covered.">        for (int i = 0; i &lt; cpLength; i++) { // memcpy(inBuf,Code,Min(CodeSize,BitInput::MAX_SIZE));</span>
+<span class="fc" id="L636">            inBuf[i] |= code[i];</span>
+        }
+
+<span class="fc" id="L639">        byte xorSum = 0;</span>
+<span class="fc bfc" id="L640" title="All 2 branches covered.">        for (int i = 1; i &lt; codeSize; i++) {</span>
+<span class="fc" id="L641">            xorSum ^= code[i];</span>
+        }
+
+<span class="fc" id="L644">        faddbits(8);</span>
+
+<span class="fc" id="L646">        prg.setCmdCount(0);</span>
+<span class="pc bpc" id="L647" title="1 of 2 branches missed.">        if (xorSum == code[0]) {</span>
+<span class="fc" id="L648">            VMStandardFilters filterType = IsStandardFilter(code, codeSize);</span>
+<span class="pc bpc" id="L649" title="1 of 2 branches missed.">            if (filterType != VMStandardFilters.VMSF_NONE) {</span>
+
+<span class="fc" id="L651">                VMPreparedCommand curCmd = new VMPreparedCommand();</span>
+<span class="fc" id="L652">                curCmd.setOpCode(VMCommands.VM_STANDARD);</span>
+<span class="fc" id="L653">                curCmd.getOp1().setData(filterType.getFilter());</span>
+<span class="fc" id="L654">                curCmd.getOp1().setType(VMOpType.VM_OPNONE);</span>
+<span class="fc" id="L655">                curCmd.getOp2().setType(VMOpType.VM_OPNONE);</span>
+<span class="fc" id="L656">                codeSize = 0;</span>
+<span class="fc" id="L657">                prg.getCmd().add(curCmd);</span>
+<span class="fc" id="L658">                prg.setCmdCount(prg.getCmdCount() + 1);</span>
+                // TODO
+                // curCmd-&gt;Op1.Data=FilterType;
+                // &gt;&gt;&gt;&gt;&gt;&gt; CurCmd-&gt;Op1.Addr=&amp;CurCmd-&gt;Op1.Data; &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; not set
+                // do i need to ?
+                // &gt;&gt;&gt;&gt;&gt;&gt; CurCmd-&gt;Op2.Addr=&amp;CurCmd-&gt;Op2.Data; &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; &quot;
+                // CurCmd-&gt;Op1.Type=CurCmd-&gt;Op2.Type=VM_OPNONE;
+                // CodeSize=0;
+            }
+<span class="fc" id="L667">            int dataFlag = fgetbits();</span>
+<span class="fc" id="L668">            faddbits(1);</span>
+
+            // Read static data contained in DB operators. This data cannot be
+            // changed,
+            // it is a part of VM code, not a filter parameter.
+
+<span class="pc bpc" id="L674" title="1 of 2 branches missed.">            if ((dataFlag &amp; 0x8000) != 0) {</span>
+<span class="nc" id="L675">                long dataSize = (long) ((long) ReadData(this) &amp; 0xffFFffFF + 1);</span>
+<span class="nc bnc" id="L676" title="All 4 branches missed.">                for (int i = 0; inAddr &lt; codeSize &amp;&amp; i &lt; dataSize; i++) {</span>
+<span class="nc" id="L677">                    prg.getStaticData().add(</span>
+<span class="nc" id="L678">                            (byte) (fgetbits() &gt;&gt;&gt; 8));</span>
+<span class="nc" id="L679">                    faddbits(8);</span>
+                }
+            }
+
+<span class="pc bpc" id="L683" title="1 of 2 branches missed.">            while (inAddr &lt; codeSize) {</span>
+<span class="nc" id="L684">                VMPreparedCommand curCmd = new VMPreparedCommand();</span>
+<span class="nc" id="L685">                int data = fgetbits();</span>
+<span class="nc bnc" id="L686" title="All 2 branches missed.">                if ((data &amp; 0x8000) == 0) {</span>
+<span class="nc" id="L687">                    curCmd.setOpCode(VMCommands.findVMCommand((data &gt;&gt;&gt; 12)));</span>
+<span class="nc" id="L688">                    faddbits(4);</span>
+                } else {
+<span class="nc" id="L690">                    curCmd.setOpCode(VMCommands</span>
+<span class="nc" id="L691">                        .findVMCommand((data &gt;&gt;&gt; 10) - 24));</span>
+<span class="nc" id="L692">                    faddbits(6);</span>
+                }
+<span class="nc bnc" id="L694" title="All 2 branches missed.">                if ((VMCmdFlags.VM_CmdFlags[curCmd.getOpCode().getVMCommand()] &amp; VMCmdFlags.VMCF_BYTEMODE) != 0) {</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">                    curCmd.setByteMode((fgetbits() &gt;&gt;&gt; 15) == 1 ? true : false);</span>
+<span class="nc" id="L696">                    faddbits(1);</span>
+                } else {
+<span class="nc" id="L698">                    curCmd.setByteMode(false);</span>
+                }
+<span class="nc" id="L700">                curCmd.getOp1().setType(VMOpType.VM_OPNONE);</span>
+<span class="nc" id="L701">                curCmd.getOp2().setType(VMOpType.VM_OPNONE);</span>
+
+<span class="nc" id="L703">                int opNum = (VMCmdFlags.VM_CmdFlags[curCmd.getOpCode()</span>
+<span class="nc" id="L704">                        .getVMCommand()] &amp; VMCmdFlags.VMCF_OPMASK);</span>
+                // TODO &gt;&gt;&gt; CurCmd-&gt;Op1.Addr=CurCmd-&gt;Op2.Addr=NULL; &lt;&lt;&lt;???
+<span class="nc bnc" id="L706" title="All 2 branches missed.">                if (opNum &gt; 0) {</span>
+<span class="nc" id="L707">                    decodeArg(curCmd.getOp1(), curCmd.isByteMode());</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">                    if (opNum == 2) {</span>
+<span class="nc" id="L709">                        decodeArg(curCmd.getOp2(), curCmd.isByteMode());</span>
+                    } else {
+<span class="nc bnc" id="L711" title="All 2 branches missed.">                        if (curCmd.getOp1().getType() == VMOpType.VM_OPINT</span>
+<span class="nc" id="L712">                                &amp;&amp; (VMCmdFlags.VM_CmdFlags[curCmd.getOpCode()</span>
+<span class="nc bnc" id="L713" title="All 2 branches missed.">                                        .getVMCommand()] &amp; (VMCmdFlags.VMCF_JUMP | VMCmdFlags.VMCF_PROC)) != 0) {</span>
+<span class="nc" id="L714">                            int distance = curCmd.getOp1().getData();</span>
+<span class="nc bnc" id="L715" title="All 2 branches missed.">                            if (distance &gt;= 256) {</span>
+<span class="nc" id="L716">                                distance -= 256;</span>
+                            } else {
+<span class="nc bnc" id="L718" title="All 2 branches missed.">                                if (distance &gt;= 136) {</span>
+<span class="nc" id="L719">                                    distance -= 264;</span>
+                                } else {
+<span class="nc bnc" id="L721" title="All 2 branches missed.">                                    if (distance &gt;= 16) {</span>
+<span class="nc" id="L722">                                        distance -= 8;</span>
+                                    } else {
+<span class="nc bnc" id="L724" title="All 2 branches missed.">                                        if (distance &gt;= 8) {</span>
+<span class="nc" id="L725">                                            distance -= 16;</span>
+                                        }
+                                    }
+                                }
+<span class="nc" id="L729">                                distance += prg.getCmdCount();</span>
+                            }
+<span class="nc" id="L731">                            curCmd.getOp1().setData(distance);</span>
+                        }
+                    }
+                }
+<span class="nc" id="L735">                prg.setCmdCount(prg.getCmdCount() + 1);</span>
+<span class="nc" id="L736">                prg.getCmd().add(curCmd);</span>
+<span class="nc" id="L737">            }</span>
+        }
+<span class="fc" id="L739">        VMPreparedCommand curCmd = new VMPreparedCommand();</span>
+<span class="fc" id="L740">        curCmd.setOpCode(VMCommands.VM_RET);</span>
+        // TODO CurCmd-&gt;Op1.Addr=&amp;CurCmd-&gt;Op1.Data;
+        // CurCmd-&gt;Op2.Addr=&amp;CurCmd-&gt;Op2.Data;
+<span class="fc" id="L743">        curCmd.getOp1().setType(VMOpType.VM_OPNONE);</span>
+<span class="fc" id="L744">        curCmd.getOp2().setType(VMOpType.VM_OPNONE);</span>
+
+        // for (int i=0;i&lt;prg.getCmdCount();i++)
+        // {
+        // VM_PreparedCommand *Cmd=&amp;Prg-&gt;Cmd[I];
+        // if (Cmd-&gt;Op1.Addr==NULL)
+        // Cmd-&gt;Op1.Addr=&amp;Cmd-&gt;Op1.Data;
+        // if (Cmd-&gt;Op2.Addr==NULL)
+        // Cmd-&gt;Op2.Addr=&amp;Cmd-&gt;Op2.Data;
+        // }
+
+<span class="fc" id="L755">        prg.getCmd().add(curCmd);</span>
+<span class="fc" id="L756">        prg.setCmdCount(prg.getCmdCount() + 1);</span>
+        // #ifdef VM_OPTIMIZE
+<span class="pc bpc" id="L758" title="1 of 2 branches missed.">        if (codeSize != 0) {</span>
+<span class="nc" id="L759">            optimize(prg);</span>
+        }
+<span class="fc" id="L761">    }</span>
+
+    private void decodeArg(VMPreparedOperand op, boolean byteMode) {
+<span class="nc" id="L764">        int data = fgetbits();</span>
+<span class="nc bnc" id="L765" title="All 2 branches missed.">        if ((data &amp; 0x8000) != 0) {</span>
+<span class="nc" id="L766">            op.setType(VMOpType.VM_OPREG);</span>
+<span class="nc" id="L767">            op.setData((data &gt;&gt;&gt; 12) &amp; 7);</span>
+<span class="nc" id="L768">            op.setOffset(op.getData());</span>
+<span class="nc" id="L769">            faddbits(4);</span>
+        } else {
+<span class="nc bnc" id="L771" title="All 2 branches missed.">            if ((data &amp; 0xc000) == 0) {</span>
+<span class="nc" id="L772">                op.setType(VMOpType.VM_OPINT);</span>
+<span class="nc bnc" id="L773" title="All 2 branches missed.">                if (byteMode) {</span>
+<span class="nc" id="L774">                    op.setData((data &gt;&gt;&gt; 6) &amp; 0xff);</span>
+<span class="nc" id="L775">                    faddbits(10);</span>
+                } else {
+<span class="nc" id="L777">                    faddbits(2);</span>
+<span class="nc" id="L778">                    op.setData(ReadData(this));</span>
+                }
+            } else {
+<span class="nc" id="L781">                op.setType(VMOpType.VM_OPREGMEM);</span>
+<span class="nc bnc" id="L782" title="All 2 branches missed.">                if ((data &amp; 0x2000) == 0) {</span>
+<span class="nc" id="L783">                    op.setData((data &gt;&gt;&gt; 10) &amp; 7);</span>
+<span class="nc" id="L784">                    op.setOffset(op.getData());</span>
+<span class="nc" id="L785">                    op.setBase(0);</span>
+<span class="nc" id="L786">                    faddbits(6);</span>
+                } else {
+<span class="nc bnc" id="L788" title="All 2 branches missed.">                    if ((data &amp; 0x1000) == 0) {</span>
+<span class="nc" id="L789">                        op.setData((data &gt;&gt;&gt; 9) &amp; 7);</span>
+<span class="nc" id="L790">                        op.setOffset(op.getData());</span>
+<span class="nc" id="L791">                        faddbits(7);</span>
+                    } else {
+<span class="nc" id="L793">                        op.setData(0);</span>
+<span class="nc" id="L794">                        faddbits(4);</span>
+                    }
+<span class="nc" id="L796">                    op.setBase(ReadData(this));</span>
+                }
+            }
+        }
+
+<span class="nc" id="L801">    }</span>
+
+    @SuppressWarnings(&quot;incomplete-switch&quot;)
+    private void optimize(VMPreparedProgram prg) {
+<span class="nc" id="L805">        List&lt;VMPreparedCommand&gt; commands = prg.getCmd();</span>
+
+<span class="nc bnc" id="L807" title="All 2 branches missed.">        for (VMPreparedCommand cmd : commands) {</span>
+<span class="nc bnc" id="L808" title="All 3 branches missed.">            switch (cmd.getOpCode()) {</span>
+                case VM_MOV:
+<span class="nc bnc" id="L810" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_MOVB</span>
+<span class="nc" id="L811">                            : VMCommands.VM_MOVD);</span>
+<span class="nc" id="L812">                    continue;</span>
+                case VM_CMP:
+<span class="nc bnc" id="L814" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_CMPB</span>
+<span class="nc" id="L815">                            : VMCommands.VM_CMPD);</span>
+<span class="nc" id="L816">                    continue;</span>
+            }
+<span class="nc bnc" id="L818" title="All 2 branches missed.">            if ((VMCmdFlags.VM_CmdFlags[cmd.getOpCode().getVMCommand()] &amp; VMCmdFlags.VMCF_CHFLAGS) == 0) {</span>
+<span class="nc" id="L819">                continue;</span>
+            }
+<span class="nc" id="L821">            boolean flagsRequired = false;</span>
+
+<span class="nc bnc" id="L823" title="All 2 branches missed.">            for (int i = commands.indexOf(cmd) + 1; i &lt; commands.size(); i++) {</span>
+<span class="nc" id="L824">                int flags = VMCmdFlags.VM_CmdFlags[commands.get(i).getOpCode()</span>
+<span class="nc" id="L825">                        .getVMCommand()];</span>
+<span class="nc bnc" id="L826" title="All 2 branches missed.">                if ((flags &amp; (VMCmdFlags.VMCF_JUMP | VMCmdFlags.VMCF_PROC | VMCmdFlags.VMCF_USEFLAGS)) != 0) {</span>
+<span class="nc" id="L827">                    flagsRequired = true;</span>
+<span class="nc" id="L828">                    break;</span>
+                }
+<span class="nc bnc" id="L830" title="All 2 branches missed.">                if ((flags &amp; VMCmdFlags.VMCF_CHFLAGS) != 0) {</span>
+<span class="nc" id="L831">                    break;</span>
+                }
+            }
+<span class="nc bnc" id="L834" title="All 2 branches missed.">            if (flagsRequired) {</span>
+<span class="nc" id="L835">                continue;</span>
+            }
+<span class="nc bnc" id="L837" title="All 6 branches missed.">            switch (cmd.getOpCode()) {</span>
+                case VM_ADD:
+<span class="nc bnc" id="L839" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_ADDB</span>
+<span class="nc" id="L840">                            : VMCommands.VM_ADDD);</span>
+<span class="nc" id="L841">                    continue;</span>
+                case VM_SUB:
+<span class="nc bnc" id="L843" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_SUBB</span>
+<span class="nc" id="L844">                            : VMCommands.VM_SUBD);</span>
+<span class="nc" id="L845">                    continue;</span>
+                case VM_INC:
+<span class="nc bnc" id="L847" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_INCB</span>
+<span class="nc" id="L848">                            : VMCommands.VM_INCD);</span>
+<span class="nc" id="L849">                    continue;</span>
+                case VM_DEC:
+<span class="nc bnc" id="L851" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_DECB</span>
+<span class="nc" id="L852">                            : VMCommands.VM_DECD);</span>
+<span class="nc" id="L853">                    continue;</span>
+                case VM_NEG:
+<span class="nc bnc" id="L855" title="All 2 branches missed.">                    cmd.setOpCode(cmd.isByteMode() ? VMCommands.VM_NEGB</span>
+<span class="nc" id="L856">                            : VMCommands.VM_NEGD);</span>
+<span class="nc" id="L857">                    continue;</span>
+            }
+<span class="nc" id="L859">        }</span>
+
+<span class="nc" id="L861">    }</span>
+
+    public static int ReadData(BitInput rarVM) {
+<span class="fc" id="L864">        int data = rarVM.fgetbits();</span>
+<span class="pc bpc" id="L865" title="1 of 4 branches missed.">        switch (data &amp; 0xc000) {</span>
+            case 0:
+<span class="fc" id="L867">                rarVM.faddbits(6);</span>
+<span class="fc" id="L868">                return ((data &gt;&gt;&gt; 10) &amp; 0xf);</span>
+            case 0x4000:
+<span class="pc bpc" id="L870" title="1 of 2 branches missed.">                if ((data &amp; 0x3c00) == 0) {</span>
+<span class="nc" id="L871">                    data = 0xffffff00 | ((data &gt;&gt;&gt; 2) &amp; 0xff);</span>
+<span class="nc" id="L872">                    rarVM.faddbits(14);</span>
+                } else {
+<span class="fc" id="L874">                    data = (data &gt;&gt;&gt; 6) &amp; 0xff;</span>
+<span class="fc" id="L875">                    rarVM.faddbits(10);</span>
+                }
+<span class="fc" id="L877">                return (data);</span>
+            case 0x8000:
+<span class="fc" id="L879">                rarVM.faddbits(2);</span>
+<span class="fc" id="L880">                data = rarVM.fgetbits();</span>
+<span class="fc" id="L881">                rarVM.faddbits(16);</span>
+<span class="fc" id="L882">                return (data);</span>
+            default:
+<span class="nc" id="L884">                rarVM.faddbits(2);</span>
+<span class="nc" id="L885">                data = (rarVM.fgetbits() &lt;&lt; 16);</span>
+<span class="nc" id="L886">                rarVM.faddbits(16);</span>
+<span class="nc" id="L887">                data |= rarVM.fgetbits();</span>
+<span class="nc" id="L888">                rarVM.faddbits(16);</span>
+<span class="nc" id="L889">                return (data);</span>
+        }
+    }
+
+    private VMStandardFilters IsStandardFilter(byte[] code, int codeSize) {
+<span class="fc" id="L894">        VMStandardFilterSignature[] stdList = {</span>
+                new VMStandardFilterSignature(53, 0xad576887, VMStandardFilters.VMSF_E8),
+                new VMStandardFilterSignature(57, 0x3cd7e57e, VMStandardFilters.VMSF_E8E9),
+                new VMStandardFilterSignature(120, 0x3769893f, VMStandardFilters.VMSF_ITANIUM),
+                new VMStandardFilterSignature(29, 0x0e06077d, VMStandardFilters.VMSF_DELTA),
+                new VMStandardFilterSignature(149, 0x1c2c5dc8, VMStandardFilters.VMSF_RGB),
+                new VMStandardFilterSignature(216, 0xbc85e701, VMStandardFilters.VMSF_AUDIO),
+                new VMStandardFilterSignature(40, 0x46b9c560, VMStandardFilters.VMSF_UPCASE)
+        };
+<span class="fc" id="L903">        int CodeCRC = RarCRC.checkCrc(0xffffffff, code, 0, code.length) ^ 0xffffffff;</span>
+<span class="pc bpc" id="L904" title="1 of 2 branches missed.">        for (int i = 0; i &lt; stdList.length; i++) {</span>
+<span class="pc bpc" id="L905" title="1 of 4 branches missed.">            if (stdList[i].getCRC() == CodeCRC &amp;&amp; stdList[i].getLength() == code.length) {</span>
+<span class="fc" id="L906">                return (stdList[i].getType());</span>
+            }
+
+        }
+<span class="nc" id="L910">        return (VMStandardFilters.VMSF_NONE);</span>
+    }
+
+    @SuppressWarnings(&quot;incomplete-switch&quot;)
+    private void ExecuteStandardFilter(VMStandardFilters filterType) {
+<span class="pc bpc" id="L915" title="5 of 7 branches missed.">        switch (filterType) {</span>
+            case VMSF_E8:
+            case VMSF_E8E9: {
+<span class="nc" id="L918">                int dataSize = R[4];</span>
+<span class="nc" id="L919">                long fileOffset = R[6] &amp; 0xFFffFFff;</span>
+
+<span class="nc bnc" id="L921" title="All 2 branches missed.">                if (dataSize &gt;= VM_GLOBALMEMADDR) {</span>
+<span class="nc" id="L922">                    break;</span>
+                }
+<span class="nc" id="L924">                int fileSize = 0x1000000;</span>
+<span class="nc bnc" id="L925" title="All 2 branches missed.">                byte cmpByte2 = (byte) ((filterType == VMStandardFilters.VMSF_E8E9) ? 0xe9 : 0xe8);</span>
+<span class="nc bnc" id="L926" title="All 2 branches missed.">                for (int curPos = 0; curPos &lt; dataSize - 4;) {</span>
+<span class="nc" id="L927">                    byte curByte = mem[curPos++];</span>
+<span class="nc bnc" id="L928" title="All 4 branches missed.">                    if (curByte == ((byte) 0xe8) || curByte == cmpByte2) {</span>
+//        #ifdef PRESENT_INT32
+//                    sint32 Offset=CurPos+FileOffset;
+//                    sint32 Addr=GET_VALUE(false,Data);
+//                    if (Addr&lt;0)
+//                    {
+//                      if (Addr+Offset&gt;=0)
+//                        SET_VALUE(false,Data,Addr+FileSize);
+//                    }
+//                    else
+//                      if (Addr&lt;FileSize)
+//                        SET_VALUE(false,Data,Addr-Offset);
+//        #else
+<span class="nc" id="L941">                        long offset = curPos + fileOffset;</span>
+<span class="nc" id="L942">                        long Addr = getValue(false, mem, curPos);</span>
+<span class="nc bnc" id="L943" title="All 2 branches missed.">                        if ((Addr &amp; 0x80000000) != 0) {</span>
+<span class="nc bnc" id="L944" title="All 2 branches missed.">                            if (((Addr + offset) &amp; 0x80000000) == 0) {</span>
+<span class="nc" id="L945">                                setValue(false, mem, curPos, (int) Addr + fileSize);</span>
+                            }
+                        } else {
+<span class="nc bnc" id="L948" title="All 2 branches missed.">                            if (((Addr - fileSize) &amp; 0x80000000) != 0) {</span>
+<span class="nc" id="L949">                                setValue(false, mem, curPos, (int) (Addr - offset));</span>
+                            }
+                        }
+//        #endif
+<span class="nc" id="L953">                        curPos += 4;</span>
+                    }
+<span class="nc" id="L955">                }</span>
+<span class="nc" id="L956">                break;</span>
+            }
+            case VMSF_ITANIUM: {
+
+<span class="nc" id="L960">                int dataSize = R[4];</span>
+<span class="nc" id="L961">                long fileOffset = R[6] &amp; 0xFFffFFff;</span>
+
+<span class="nc bnc" id="L963" title="All 2 branches missed.">                if (dataSize &gt;= VM_GLOBALMEMADDR) {</span>
+<span class="nc" id="L964">                    break;</span>
+                }
+<span class="nc" id="L966">                int curPos = 0;</span>
+<span class="nc" id="L967">                final byte[] Masks = {4, 4, 6, 6, 0, 0, 7, 7, 4, 4, 0, 0, 4, 4, 0, 0};</span>
+<span class="nc" id="L968">                fileOffset &gt;&gt;&gt;= 4;</span>
+
+<span class="nc bnc" id="L970" title="All 2 branches missed.">                while (curPos &lt; dataSize - 21) {</span>
+<span class="nc" id="L971">                    int Byte = (mem[curPos] &amp; 0x1f) - 0x10;</span>
+<span class="nc bnc" id="L972" title="All 2 branches missed.">                    if (Byte &gt;= 0) {</span>
+
+<span class="nc" id="L974">                        byte cmdMask = Masks[Byte];</span>
+<span class="nc bnc" id="L975" title="All 2 branches missed.">                        if (cmdMask != 0) {</span>
+<span class="nc bnc" id="L976" title="All 2 branches missed.">                            for (int i = 0; i &lt;= 2; i++) {</span>
+<span class="nc bnc" id="L977" title="All 2 branches missed.">                                if ((cmdMask &amp; (1 &lt;&lt; i)) != 0) {</span>
+<span class="nc" id="L978">                                    int startPos = i * 41 + 5;</span>
+<span class="nc" id="L979">                                    int opType = filterItanium_GetBits(curPos, startPos + 37, 4);</span>
+<span class="nc bnc" id="L980" title="All 2 branches missed.">                                    if (opType == 5) {</span>
+<span class="nc" id="L981">                                        int offset = filterItanium_GetBits(curPos, startPos + 13, 20);</span>
+<span class="nc" id="L982">                                        filterItanium_SetBits(curPos, (int) (offset - fileOffset) &amp; 0xfffff, startPos + 13, 20);</span>
+                                    }
+                                }
+                            }
+                        }
+                    }
+<span class="nc" id="L988">                    curPos += 16;</span>
+<span class="nc" id="L989">                    fileOffset++;</span>
+<span class="nc" id="L990">                }</span>
+            }
+<span class="nc" id="L992">            break;</span>
+            case VMSF_DELTA: {
+<span class="fc" id="L994">                int dataSize = R[4] &amp; 0xFFffFFff;</span>
+<span class="fc" id="L995">                int channels = R[0] &amp; 0xFFffFFff;</span>
+<span class="fc" id="L996">                int srcPos = 0;</span>
+<span class="fc" id="L997">                int border = (dataSize * 2) &amp; 0xFFffFFff;</span>
+<span class="fc" id="L998">                setValue(false, mem, VM_GLOBALMEMADDR + 0x20, (int) dataSize);</span>
+<span class="pc bpc" id="L999" title="1 of 2 branches missed.">                if (dataSize &gt;= VM_GLOBALMEMADDR / 2) {</span>
+<span class="nc" id="L1000">                    break;</span>
+                }
+//         bytes from same channels are grouped to continual data blocks,
+//         so we need to place them back to their interleaving positions
+
+<span class="fc bfc" id="L1005" title="All 2 branches covered.">                for (int curChannel = 0; curChannel &lt; channels; curChannel++) {</span>
+<span class="fc" id="L1006">                    byte PrevByte = 0;</span>
+<span class="fc bfc" id="L1007" title="All 2 branches covered.">                    for (int destPos = dataSize + curChannel; destPos &lt; border; destPos += channels) {</span>
+<span class="fc" id="L1008">                        mem[destPos] = (PrevByte -= mem[srcPos++]);</span>
+                    }
+
+                }
+            }
+<span class="fc" id="L1013">            break;</span>
+            case VMSF_RGB: {
+                // byte *SrcData=Mem,*DestData=SrcData+DataSize;
+<span class="nc" id="L1016">                int dataSize = R[4], width = R[0] - 3, posR = R[1];</span>
+<span class="nc" id="L1017">                int channels = 3;</span>
+<span class="nc" id="L1018">                int srcPos = 0;</span>
+<span class="nc" id="L1019">                int destDataPos = dataSize;</span>
+<span class="nc" id="L1020">                setValue(false, mem, VM_GLOBALMEMADDR + 0x20, dataSize);</span>
+<span class="nc bnc" id="L1021" title="All 4 branches missed.">                if (dataSize &gt;= VM_GLOBALMEMADDR / 2 || posR &lt; 0) {</span>
+<span class="nc" id="L1022">                    break;</span>
+                }
+<span class="nc bnc" id="L1024" title="All 2 branches missed.">                for (int curChannel = 0; curChannel &lt; channels; curChannel++) {</span>
+<span class="nc" id="L1025">                    long prevByte = 0;</span>
+
+<span class="nc bnc" id="L1027" title="All 2 branches missed.">                    for (int i = curChannel; i &lt; dataSize; i += channels) {</span>
+                        long predicted;
+<span class="nc" id="L1029">                        int upperPos = i - width;</span>
+<span class="nc bnc" id="L1030" title="All 2 branches missed.">                        if (upperPos &gt;= 3) {</span>
+<span class="nc" id="L1031">                            int upperDataPos = destDataPos + upperPos;</span>
+<span class="nc" id="L1032">                            int upperByte = mem[(int) upperDataPos] &amp; 0xff;</span>
+<span class="nc" id="L1033">                            int upperLeftByte = mem[upperDataPos - 3] &amp; 0xff;</span>
+<span class="nc" id="L1034">                            predicted = prevByte + upperByte - upperLeftByte;</span>
+<span class="nc" id="L1035">                            int pa = Math.abs((int) (predicted - prevByte));</span>
+<span class="nc" id="L1036">                            int pb = Math.abs((int) (predicted - upperByte));</span>
+<span class="nc" id="L1037">                            int pc = Math.abs((int) (predicted - upperLeftByte));</span>
+<span class="nc bnc" id="L1038" title="All 4 branches missed.">                            if (pa &lt;= pb &amp;&amp; pa &lt;= pc) {</span>
+<span class="nc" id="L1039">                                predicted = prevByte;</span>
+                            } else {
+<span class="nc bnc" id="L1041" title="All 2 branches missed.">                                if (pb &lt;= pc) {</span>
+<span class="nc" id="L1042">                                    predicted = upperByte;</span>
+                                } else {
+<span class="nc" id="L1044">                                    predicted = upperLeftByte;</span>
+                                }
+                            }
+<span class="nc" id="L1047">                        } else {</span>
+<span class="nc" id="L1048">                            predicted = prevByte;</span>
+                        }
+
+<span class="nc" id="L1051">                        prevByte = (predicted - mem[srcPos++] &amp; 0xff) &amp; 0xff;</span>
+<span class="nc" id="L1052">                        mem[destDataPos + i] = (byte) (prevByte &amp; 0xff);</span>
+
+                    }
+                }
+<span class="nc bnc" id="L1056" title="All 2 branches missed.">                for (int i = posR, border = dataSize - 2; i &lt; border; i += 3) {</span>
+<span class="nc" id="L1057">                    byte G = mem[destDataPos + i + 1];</span>
+<span class="nc" id="L1058">                    mem[destDataPos + i] += G;</span>
+<span class="nc" id="L1059">                    mem[destDataPos + i + 2] += G;</span>
+                }
+            }
+<span class="nc" id="L1062">            break;</span>
+            case VMSF_AUDIO: {
+<span class="fc" id="L1064">                int dataSize = R[4], channels = R[0];</span>
+<span class="fc" id="L1065">                int srcPos = 0;</span>
+<span class="fc" id="L1066">                int destDataPos = dataSize;</span>
+                //byte *SrcData=Mem,*DestData=SrcData+DataSize;
+<span class="fc" id="L1068">                setValue(false, mem, VM_GLOBALMEMADDR + 0x20, dataSize);</span>
+<span class="pc bpc" id="L1069" title="1 of 2 branches missed.">                if (dataSize &gt;= VM_GLOBALMEMADDR / 2) {</span>
+<span class="nc" id="L1070">                    break;</span>
+                }
+<span class="fc bfc" id="L1072" title="All 2 branches covered.">                for (int curChannel = 0; curChannel &lt; channels; curChannel++) {</span>
+<span class="fc" id="L1073">                    long prevByte = 0;</span>
+<span class="fc" id="L1074">                    long prevDelta = 0;</span>
+<span class="fc" id="L1075">                    long[] Dif = new long[7];</span>
+<span class="fc" id="L1076">                    int D1 = 0, D2 = 0, D3;</span>
+<span class="fc" id="L1077">                    int K1 = 0, K2 = 0, K3 = 0;</span>
+
+<span class="fc bfc" id="L1079" title="All 2 branches covered.">                    for (int i = curChannel, byteCount = 0; i &lt; dataSize; i += channels, byteCount++) {</span>
+<span class="fc" id="L1080">                        D3 = D2;</span>
+<span class="fc" id="L1081">                        D2 = (int) prevDelta - D1;</span>
+<span class="fc" id="L1082">                        D1 = (int) prevDelta;</span>
+
+<span class="fc" id="L1084">                        long predicted = 8 * prevByte + K1 * D1 + K2 * D2 + K3 * D3;</span>
+<span class="fc" id="L1085">                        predicted = (predicted &gt;&gt;&gt; 3) &amp; 0xff;</span>
+
+<span class="fc" id="L1087">                        long curByte = mem[srcPos++] &amp; 0xff;</span>
+
+<span class="fc" id="L1089">                        predicted = (predicted - curByte) &amp; UINT_MASK;</span>
+<span class="fc" id="L1090">                        mem[destDataPos + i] = (byte) predicted;</span>
+<span class="fc" id="L1091">                        prevDelta = (byte) (predicted - prevByte);</span>
+<span class="fc" id="L1092">                        prevByte = predicted;</span>
+
+<span class="fc" id="L1094">                        int D = ((byte) curByte) &lt;&lt; 3;</span>
+
+<span class="fc" id="L1096">                        Dif[0] += Math.abs(D);</span>
+<span class="fc" id="L1097">                        Dif[1] += Math.abs(D - D1);</span>
+<span class="fc" id="L1098">                        Dif[2] += Math.abs(D + D1);</span>
+<span class="fc" id="L1099">                        Dif[3] += Math.abs(D - D2);</span>
+<span class="fc" id="L1100">                        Dif[4] += Math.abs(D + D2);</span>
+<span class="fc" id="L1101">                        Dif[5] += Math.abs(D - D3);</span>
+<span class="fc" id="L1102">                        Dif[6] += Math.abs(D + D3);</span>
+
+<span class="fc bfc" id="L1104" title="All 2 branches covered.">                        if ((byteCount &amp; 0x1f) == 0) {</span>
+<span class="fc" id="L1105">                            long minDif = Dif[0], numMinDif = 0;</span>
+<span class="fc" id="L1106">                            Dif[0] = 0;</span>
+<span class="fc bfc" id="L1107" title="All 2 branches covered.">                            for (int j = 1; j &lt; Dif.length; j++) {</span>
+<span class="fc bfc" id="L1108" title="All 2 branches covered.">                                if (Dif[j] &lt; minDif) {</span>
+<span class="fc" id="L1109">                                    minDif = Dif[j];</span>
+<span class="fc" id="L1110">                                    numMinDif = j;</span>
+                                }
+<span class="fc" id="L1112">                                Dif[j] = 0;</span>
+                            }
+<span class="fc bfc" id="L1114" title="All 7 branches covered.">                            switch ((int) numMinDif) {</span>
+                                case 1:
+<span class="pc bpc" id="L1116" title="1 of 2 branches missed.">                                    if (K1 &gt;= -16) {</span>
+<span class="fc" id="L1117">                                        K1--;</span>
+                                    }
+                                    break;
+                                case 2:
+<span class="pc bpc" id="L1121" title="1 of 2 branches missed.">                                    if (K1 &lt; 16) {</span>
+<span class="fc" id="L1122">                                        K1++;</span>
+                                    }
+                                    break;
+                                case 3:
+<span class="pc bpc" id="L1126" title="1 of 2 branches missed.">                                    if (K2 &gt;= -16) {</span>
+<span class="fc" id="L1127">                                        K2--;</span>
+                                    }
+                                    break;
+                                case 4:
+<span class="pc bpc" id="L1131" title="1 of 2 branches missed.">                                    if (K2 &lt; 16) {</span>
+<span class="fc" id="L1132">                                        K2++;</span>
+                                    }
+                                    break;
+                                case 5:
+<span class="pc bpc" id="L1136" title="1 of 2 branches missed.">                                    if (K3 &gt;= -16) {</span>
+<span class="fc" id="L1137">                                        K3--;</span>
+                                    }
+                                    break;
+                                case 6:
+<span class="pc bpc" id="L1141" title="1 of 2 branches missed.">                                    if (K3 &lt; 16) {</span>
+<span class="fc" id="L1142">                                        K3++;</span>
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+<span class="fc" id="L1150">            break;</span>
+            case VMSF_UPCASE: {
+<span class="nc" id="L1152">                int dataSize = R[4], srcPos = 0, destPos = dataSize;</span>
+<span class="nc bnc" id="L1153" title="All 2 branches missed.">                if (dataSize &gt;= VM_GLOBALMEMADDR / 2) {</span>
+<span class="nc" id="L1154">                    break;</span>
+                }
+<span class="nc bnc" id="L1156" title="All 2 branches missed.">                while (srcPos &lt; dataSize) {</span>
+<span class="nc" id="L1157">                    byte curByte = mem[srcPos++];</span>
+<span class="nc bnc" id="L1158" title="All 4 branches missed.">                    if (curByte == 2 &amp;&amp; (curByte = mem[srcPos++]) != 2) {</span>
+<span class="nc" id="L1159">                        curByte -= 32;</span>
+                    }
+<span class="nc" id="L1161">                    mem[destPos++] = curByte;</span>
+<span class="nc" id="L1162">                }</span>
+<span class="nc" id="L1163">                setValue(false, mem, VM_GLOBALMEMADDR + 0x1c, destPos - dataSize);</span>
+<span class="nc" id="L1164">                setValue(false, mem, VM_GLOBALMEMADDR + 0x20, dataSize);</span>
+            }
+            break;
+        }
+
+<span class="fc" id="L1169">    }</span>
+
+    private void filterItanium_SetBits(int curPos, int bitField, int bitPos, int bitCount) {
+<span class="nc" id="L1172">        int inAddr = bitPos / 8;</span>
+<span class="nc" id="L1173">        int inBit = bitPos &amp; 7;</span>
+<span class="nc" id="L1174">        int andMask = 0xffffffff &gt;&gt;&gt; (32 - bitCount);</span>
+<span class="nc" id="L1175">        andMask = ~(andMask &lt;&lt; inBit);</span>
+
+<span class="nc" id="L1177">        bitField &lt;&lt;= inBit;</span>
+
+<span class="nc bnc" id="L1179" title="All 2 branches missed.">        for (int i = 0; i &lt; 4; i++) {</span>
+<span class="nc" id="L1180">            mem[curPos + inAddr + i] &amp;= andMask;</span>
+<span class="nc" id="L1181">            mem[curPos + inAddr + i] |= bitField;</span>
+<span class="nc" id="L1182">            andMask = (andMask &gt;&gt;&gt; 8) | 0xff000000;</span>
+<span class="nc" id="L1183">            bitField &gt;&gt;&gt;= 8;</span>
+        }
+
+<span class="nc" id="L1186">    }</span>
+
+    private int filterItanium_GetBits(int curPos, int bitPos, int bitCount) {
+<span class="nc" id="L1189">        int inAddr = bitPos / 8;</span>
+<span class="nc" id="L1190">        int inBit = bitPos &amp; 7;</span>
+<span class="nc" id="L1191">        int bitField = (int) (mem[curPos + inAddr++] &amp; 0xff);</span>
+<span class="nc" id="L1192">        bitField |= (int) ((mem[curPos + inAddr++] &amp; 0xff) &lt;&lt; 8);</span>
+<span class="nc" id="L1193">        bitField |= (int) ((mem[curPos + inAddr++] &amp; 0xff) &lt;&lt; 16);</span>
+<span class="nc" id="L1194">        bitField |= (int) ((mem[curPos + inAddr] &amp; 0xff) &lt;&lt; 24);</span>
+<span class="nc" id="L1195">        bitField &gt;&gt;&gt;= inBit;</span>
+<span class="nc" id="L1196">        return (bitField &amp; (0xffffffff &gt;&gt;&gt; (32 - bitCount)));</span>
+    }
+
+
+    public void setMemory(int pos, byte[] data, int offset, int dataSize) {
+<span class="pc bpc" id="L1201" title="1 of 2 branches missed.">        if (pos &lt; VM_MEMSIZE) { //&amp;&amp; data!=Mem+Pos)</span>
+            //memmove(Mem+Pos,Data,Min(DataSize,VM_MEMSIZE-Pos));
+<span class="fc bfc" id="L1203" title="All 2 branches covered.">            for (int i = 0; i &lt; Math.min(data.length - offset, dataSize); i++) {</span>
+<span class="pc bpc" id="L1204" title="1 of 2 branches missed.">                if ((VM_MEMSIZE - pos) &lt; i) {</span>
+<span class="nc" id="L1205">                    break;</span>
+                }
+<span class="fc" id="L1207">                mem[pos + i] = data[offset + i];</span>
+            }
+        }
+<span class="fc" id="L1210">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

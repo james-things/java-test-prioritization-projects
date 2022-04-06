@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HTTP.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JSON in Java</a> &gt; <a href="index.source.html" class="el_package">org.json</a> &gt; <span class="el_source">HTTP.java</span></div><h1>HTTP.java</h1><pre class="source lang-java linenums">package org.json;
+
+/*
+Copyright (c) 2002 JSON.org
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+The Software shall be used for Good, not Evil.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+import java.util.Locale;
+
+/**
+ * Convert an HTTP header to a JSONObject and back.
+ * @author JSON.org
+ * @version 2015-12-09
+ */
+<span class="nc" id="L34">public class HTTP {</span>
+
+    /** Carriage return/line feed. */
+    public static final String CRLF = &quot;\r\n&quot;;
+
+    /**
+     * Convert an HTTP header string into a JSONObject. It can be a request
+     * header or a response header. A request header will contain
+     * &lt;pre&gt;{
+     *    Method: &quot;POST&quot; (for example),
+     *    &quot;Request-URI&quot;: &quot;/&quot; (for example),
+     *    &quot;HTTP-Version&quot;: &quot;HTTP/1.1&quot; (for example)
+     * }&lt;/pre&gt;
+     * A response header will contain
+     * &lt;pre&gt;{
+     *    &quot;HTTP-Version&quot;: &quot;HTTP/1.1&quot; (for example),
+     *    &quot;Status-Code&quot;: &quot;200&quot; (for example),
+     *    &quot;Reason-Phrase&quot;: &quot;OK&quot; (for example)
+     * }&lt;/pre&gt;
+     * In addition, the other parameters in the header will be captured, using
+     * the HTTP field names as JSON names, so that &lt;pre&gt;{@code
+     *    Date: Sun, 26 May 2002 18:06:04 GMT
+     *    Cookie: Q=q2=PPEAsg--; B=677gi6ouf29bn&amp;b=2&amp;f=s
+     *    Cache-Control: no-cache}&lt;/pre&gt;
+     * become
+     * &lt;pre&gt;{@code
+     *    Date: &quot;Sun, 26 May 2002 18:06:04 GMT&quot;,
+     *    Cookie: &quot;Q=q2=PPEAsg--; B=677gi6ouf29bn&amp;b=2&amp;f=s&quot;,
+     *    &quot;Cache-Control&quot;: &quot;no-cache&quot;,
+     * ...}&lt;/pre&gt;
+     * It does no further checking or conversion. It does not parse dates.
+     * It does not do '%' transforms on URLs.
+     * @param string An HTTP header string.
+     * @return A JSONObject containing the elements and attributes
+     * of the XML string.
+     * @throws JSONException if a called function fails
+     */
+    public static JSONObject toJSONObject(String string) throws JSONException {
+<span class="fc" id="L72">        JSONObject     jo = new JSONObject();</span>
+<span class="fc" id="L73">        HTTPTokener    x = new HTTPTokener(string);</span>
+        String         token;
+
+<span class="fc" id="L76">        token = x.nextToken();</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (token.toUpperCase(Locale.ROOT).startsWith(&quot;HTTP&quot;)) {</span>
+
+// Response
+
+<span class="fc" id="L81">            jo.put(&quot;HTTP-Version&quot;, token);</span>
+<span class="fc" id="L82">            jo.put(&quot;Status-Code&quot;, x.nextToken());</span>
+<span class="fc" id="L83">            jo.put(&quot;Reason-Phrase&quot;, x.nextTo('\0'));</span>
+<span class="fc" id="L84">            x.next();</span>
+
+        } else {
+
+// Request
+
+<span class="fc" id="L90">            jo.put(&quot;Method&quot;, token);</span>
+<span class="fc" id="L91">            jo.put(&quot;Request-URI&quot;, x.nextToken());</span>
+<span class="fc" id="L92">            jo.put(&quot;HTTP-Version&quot;, x.nextToken());</span>
+        }
+
+// Fields
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        while (x.more()) {</span>
+<span class="fc" id="L98">            String name = x.nextTo(':');</span>
+<span class="fc" id="L99">            x.next(':');</span>
+<span class="fc" id="L100">            jo.put(name, x.nextTo('\0'));</span>
+<span class="fc" id="L101">            x.next();</span>
+<span class="fc" id="L102">        }</span>
+<span class="fc" id="L103">        return jo;</span>
+    }
+
+
+    /**
+     * Convert a JSONObject into an HTTP header. A request header must contain
+     * &lt;pre&gt;{
+     *    Method: &quot;POST&quot; (for example),
+     *    &quot;Request-URI&quot;: &quot;/&quot; (for example),
+     *    &quot;HTTP-Version&quot;: &quot;HTTP/1.1&quot; (for example)
+     * }&lt;/pre&gt;
+     * A response header must contain
+     * &lt;pre&gt;{
+     *    &quot;HTTP-Version&quot;: &quot;HTTP/1.1&quot; (for example),
+     *    &quot;Status-Code&quot;: &quot;200&quot; (for example),
+     *    &quot;Reason-Phrase&quot;: &quot;OK&quot; (for example)
+     * }&lt;/pre&gt;
+     * Any other members of the JSONObject will be output as HTTP fields.
+     * The result will end with two CRLF pairs.
+     * @param jo A JSONObject
+     * @return An HTTP header string.
+     * @throws JSONException if the object does not contain enough
+     *  information.
+     */
+    public static String toString(JSONObject jo) throws JSONException {
+<span class="fc" id="L128">        StringBuilder       sb = new StringBuilder();</span>
+<span class="pc bpc" id="L129" title="1 of 4 branches missed.">        if (jo.has(&quot;Status-Code&quot;) &amp;&amp; jo.has(&quot;Reason-Phrase&quot;)) {</span>
+<span class="fc" id="L130">            sb.append(jo.getString(&quot;HTTP-Version&quot;));</span>
+<span class="fc" id="L131">            sb.append(' ');</span>
+<span class="fc" id="L132">            sb.append(jo.getString(&quot;Status-Code&quot;));</span>
+<span class="fc" id="L133">            sb.append(' ');</span>
+<span class="fc" id="L134">            sb.append(jo.getString(&quot;Reason-Phrase&quot;));</span>
+<span class="pc bpc" id="L135" title="1 of 4 branches missed.">        } else if (jo.has(&quot;Method&quot;) &amp;&amp; jo.has(&quot;Request-URI&quot;)) {</span>
+<span class="fc" id="L136">            sb.append(jo.getString(&quot;Method&quot;));</span>
+<span class="fc" id="L137">            sb.append(' ');</span>
+<span class="fc" id="L138">            sb.append('&quot;');</span>
+<span class="fc" id="L139">            sb.append(jo.getString(&quot;Request-URI&quot;));</span>
+<span class="fc" id="L140">            sb.append('&quot;');</span>
+<span class="fc" id="L141">            sb.append(' ');</span>
+<span class="fc" id="L142">            sb.append(jo.getString(&quot;HTTP-Version&quot;));</span>
+        } else {
+<span class="fc" id="L144">            throw new JSONException(&quot;Not enough material for an HTTP header.&quot;);</span>
+        }
+<span class="fc" id="L146">        sb.append(CRLF);</span>
+        // Don't use the new entrySet API to maintain Android support
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (final String key : jo.keySet()) {</span>
+<span class="fc" id="L149">            String value = jo.optString(key);</span>
+<span class="fc bfc" id="L150" title="All 4 branches covered.">            if (!&quot;HTTP-Version&quot;.equals(key)      &amp;&amp; !&quot;Status-Code&quot;.equals(key) &amp;&amp;</span>
+<span class="fc bfc" id="L151" title="All 4 branches covered.">                    !&quot;Reason-Phrase&quot;.equals(key) &amp;&amp; !&quot;Method&quot;.equals(key) &amp;&amp;</span>
+<span class="pc bpc" id="L152" title="1 of 4 branches missed.">                    !&quot;Request-URI&quot;.equals(key)   &amp;&amp; !JSONObject.NULL.equals(value)) {</span>
+<span class="fc" id="L153">                sb.append(key);</span>
+<span class="fc" id="L154">                sb.append(&quot;: &quot;);</span>
+<span class="fc" id="L155">                sb.append(jo.optString(key));</span>
+<span class="fc" id="L156">                sb.append(CRLF);</span>
+            }
+<span class="fc" id="L158">        }</span>
+<span class="fc" id="L159">        sb.append(CRLF);</span>
+<span class="fc" id="L160">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

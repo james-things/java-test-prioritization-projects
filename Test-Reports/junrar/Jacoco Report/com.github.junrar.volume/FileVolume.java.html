@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileVolume.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.volume</a> &gt; <span class="el_source">FileVolume.java</span></div><h1>FileVolume.java</h1><pre class="source lang-java linenums">package com.github.junrar.volume;
+
+import com.github.junrar.Archive;
+import com.github.junrar.io.SeekableReadOnlyByteChannel;
+import com.github.junrar.io.SeekableReadOnlyFile;
+
+import java.io.File;
+import java.io.IOException;
+
+
+/**
+ * @author &lt;a href=&quot;http://www.rogiel.com&quot;&gt;Rogiel&lt;/a&gt;
+ *
+ */
+public class FileVolume implements Volume {
+    private final Archive archive;
+    private final File file;
+
+    /**
+     * @param archive .
+     * @param file .
+     */
+<span class="fc" id="L23">    public FileVolume(Archive archive, File file) {</span>
+<span class="fc" id="L24">        this.archive = archive;</span>
+<span class="fc" id="L25">        this.file = file;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public SeekableReadOnlyByteChannel getChannel() throws IOException {
+<span class="fc" id="L30">        return new SeekableReadOnlyFile(file);</span>
+    }
+
+    @Override
+    public long getLength() {
+<span class="fc" id="L35">        return file.length();</span>
+    }
+
+    @Override
+    public Archive getArchive() {
+<span class="nc" id="L40">        return archive;</span>
+    }
+
+    /**
+     * @return the file
+     */
+    public File getFile() {
+<span class="fc" id="L47">        return file;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

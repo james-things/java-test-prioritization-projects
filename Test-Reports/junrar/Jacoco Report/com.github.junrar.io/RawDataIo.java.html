@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RawDataIo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.io</a> &gt; <span class="el_source">RawDataIo.java</span></div><h1>RawDataIo.java</h1><pre class="source lang-java linenums">package com.github.junrar.io;
+
+import javax.crypto.Cipher;
+import java.io.IOException;
+import java.util.LinkedList;
+
+public class RawDataIo implements SeekableReadOnlyByteChannel {
+<span class="fc" id="L8">    private Cipher cipher = null;</span>
+    private final SeekableReadOnlyByteChannel underlyingByteChannel;
+<span class="fc" id="L10">    private boolean isEncrypted = false;</span>
+<span class="fc" id="L11">    private final LinkedList&lt;Byte&gt; dataPool = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L12">    private final byte[] reused = new byte[1];</span>
+
+<span class="fc" id="L14">    public RawDataIo(SeekableReadOnlyByteChannel channel) {</span>
+<span class="fc" id="L15">        this.underlyingByteChannel = channel;</span>
+<span class="fc" id="L16">    }</span>
+
+    public Cipher getCipher() {
+<span class="nc" id="L19">        return cipher;</span>
+    }
+
+    public void setCipher(Cipher cipher) {
+<span class="fc" id="L23">        this.cipher = cipher;</span>
+<span class="fc" id="L24">        isEncrypted = true;</span>
+<span class="fc" id="L25">    }</span>
+
+    @Override
+    public long getPosition() throws IOException {
+<span class="nc" id="L29">        return underlyingByteChannel.getPosition();</span>
+    }
+
+    @Override
+    public void setPosition(long pos) throws IOException {
+<span class="nc" id="L34">        underlyingByteChannel.setPosition(pos);</span>
+<span class="nc" id="L35">    }</span>
+
+    @Override
+    public int read() throws IOException {
+<span class="nc" id="L39">        read(reused, 0, 1);</span>
+<span class="nc" id="L40">        return reused[0];</span>
+    }
+
+    @Override
+    public int read(byte[] buffer, int off, int count) throws IOException {
+<span class="fc" id="L45">        byte[] tmp = new byte[count];</span>
+<span class="fc" id="L46">        int size = readFully(tmp, count);</span>
+<span class="fc" id="L47">        System.arraycopy(tmp, 0, buffer, off, count);</span>
+<span class="fc" id="L48">        return size;</span>
+    }
+
+    @Override
+    public int readFully(byte[] buffer, int count) throws IOException {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (isEncrypted) {</span>
+<span class="fc" id="L54">            int remainingSize = dataPool.size();</span>
+<span class="fc" id="L55">            int toRead = count - remainingSize;</span>
+<span class="fc" id="L56">            int realRead = toRead + ((~toRead + 1) &amp; 0xF);</span>
+<span class="fc" id="L57">            byte[] tmp = new byte[realRead];</span>
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            if (realRead &gt; 0) {</span>
+<span class="fc" id="L60">                underlyingByteChannel.readFully(tmp, realRead);</span>
+<span class="fc" id="L61">                byte[] decrypted = cipher.update(tmp);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                for (int i = 0; i &lt; decrypted.length; i++) {</span>
+<span class="fc" id="L63">                    dataPool.add(decrypted[i]);</span>
+                }
+            }
+
+<span class="fc" id="L67">            int realReadSize = 0;</span>
+<span class="pc bpc" id="L68" title="1 of 4 branches missed.">            for (int i = 0; i &lt; count &amp;&amp; !dataPool.isEmpty(); i++) {</span>
+<span class="fc" id="L69">                buffer[i] = dataPool.poll();</span>
+<span class="fc" id="L70">                realReadSize++;</span>
+            }
+<span class="fc" id="L72">            return realReadSize;</span>
+
+        } else {
+<span class="fc" id="L75">            return underlyingByteChannel.readFully(buffer, count);</span>
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+<span class="nc" id="L81">        this.underlyingByteChannel.close();</span>
+<span class="nc" id="L82">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

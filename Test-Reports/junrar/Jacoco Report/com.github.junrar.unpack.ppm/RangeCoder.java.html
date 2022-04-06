@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RangeCoder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.ppm</a> &gt; <span class="el_source">RangeCoder.java</span></div><h1>RangeCoder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.ppm;
+
+import java.io.IOException;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.unpack.Unpack;
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="fc" id="L32">public class RangeCoder {</span>
+    public static final int TOP = 1 &lt;&lt; 24;
+
+    public static final int BOT = 1 &lt;&lt; 15;
+
+    private static final long uintMask = 0xFFFFffffL;
+
+    // uint low, code, range;
+    private long low, code, range;
+
+<span class="fc" id="L42">    private final SubRange subRange = new SubRange();</span>
+
+    private Unpack unpackRead;
+
+    public SubRange getSubRange() {
+<span class="fc" id="L47">        return subRange;</span>
+    }
+
+    public void initDecoder(Unpack unpackRead) throws IOException, RarException {
+<span class="fc" id="L51">        this.unpackRead = unpackRead;</span>
+
+<span class="fc" id="L53">        low = code = 0L;</span>
+<span class="fc" id="L54">        range = 0xFFFFffffL;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i++) {</span>
+<span class="fc" id="L56">            code = ((code &lt;&lt; 8) | getChar()) &amp; uintMask;</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    public int getCurrentCount() {
+<span class="fc" id="L61">        range = (range / subRange.getScale()) &amp; uintMask;</span>
+<span class="fc" id="L62">        return (int) ((code - low) / (range));</span>
+    }
+
+    public long getCurrentShiftCount(int SHIFT) {
+<span class="fc" id="L66">        range = range &gt;&gt;&gt; SHIFT;</span>
+<span class="fc" id="L67">        return ((code - low) / (range)) &amp; uintMask;</span>
+    }
+
+    public void decode() {
+<span class="fc" id="L71">        low = (low + (range * subRange.getLowCount())) &amp; uintMask;</span>
+<span class="fc" id="L72">        range = (range * (subRange.getHighCount() - subRange.getLowCount())) &amp; uintMask;</span>
+<span class="fc" id="L73">    }</span>
+
+    private int getChar() throws IOException, RarException {
+<span class="fc" id="L76">        return (unpackRead.getChar());</span>
+    }
+
+    public void ariDecNormalize() throws IOException, RarException {
+//        while ((low ^ (low + range)) &lt; TOP || range &lt; BOT &amp;&amp; ((range = -low &amp; (BOT - 1)) != 0 ? true : true))
+//        {
+//            code = ((code &lt;&lt; 8) | unpackRead.getChar()&amp;0xff)&amp;uintMask;
+//            range = (range &lt;&lt; 8)&amp;uintMask;
+//            low = (low &lt;&lt; 8)&amp;uintMask;
+//        }
+
+        // Rewrote for clarity
+<span class="fc" id="L88">        boolean c2 = false;</span>
+<span class="pc bpc" id="L89" title="2 of 6 branches missed.">        while ((low ^ (low + range)) &lt; TOP || (c2 = range &lt; BOT)) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (c2) {</span>
+<span class="nc" id="L91">                range = (-low &amp; (BOT - 1)) &amp; uintMask;</span>
+<span class="nc" id="L92">                c2 = false;</span>
+            }
+<span class="fc" id="L94">            code = ((code &lt;&lt; 8) | getChar()) &amp; uintMask;</span>
+<span class="fc" id="L95">            range = (range &lt;&lt; 8) &amp; uintMask;</span>
+<span class="fc" id="L96">            low = (low &lt;&lt; 8) &amp; uintMask;</span>
+        }
+<span class="fc" id="L98">    }</span>
+
+    // Debug
+    public String toString() {
+<span class="nc" id="L102">        StringBuilder buffer = new StringBuilder();</span>
+<span class="nc" id="L103">        buffer.append(&quot;RangeCoder[&quot;);</span>
+<span class="nc" id="L104">        buffer.append(&quot;\n  low=&quot;);</span>
+<span class="nc" id="L105">        buffer.append(low);</span>
+<span class="nc" id="L106">        buffer.append(&quot;\n  code=&quot;);</span>
+<span class="nc" id="L107">        buffer.append(code);</span>
+<span class="nc" id="L108">        buffer.append(&quot;\n  range=&quot;);</span>
+<span class="nc" id="L109">        buffer.append(range);</span>
+<span class="nc" id="L110">        buffer.append(&quot;\n  subrange=&quot;);</span>
+<span class="nc" id="L111">        buffer.append(subRange);</span>
+<span class="nc" id="L112">        buffer.append(&quot;]&quot;);</span>
+<span class="nc" id="L113">        return buffer.toString();</span>
+    }
+
+<span class="fc" id="L116">    public static class SubRange {</span>
+        // uint LowCount, HighCount, scale;
+        private long lowCount, highCount, scale;
+
+        public long getHighCount() {
+<span class="fc" id="L121">            return highCount;</span>
+        }
+
+        public void setHighCount(long highCount) {
+<span class="fc" id="L125">            this.highCount = highCount &amp; uintMask;</span>
+<span class="fc" id="L126">        }</span>
+
+        public long getLowCount() {
+<span class="fc" id="L129">            return lowCount &amp; uintMask;</span>
+        }
+
+        public void setLowCount(long lowCount) {
+<span class="fc" id="L133">            this.lowCount = lowCount &amp; uintMask;</span>
+<span class="fc" id="L134">        }</span>
+
+        public long getScale() {
+<span class="fc" id="L137">            return scale;</span>
+        }
+
+        public void setScale(long scale) {
+<span class="fc" id="L141">            this.scale = scale &amp; uintMask;</span>
+<span class="fc" id="L142">        }</span>
+
+        public void incScale(int dScale) {
+<span class="fc" id="L145">            setScale(getScale() + dScale);</span>
+<span class="fc" id="L146">        }</span>
+
+        // Debug
+        public String toString() {
+<span class="nc" id="L150">            StringBuilder buffer = new StringBuilder();</span>
+<span class="nc" id="L151">            buffer.append(&quot;SubRange[&quot;);</span>
+<span class="nc" id="L152">            buffer.append(&quot;\n  lowCount=&quot;);</span>
+<span class="nc" id="L153">            buffer.append(lowCount);</span>
+<span class="nc" id="L154">            buffer.append(&quot;\n  highCount=&quot;);</span>
+<span class="nc" id="L155">            buffer.append(highCount);</span>
+<span class="nc" id="L156">            buffer.append(&quot;\n  scale=&quot;);</span>
+<span class="nc" id="L157">            buffer.append(scale);</span>
+<span class="nc" id="L158">            buffer.append(&quot;]&quot;);</span>
+<span class="nc" id="L159">            return buffer.toString();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

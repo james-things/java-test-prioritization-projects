@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HeapSort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.sort.generalpurpose.heap</a> &gt; <span class="el_source">HeapSort.java</span></div><h1>HeapSort.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.sort.generalpurpose.heap;
+
+import static com.sl.algorithms.core.utils.ArrayOps.swap;
+
+import com.sl.algorithms.core.interfaces.sort.SortingEngine;
+import com.sl.algorithms.core.list.ListNode;
+
+/**
+ * &lt;p&gt;An in-place non-stable sort algorithm with O(nlogn) time-complexity.&lt;/p&gt; &lt;br&gt;&lt;a
+ * href=&quot;https://brilliant.org/wiki/heap-sort/&quot;&gt;Reference Reading 1&lt;/a&gt; &lt;br&gt;&lt;a
+ * href=&quot;https://www.hackerearth.com/practice/algorithms/sorting/heap-sort/tutorial/&quot;&gt;Reference
+ * Reading 3&lt;/a&gt;
+ */
+public class HeapSort&lt;T extends Comparable&gt; implements SortingEngine&lt;T&gt; {
+
+  private HeapType heapType;
+
+<span class="fc" id="L18">  public HeapSort(HeapType _heapType) {</span>
+<span class="fc" id="L19">    heapType = _heapType;</span>
+<span class="fc" id="L20">  }</span>
+
+  @Override
+  public void sort(T[] objects) {
+<span class="fc" id="L24">    checkArray(objects);</span>
+<span class="fc" id="L25">    int n = objects.length;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    if (n == 1) {</span>
+<span class="fc" id="L27">      return;</span>
+    }
+<span class="fc" id="L29">    heapSort(objects, n);</span>
+<span class="fc" id="L30">  }</span>
+
+  private void heapSort(T[] objects, int n) {
+<span class="fc" id="L33">    buildHeap(objects, n);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    for (int i = n - 1; i &gt; -1; i--) {</span>
+<span class="fc" id="L35">      swap(objects, 0, i);</span>
+<span class="fc" id="L36">      n--;</span>
+<span class="fc" id="L37">      heapify(objects, n, 0);</span>
+    }
+<span class="fc" id="L39">  }</span>
+
+  private void buildHeap(T[] objects, int n) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">    for (int i = n / 2; i &gt; -1; i--) {</span>
+<span class="fc" id="L43">      heapify(objects, n, i);</span>
+    }
+<span class="fc" id="L45">  }</span>
+
+  // logN
+  private void heapify(T[] objects, int n, int i) {
+<span class="pc bpc" id="L49" title="1 of 3 branches missed.">    switch (heapType) {</span>
+      case MAX_HEAP: {
+<span class="fc" id="L51">        max_heapify(objects, n, i);</span>
+<span class="fc" id="L52">        break;</span>
+      }
+      case MIN_HEAP: {
+<span class="fc" id="L55">        min_heapify(objects, n, i);</span>
+        break;
+      }
+    }
+<span class="fc" id="L59">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  private void max_heapify(T[] a, int n, int i) {
+<span class="fc" id="L63">    int max = i;</span>
+<span class="fc" id="L64">    int left = 2 * i + 1;</span>
+<span class="fc" id="L65">    int right = 2 * i + 2;</span>
+<span class="fc bfc" id="L66" title="All 4 branches covered.">    if (left &lt; n &amp;&amp; a[left].compareTo(a[max]) &gt; 0) {</span>
+<span class="fc" id="L67">      max = left;</span>
+    }
+<span class="fc bfc" id="L69" title="All 4 branches covered.">    if (right &lt; n &amp;&amp; a[right].compareTo(a[max]) &gt; 0) {</span>
+<span class="fc" id="L70">      max = right;</span>
+    }
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (max != i) { // 1 or 2 of the above 2 checks were true</span>
+<span class="fc" id="L73">      swap(a, i, max);</span>
+<span class="fc" id="L74">      max_heapify(a, n, max);</span>
+    }
+<span class="fc" id="L76">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  private void min_heapify(T[] a, int n, int i) {
+<span class="fc" id="L80">    int min = i;</span>
+<span class="fc" id="L81">    int left = 2 * i + 1;</span>
+<span class="fc" id="L82">    int right = 2 * i + 2;</span>
+<span class="fc bfc" id="L83" title="All 4 branches covered.">    if (left &lt; n &amp;&amp; a[left].compareTo(a[min]) &lt; 0) {</span>
+<span class="fc" id="L84">      min = left;</span>
+    }
+<span class="fc bfc" id="L86" title="All 4 branches covered.">    if (right &lt; n &amp;&amp; a[right].compareTo(a[min]) &lt; 0) {</span>
+<span class="fc" id="L87">      min = right;</span>
+    }
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (min != i) {</span>
+<span class="fc" id="L90">      swap(a, min, i);</span>
+<span class="fc" id="L91">      min_heapify(a, n, min);</span>
+    }
+<span class="fc" id="L93">  }</span>
+
+  @Override
+  public ListNode&lt;T&gt; sortList(ListNode&lt;T&gt; head) {
+<span class="fc" id="L97">    throw new UnsupportedOperationException();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

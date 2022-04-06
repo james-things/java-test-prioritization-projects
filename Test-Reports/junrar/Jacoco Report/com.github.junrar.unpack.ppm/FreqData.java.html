@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FreqData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.ppm</a> &gt; <span class="el_source">FreqData.java</span></div><h1>FreqData.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 04.06.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.ppm;
+
+import com.github.junrar.io.Raw;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class FreqData extends Pointer {
+
+    public static final int size = 6;
+
+//    struct FreqData
+//    {
+//        ushort SummFreq;
+//        STATE _PACK_ATTR * Stats;
+//    };
+
+    public FreqData(byte[]mem) {
+<span class="fc" id="L39">        super(mem);</span>
+<span class="fc" id="L40">    }</span>
+
+    public FreqData init(byte[] mem) {
+<span class="fc" id="L43">        this.mem = mem;</span>
+<span class="fc" id="L44">        pos = 0;</span>
+<span class="fc" id="L45">        return this;</span>
+    }
+
+    public int getSummFreq() {
+<span class="fc" id="L49">        return Raw.readShortLittleEndian(mem,  pos) &amp; 0xffff;</span>
+    }
+
+    public void setSummFreq(int summFreq) {
+<span class="fc" id="L53">        Raw.writeShortLittleEndian(mem, pos, (short) summFreq);</span>
+<span class="fc" id="L54">    }</span>
+
+    public void incSummFreq(int dSummFreq) {
+<span class="fc" id="L57">        Raw.incShortLittleEndian(mem, pos, dSummFreq);</span>
+<span class="fc" id="L58">    }</span>
+
+    public int getStats() {
+<span class="fc" id="L61">        return Raw.readIntLittleEndian(mem,  pos + 2);</span>
+    }
+
+    public void setStats(State state) {
+<span class="fc" id="L65">        setStats(state.getAddress());</span>
+<span class="fc" id="L66">    }</span>
+
+    public void setStats(int state) {
+<span class="fc" id="L69">        Raw.writeIntLittleEndian(mem, pos + 2, state);</span>
+<span class="fc" id="L70">    }</span>
+
+    public String toString() {
+<span class="nc" id="L73">        StringBuilder buffer = new StringBuilder();</span>
+<span class="nc" id="L74">        buffer.append(&quot;FreqData[&quot;);</span>
+<span class="nc" id="L75">        buffer.append(&quot;\n  pos=&quot;);</span>
+<span class="nc" id="L76">        buffer.append(pos);</span>
+<span class="nc" id="L77">        buffer.append(&quot;\n  size=&quot;);</span>
+<span class="nc" id="L78">        buffer.append(size);</span>
+<span class="nc" id="L79">        buffer.append(&quot;\n  summFreq=&quot;);</span>
+<span class="nc" id="L80">        buffer.append(getSummFreq());</span>
+<span class="nc" id="L81">        buffer.append(&quot;\n  stats=&quot;);</span>
+<span class="nc" id="L82">        buffer.append(getStats());</span>
+<span class="nc" id="L83">        buffer.append(&quot;\n]&quot;);</span>
+<span class="nc" id="L84">        return buffer.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

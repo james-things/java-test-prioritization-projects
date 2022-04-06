@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringOps.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.utils</a> &gt; <span class="el_source">StringOps.java</span></div><h1>StringOps.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.utils;
+
+import com.sl.algorithms.core.interfaces.base.Constants;
+import java.util.ArrayList;
+import java.util.List;
+
+public class StringOps implements Constants {
+
+<span class="fc" id="L9">  StringOps() {</span>
+    /**
+     * This is a utility class.&lt;br&gt;
+     */
+<span class="fc" id="L13">  }</span>
+
+  /**
+   * &lt;br&gt;Convert a given string to integer.&lt;br&gt; &lt;br&gt;1. Validate that the string only contains digits
+   * or (, +, -) signs. &lt;br&gt;2. If the string starts with '.' then it is immaterial value; break
+   * wherever '.' is encountered. &lt;br&gt;3. Ignore leading spaces. &lt;br&gt;4. Handle overflow. &lt;br&gt;5. Honor
+   * sign ('-' or '+'/empty).
+   *
+   * @param str input string
+   * @return output integer
+   */
+  public static int atoi(String str) {
+<span class="fc bfc" id="L25" title="All 4 branches covered.">    if (str == null || str.length() == 0) {</span>
+<span class="fc" id="L26">      return 0;</span>
+    }
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    if (str.startsWith(&quot;.&quot;)) {</span>
+<span class="fc" id="L29">      return 0;</span>
+    }
+<span class="fc" id="L31">    long intValue = 0;</span>
+<span class="fc" id="L32">    int index = 0;</span>
+<span class="fc" id="L33">    boolean isNegative = false;</span>
+    // ignore leading spaces
+<span class="fc bfc" id="L35" title="All 4 branches covered.">    while (index &lt; str.length() &amp;&amp; str.charAt(index) == ' ') {</span>
+<span class="fc" id="L36">      index++;</span>
+    }
+    // check sign
+<span class="fc bfc" id="L39" title="All 6 branches covered.">    if (index &lt; str.length() &amp;&amp; (str.charAt(index) == '-' || str.charAt(index) == '+')) {</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">      isNegative = (str.charAt(index) == '-');</span>
+<span class="fc" id="L41">      index++;</span>
+    }
+<span class="fc bfc" id="L43" title="All 2 branches covered.">    while (index &lt; str.length()) {</span>
+<span class="fc" id="L44">      char c = str.charAt(index);</span>
+<span class="fc" id="L45">      int digit = c - '0';</span>
+      // validate
+<span class="fc bfc" id="L47" title="All 4 branches covered.">      if (digit &lt; 0 || digit &gt; 9) { // all digits are in the range of 48-&gt;57</span>
+<span class="fc" id="L48">        break;</span>
+      }
+      // compute value
+<span class="fc" id="L51">      intValue = intValue * DECIMAL_RADIX + digit;</span>
+      // handle overflow
+<span class="fc bfc" id="L53" title="All 2 branches covered.">      if (intValue &gt; Integer.MAX_VALUE) {</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        intValue = isNegative ? Integer.MIN_VALUE : Integer.MAX_VALUE;</span>
+<span class="fc" id="L55">        break;</span>
+      }
+<span class="fc" id="L57">      index++;</span>
+<span class="fc" id="L58">    }</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    if (isNegative) {</span>
+<span class="fc" id="L60">      intValue *= -1;</span>
+    }
+<span class="fc" id="L62">    return (int) intValue;</span>
+  }
+
+  /**
+   * &lt;br&gt;Print all case-sensitive permutations of a string, without changing the positions of any
+   * characters.&lt;br&gt; &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/letter-case-permutation/description/&quot;&gt;Problem
+   * Reference&lt;/a&gt;&lt;br&gt;
+   *
+   * @param s string to introspect
+   * @return List of permutations, including the string itself
+   */
+  public static List&lt;String&gt; findPermutations(String s) {
+<span class="fc" id="L74">    List&lt;String&gt; outputList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L75" title="All 4 branches covered.">    if (s == null || s.length() == 0) {</span>
+<span class="fc" id="L76">      return outputList;</span>
+    }
+<span class="fc" id="L78">    int charCount = getCharCount(s);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (charCount == 0) {</span>
+<span class="fc" id="L80">      outputList.add(s);</span>
+<span class="fc" id="L81">      return outputList;</span>
+    }
+<span class="fc" id="L83">    int max = 1 &lt;&lt; charCount; // 2 raised to the power of charCount</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    for (int i = 0; i &lt; max; i++) {</span>
+<span class="fc" id="L85">      int j = 0;</span>
+<span class="fc" id="L86">      StringBuilder word = new StringBuilder();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">      for (char c : s.toCharArray()) {</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (Character.isLetter(c)) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">          if (isBitSet(i, j++)) {</span>
+<span class="fc" id="L90">            word.append(Character.toLowerCase(c));</span>
+          } else {
+<span class="fc" id="L92">            word.append(Character.toUpperCase(c));</span>
+          }
+        } else {
+<span class="fc" id="L95">          word.append(c);</span>
+        }
+      }
+<span class="fc" id="L98">      outputList.add(word.toString());</span>
+    }
+<span class="fc" id="L100">    return outputList;</span>
+  }
+
+  public static boolean isBitSet(int n, int offset) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    return ((n &gt;&gt; offset) &amp; 1) == 1;</span>
+  }
+
+  private static int getCharCount(String s) {
+<span class="fc" id="L108">    int charCount = 0;</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">    for (char c : s.toCharArray()) {</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">      if (Character.isLetter(c)) {</span>
+<span class="fc" id="L111">        charCount++;</span>
+      }
+    }
+<span class="fc" id="L114">    return charCount;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

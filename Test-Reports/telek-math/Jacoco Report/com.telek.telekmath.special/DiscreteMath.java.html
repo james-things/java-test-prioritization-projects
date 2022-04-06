@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscreteMath.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.special</a> &gt; <span class="el_source">DiscreteMath.java</span></div><h1>DiscreteMath.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.special;
+
+
+import com.telek.telekmath.utils.TMath;
+import com.telek.telekmath.core.constants.CryptoConstants;
+import com.telek.telekmath.utils.TelekMathException.*;
+import java.util.HashMap;
+
+
+public class DiscreteMath {
+
+    /* No constructor */
+    private DiscreteMath(){}
+
+    /**
+     * Returns the prime factorization of num as a HashMap object, use TUtils.stringifyFactors() to
+     * get this map as a String object
+     * @param num any number
+     * @return The prime factorization of num
+     */
+    public static String primeFactorization(long num){
+<span class="fc" id="L22">        HashMap&lt;Long, Long&gt; factors = new HashMap&lt;Long, Long&gt;();</span>
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if(num == 1) return &quot;1&quot;;</span>
+
+<span class="fc" id="L25">        long myNum = num;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        while(myNum != 1){</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">            for(long i = 2; i &lt;= myNum; i++){</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">                if( myNum % i == 0){</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">                    if(!factors.containsKey(i)) factors.put(i, 1L);</span>
+<span class="fc" id="L30">                    else factors.put(i, factors.get(i)+1 );</span>
+<span class="fc" id="L31">                    myNum /= i;</span>
+<span class="fc" id="L32">                    break;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L37">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        for(Long key : factors.keySet()) sb.append(String.format(&quot;%d^%d * &quot;, key, factors.get(key)));</span>
+<span class="fc" id="L39">        String text = sb.substring(0, sb.length()-3);</span>
+<span class="fc" id="L40">        return text.replaceAll(&quot;\\^1&quot;, &quot;&quot;);</span>
+    }
+
+
+
+
+
+    /**
+     * This functions exists only for educational purposes. &lt;br&gt;
+     * If you want a gcd(a,b) function use {@link TMath#gcd(int, int)}
+     * @param a any integer
+     * @param b any integer
+     * @return gcd(a,b) using the euclidean algorithm
+     */
+    public static int euclideanAlgorithm(int a, int b){
+<span class="fc" id="L55">        int num1 = Math.max(a,b);</span>
+<span class="fc" id="L56">        int num2 = Math.min(a,b);</span>
+<span class="fc" id="L57">        int divided = (int) Math.floor(num1 / num2);</span>
+<span class="fc" id="L58">        int remainder = num1 - divided * num2;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        while(remainder != 0){</span>
+<span class="fc" id="L60">            num1 = num2;</span>
+<span class="fc" id="L61">            num2 = remainder;</span>
+<span class="fc" id="L62">            divided = (int) Math.floor(num1 / num2);</span>
+<span class="fc" id="L63">            remainder = num1 - divided * num2;</span>
+        }
+<span class="fc" id="L65">        return num2;</span>
+    }
+
+
+
+
+    public static int getInBase10(String numberStrInAnyBase, int baseOfTheNumber){
+<span class="fc" id="L72">        return Integer.parseInt(numberStrInAnyBase, baseOfTheNumber);</span>
+    }
+
+
+    public static String getNumberInBase(int numberInBase10, int base){
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if(base == 10) return String.valueOf(numberInBase10);</span>
+<span class="fc" id="L78">        HashMap&lt;Integer, String&gt; dict = getHashMapWithBase(base);</span>
+<span class="fc" id="L79">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L80">        int num = numberInBase10;</span>
+<span class="fc" id="L81">        int divided = (int) Math.floor( num / base );</span>
+<span class="fc" id="L82">        int remainder = num - base * divided;</span>
+<span class="fc" id="L83">        sb.append( dict.get(remainder) );</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        while(divided != 0){</span>
+<span class="fc" id="L85">            num = divided;</span>
+<span class="fc" id="L86">            divided = (int) Math.floor( num / base );</span>
+<span class="fc" id="L87">            remainder = num - base * divided;</span>
+<span class="fc" id="L88">            sb.append( dict.get(remainder) );</span>
+        }
+<span class="fc" id="L90">        return sb.reverse().toString();</span>
+    }
+
+
+
+
+    /*  HELPERS  */
+
+    private static HashMap&lt;Integer, String&gt; getHashMapWithBase(int base){
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if(base &lt;= 10){</span>
+<span class="fc" id="L100">            HashMap&lt;Integer, String&gt; mapToReturn = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            for(int i = 0; i &lt; base; i++)  mapToReturn.put(i, String.valueOf(i));</span>
+<span class="fc" id="L102">            return mapToReturn;</span>
+        }
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        else if(base == 11) return CryptoConstants.baseEleven;</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        else if(base == 12) return CryptoConstants.baseTwelve;</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        else if(base == 13) return CryptoConstants.baseThirteen;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        else if(base == 14) return CryptoConstants.baseFourteen;</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        else if(base == 15) return CryptoConstants.baseFifteen;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        else if(base == 16) return CryptoConstants.baseSixteen;</span>
+<span class="nc" id="L110">        else throw new InvalidValueException(&quot;base&quot;, base);</span>
+    }
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

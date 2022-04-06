@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TClassUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekutils.plain</a> &gt; <span class="el_source">TClassUtils.java</span></div><h1>TClassUtils.java</h1><pre class="source lang-java linenums">package com.telek.telekutils.plain;
+
+
+import com.telek.telekmath.utils.TelekMathException;
+
+import java.lang.reflect.Field;
+
+public class TClassUtils {
+
+    /* No Constructor */
+    private TClassUtils(){}
+
+    public static int getFieldCount(Class&lt;?&gt; clazz){
+<span class="nc" id="L14">        return clazz.getFields().length;</span>
+    }
+
+    public static &lt;T extends Enum&gt; int getEnumConstantCount(Class&lt;T&gt; enumClass){
+<span class="nc" id="L18">        return enumClass.getEnumConstants().length;</span>
+    }
+
+
+
+    /**
+     * Same as writing array[i] but for a generic array. (T[] array) &lt;br&gt;
+     * &lt;b&gt;WARNING:&lt;/b&gt; the parameter `field` must extend Number otherwise you will get an Exception
+     * @param array any array
+     * @param field a field that extends {@link Number}
+     * @param index any integer
+     * @param &lt;T&gt; any class
+     * @return arr[i] for a generic array
+     * @throws IllegalAccessException
+     */
+    public static &lt;T&gt; double getValue(T[] array, Field field, int index) throws IllegalAccessException {
+<span class="fc" id="L34">        T currentTerm = array[index]; // get the xxx object</span>
+<span class="fc" id="L35">        Number value = (Number) field.get(currentTerm); // get that object's field's value (assuming that it extends Number)</span>
+<span class="fc" id="L36">        return value.doubleValue(); // return that Number's value as a double</span>
+    }
+
+
+    public static &lt;T&gt; Field getField(Class&lt;T&gt; clazz, String fieldStr) {
+        try{
+<span class="fc" id="L42">            return clazz.getDeclaredField(fieldStr);</span>
+        }
+<span class="nc" id="L44">        catch (NoSuchFieldException e) {</span>
+<span class="nc" id="L45">            e.printStackTrace();</span>
+        }
+<span class="nc" id="L47">        catch (SecurityException e) {</span>
+<span class="nc" id="L48">            e.printStackTrace();</span>
+<span class="nc" id="L49">        }</span>
+<span class="nc" id="L50">        throw new TelekMathException.ThisLineIsNeverExecutedException();</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

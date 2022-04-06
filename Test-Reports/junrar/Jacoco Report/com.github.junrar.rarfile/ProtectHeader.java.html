@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProtectHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">ProtectHeader.java</span></div><h1>ProtectHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 24.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+
+/**
+ * recovery header
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class ProtectHeader extends BlockHeader {
+
+    /**
+     * the header size
+     */
+    public static final int protectHeaderSize = 8;
+
+    private byte version;
+    private final short recSectors;
+    private final int totalBlocks;
+    private byte mark;
+
+
+    public ProtectHeader(BlockHeader bh, byte[] protectHeader) {
+<span class="nc" id="L43">        super(bh);</span>
+
+<span class="nc" id="L45">        int pos = 0;</span>
+<span class="nc" id="L46">        version |= protectHeader[pos] &amp; 0xff;</span>
+
+<span class="nc" id="L48">        recSectors = Raw.readShortLittleEndian(protectHeader, pos);</span>
+<span class="nc" id="L49">        pos += 2;</span>
+<span class="nc" id="L50">        totalBlocks = Raw.readIntLittleEndian(protectHeader, pos);</span>
+<span class="nc" id="L51">        pos += 4;</span>
+<span class="nc" id="L52">        mark |= protectHeader[pos] &amp; 0xff;</span>
+<span class="nc" id="L53">    }</span>
+
+
+    public byte getMark() {
+<span class="nc" id="L57">        return mark;</span>
+    }
+
+    public short getRecSectors() {
+<span class="nc" id="L61">        return recSectors;</span>
+    }
+
+    public int getTotalBlocks() {
+<span class="nc" id="L65">        return totalBlocks;</span>
+    }
+
+    public byte getVersion() {
+<span class="nc" id="L69">        return version;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComplexNumber.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.numbers</a> &gt; <span class="el_source">ComplexNumber.java</span></div><h1>ComplexNumber.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.numbers;
+
+
+import com.telek.telekmath.utils.TMath;
+import java.util.Objects;
+
+
+/**
+ * An immutable complex number class. &lt;br&gt;
+ */
+public class ComplexNumber {
+
+    private final double real, imaginary;
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+<span class="fc" id="L19">    public ComplexNumber(double real, double imaginary){</span>
+<span class="fc" id="L20">        this.real = real;</span>
+<span class="fc" id="L21">        this.imaginary = imaginary;</span>
+<span class="fc" id="L22">    }</span>
+
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    public boolean hasImaginaryPart(){ return this.imaginary != 0; }</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">    public boolean hasRealPart(){ return this.real != 0; }</span>
+
+    public ComplexNumber add(ComplexNumber z2){
+<span class="fc" id="L36">        return new ComplexNumber( this.real + z2.real, this.imaginary + z2.imaginary);</span>
+    }
+
+    public ComplexNumber subtract(ComplexNumber z2){
+<span class="fc" id="L40">        return new ComplexNumber( this.real - z2.real, this.imaginary - z2.imaginary);</span>
+    }
+
+    public ComplexNumber multiply(ComplexNumber z2){
+<span class="fc" id="L44">        return new ComplexNumber(</span>
+            (this.real * z2.real) - (this.imaginary * z2.imaginary),
+            (this.real * z2.imaginary) + (this.imaginary * z2.real)
+        );
+    }
+
+    public ComplexNumber conjugate(){
+<span class="fc" id="L51">        return new ComplexNumber( this.getReal(), -this.getImaginary());</span>
+    }
+
+    public ComplexNumber divide(ComplexNumber z2){
+<span class="nc" id="L55">        ComplexNumber up = this.multiply(z2.conjugate()); // z1 * z2conj</span>
+<span class="nc" id="L56">        final double divid = z2.getImaginary() * z2.getImaginary() + z2.getReal() * z2.getReal();</span>
+<span class="nc" id="L57">        return new ComplexNumber(up.real / divid, up.imaginary / divid);</span>
+    }
+
+    public ComplexNumber reciprocal(){
+<span class="fc" id="L61">        double distFromOrigin = this.distanceFromOrigin();</span>
+<span class="fc" id="L62">        double distFromOrigin2 = distFromOrigin * distFromOrigin;</span>
+<span class="fc" id="L63">        return new ComplexNumber( this.getReal() / distFromOrigin2, -this.getImaginary() / distFromOrigin2);</span>
+    }
+
+    public double distanceFromOrigin(){
+<span class="fc" id="L67">        return Math.sqrt( (this.getImaginary() * this.getImaginary()) + (this.getReal() * this.getReal()) );</span>
+    }
+
+
+    /*  GETTERS AND SETTERS  */
+<span class="fc" id="L72">    public double getReal() { return real; }</span>
+<span class="fc" id="L73">    public double getImaginary() { return imaginary; }</span>
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+<span class="nc" id="L80">        double real = this.getReal();</span>
+<span class="nc" id="L81">        double imag = this.getImaginary();</span>
+<span class="nc bnc" id="L82" title="All 4 branches missed.">        if(real != 0 &amp;&amp; imag != 0) return String.format(&quot;%.5f + %.5f i&quot;, real, imag);</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">        else if(real != 0 &amp;&amp; imag == 0) return String.format(&quot;%.5f&quot;, real);</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">        else if(real == 0 &amp;&amp; imag != 0) return String.format(&quot;%.5f i&quot;, imag);</span>
+<span class="nc" id="L85">        else return &quot;0&quot;;</span>
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L93">        ComplexNumber that = (ComplexNumber) o;</span>
+<span class="pc bpc" id="L94" title="1 of 4 branches missed.">        return TMath.areEqual(that.real, real) &amp;&amp; TMath.areEqual(that.imaginary, imaginary);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L99">        return Objects.hash(real, imaginary);</span>
+    }
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

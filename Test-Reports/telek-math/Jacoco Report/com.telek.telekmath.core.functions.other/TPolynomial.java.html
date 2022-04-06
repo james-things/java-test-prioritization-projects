@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TPolynomial.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.functions.other</a> &gt; <span class="el_source">TPolynomial.java</span></div><h1>TPolynomial.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.functions.other;
+
+import com.telek.telekmath.core.functions.*;
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.utils.TelekMathException.*;
+import com.telek.telekutils.containers.TArrays;
+
+import java.util.Arrays;
+
+
+public class TPolynomial extends AbstractFunction {
+
+
+    /*  CONSTANTS  */
+<span class="fc" id="L15">    public static final TPolynomial CRC_12 = new TPolynomial(new double[]{1d, 1d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 1d, 1d});</span>
+<span class="fc" id="L16">    public static final TPolynomial CRC_16 = new TPolynomial(new double[]{1d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 1d, 1d});</span>
+<span class="fc" id="L17">    public static final TPolynomial CRC_ITU = new TPolynomial(new double[]{1d, 0d, 0d, 0d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 0d, 1d, 0d, 0d, 0d, 1d});</span>
+<span class="fc" id="L18">    public static final TPolynomial CRC_32 = new TPolynomial(new double[]{1d, 1d, 1d, 0d, 1d, 1d, 0d, 1d, 1d, 0d, 1d, 1d, 1d, 0d, 0d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 1d, 1d, 0d, 0d, 1d, 0d, 0d, 0d, 0d, 0d, 1d});</span>
+
+    /*  FIELDS  */
+    private final double[] coefficients;
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+
+    public TPolynomial(TRange range, double... coefficients) {
+<span class="fc" id="L30">        super(range);</span>
+<span class="pc bpc" id="L31" title="1 of 4 branches missed.">        if(coefficients[coefficients.length-1] == 0d &amp;&amp; coefficients.length != 1)</span>
+<span class="nc" id="L32">            throw new UnnecessaryZeroException();</span>
+<span class="fc" id="L33">        this.coefficients = coefficients;</span>
+<span class="fc" id="L34">    }</span>
+
+
+    /**
+     * Unlike MATLAB, this constructor reads the values from small exponents to higher exponents. &lt;br&gt;
+     * For example [1,0,1,9] means 1 + x^2 + 9x^3, in MATLAB in would mean x^3+x+9...
+     * @param coefficients an array specifying the coefficient of the polynomial terms
+     */
+    public TPolynomial(double... coefficients) {
+<span class="fc" id="L43">        this(TRange.REEL_NUMBERS, coefficients);</span>
+<span class="fc" id="L44">    }</span>
+
+
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+
+
+    public TPolynomial add(TPolynomial other){
+<span class="fc" id="L56">        int thisLen = this.coefficients.length;</span>
+<span class="fc" id="L57">        int otherLen = other.coefficients.length;</span>
+<span class="fc" id="L58">        int newLength = Math.max(thisLen, otherLen);</span>
+<span class="fc" id="L59">        double[] newCoefs = new double[newLength];</span>
+
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        for (int i = 0; i &lt; newLength; i++) {</span>
+<span class="fc" id="L62">            newCoefs[i] = 0d;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            if(i &lt; thisLen) newCoefs[i] += this.coefficients[i];</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            if(i &lt; otherLen) newCoefs[i] += other.coefficients[i];</span>
+        }
+
+<span class="fc" id="L67">        return new TPolynomial(TRange.getBiggerRange(this.range, other.range), newCoefs);</span>
+    }
+
+
+    public TPolynomial subtract(TPolynomial other){
+<span class="fc" id="L72">        int thisLen = this.coefficients.length;</span>
+<span class="fc" id="L73">        int otherLen = other.coefficients.length;</span>
+<span class="fc" id="L74">        int newLength = Math.max(thisLen, otherLen);</span>
+<span class="fc" id="L75">        double[] newCoefs = new double[newLength];</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        for (int i = 0; i &lt; newLength; i++) {</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            double first = i &lt; thisLen ? this.coefficients[i] : 0d;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            double second = i &lt; otherLen ? other.coefficients[i] : 0d;</span>
+<span class="fc" id="L80">            newCoefs[i] += first - second;</span>
+        }
+
+<span class="fc" id="L83">        return new TPolynomial(TRange.getBiggerRange(this.range, other.range), newCoefs);</span>
+    }
+
+
+    public TPolynomial multiply(TPolynomial other){
+<span class="fc" id="L88">        int m = this.coefficients.length;</span>
+<span class="fc" id="L89">        int n = other.coefficients.length;</span>
+<span class="fc" id="L90">        int totalLength = m + n - 1;</span>
+
+<span class="fc" id="L92">        double[] result = new double[totalLength];</span>
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        for (int i = 0; i &lt; m; i++)</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            for (int j = 0; j &lt; n; j++)</span>
+<span class="fc" id="L96">                result[i + j] += this.coefficients[i] * other.coefficients[j];</span>
+
+<span class="fc" id="L98">        return new TPolynomial(TRange.getBiggerRange(this.range, other.range), result);</span>
+    }
+
+
+
+
+
+
+
+
+    public double getCoefficientOfDegree(int degree){
+<span class="fc" id="L109">        int maxDegree = getMaxDegree();</span>
+<span class="pc bpc" id="L110" title="2 of 4 branches missed.">        if(degree &lt; 0 || degree &gt; maxDegree) return 0d;</span>
+<span class="fc" id="L111">        return this.coefficients[degree];</span>
+    }
+
+
+    public int getMaxDegree(){
+<span class="fc" id="L116">        return this.coefficients.length - 1;</span>
+    }
+
+
+    public boolean hasTerm(int degree){
+<span class="fc" id="L121">        int maxDegree = getMaxDegree();</span>
+<span class="pc bpc" id="L122" title="2 of 4 branches missed.">        if(degree &lt; 0 || degree &gt; maxDegree) return false;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        return this.coefficients[degree] != 0;</span>
+    }
+
+
+    @Override
+    public TFunction derivative() {
+<span class="fc" id="L129">        int newLen = this.coefficients.length - 1;</span>
+<span class="fc" id="L130">        double[] newCoefs = new double[newLen];</span>
+
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        for (int i = 0; i &lt; newLen; i++)</span>
+<span class="fc" id="L133">            newCoefs[i] = this.coefficients[i+1] * (i+1);</span>
+
+<span class="fc" id="L135">        return new TFunction( new TPolynomial(this.range, newCoefs) );</span>
+    }
+
+
+    @Override
+    public double value(double x) {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if( !range.isInRange(x) ) return 0d;</span>
+<span class="fc" id="L142">        double result = 0d;</span>
+
+<span class="fc" id="L144">        int len = this.coefficients.length;</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L146">            result += this.coefficients[i] * Math.pow(x, i);</span>
+        }
+
+<span class="fc" id="L149">        return result;</span>
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Returns [1, 1, 1, ...] using the degree.
+     * @param degree any integer in range (0,inf)
+     * @return 1 + x + x^2 + x^3 + x^4 + ...
+     */
+    public static TPolynomial getCoefOnePoly(TRange range, int degree){
+<span class="fc" id="L162">        double[] newCoef = new double[degree+1];</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        for (int i = 0; i &lt; newCoef.length; i++) {</span>
+<span class="fc" id="L164">            newCoef[i] = 1d;</span>
+        }
+<span class="fc" id="L166">        return new TPolynomial(range, newCoef);</span>
+    }
+
+
+    /**  @see #getCoefOnePoly(TRange, int)  */
+    public static TPolynomial getCoefOnePoly(int degree){
+<span class="fc" id="L172">        return getCoefOnePoly(TRange.REEL_NUMBERS, degree);</span>
+    }
+
+
+    public static TPolynomial getTPolynomial(TRange range, double... roots){
+<span class="fc" id="L177">        TPolynomial P = new TPolynomial(range, new double[]{1d}); // P(x) = 1</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        for (int i = 0; i &lt; roots.length; i++) {</span>
+<span class="fc" id="L179">            TPolynomial newPoly = new TPolynomial(range, new double[]{ -roots[i], 1d });</span>
+<span class="fc" id="L180">            P = P.multiply(newPoly);</span>
+        }
+<span class="fc" id="L182">        return P;</span>
+    }
+
+    public static TPolynomial getTPolynomial(double... roots){
+<span class="fc" id="L186">        return getTPolynomial(TRange.REEL_NUMBERS, roots);</span>
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+<span class="nc" id="L193">        StringBuilder sb = new StringBuilder(String.format(&quot;%f&quot;, coefficients[0]));</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if(coefficients.length != 1) sb.append(&quot; + &quot;);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        for (int i = 1; i &lt; coefficients.length; i++) {</span>
+<span class="nc" id="L196">            double val = coefficients[i];</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if(val == 0) continue;</span>
+<span class="nc" id="L198">            sb.append(String.format(&quot;%f x^%d&quot;, val, i));</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if(i+1 != coefficients.length) sb.append(&quot; + &quot;);</span>
+        }
+<span class="nc" id="L201">        return sb.toString().replaceAll(&quot;\\+ \\-&quot;, &quot;- &quot;).replaceAll(&quot;\\^1&quot;, &quot;&quot;);</span>
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L208" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">        if (!super.equals(o)) return false;</span>
+<span class="fc" id="L210">        TPolynomial that = (TPolynomial) o;</span>
+<span class="fc" id="L211">        return Arrays.equals(coefficients, that.coefficients);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L216">        int result = super.hashCode();</span>
+<span class="nc" id="L217">        result = 31 * result + Arrays.hashCode(coefficients);</span>
+<span class="nc" id="L218">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

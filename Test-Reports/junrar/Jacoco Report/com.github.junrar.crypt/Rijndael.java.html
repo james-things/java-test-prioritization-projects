@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Rijndael.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.crypt</a> &gt; <span class="el_source">Rijndael.java</span></div><h1>Rijndael.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.crypt;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="nc" id="L37">public class Rijndael {</span>
+    public static Cipher buildDecipherer(final String password, byte[] salt) throws IOException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (password == null) {</span>
+<span class="nc" id="L41">            throw new InvalidAlgorithmParameterException(&quot;password should be specified&quot;);</span>
+        }
+<span class="fc" id="L43">        byte[] AESInit = new byte[16];</span>
+<span class="fc" id="L44">        byte[] AESKey = new byte[16];</span>
+<span class="fc" id="L45">        int rawLength = 2 * password.length();</span>
+<span class="fc" id="L46">        byte[] rawpsw = new byte[rawLength + 8];</span>
+<span class="fc" id="L47">        byte[] pwd = password.getBytes();</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        for (int i = 0; i &lt; password.length(); i++) {</span>
+<span class="fc" id="L49">            rawpsw[i * 2] = pwd[i];</span>
+<span class="fc" id="L50">            rawpsw[i * 2 + 1] = 0;</span>
+        }
+<span class="fc" id="L52">        System.arraycopy(salt, 0, rawpsw, rawLength, salt.length);</span>
+
+<span class="fc" id="L54">        MessageDigest sha = MessageDigest.getInstance(&quot;sha-1&quot;);</span>
+
+<span class="fc" id="L56">        final int HashRounds = 0x40000;</span>
+<span class="fc" id="L57">        final int xh = HashRounds / 16;</span>
+
+<span class="fc" id="L59">        ByteArrayOutputStream bout = new ByteArrayOutputStream();</span>
+<span class="fc" id="L60">        byte[] digest = null;</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (int i = 0; i &lt; HashRounds; i++) {</span>
+<span class="fc" id="L63">            bout.write(rawpsw);</span>
+<span class="fc" id="L64">            bout.write((byte) i);</span>
+<span class="fc" id="L65">            bout.write((byte) (i &gt;&gt;&gt; 8));</span>
+<span class="fc" id="L66">            bout.write((byte) (i &gt;&gt;&gt; 16));</span>
+
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            if (i % xh == 0) {</span>
+<span class="fc" id="L69">                byte[] input = bout.toByteArray();</span>
+<span class="fc" id="L70">                sha.update(input);</span>
+<span class="fc" id="L71">                digest = sha.digest();</span>
+<span class="fc" id="L72">                AESInit[i / xh] = digest[19];</span>
+            }
+        }
+
+<span class="fc" id="L76">        sha.update(bout.toByteArray());</span>
+<span class="fc" id="L77">        digest = sha.digest();</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        for (int i = 0; i &lt; 4; i++) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            for (int j = 0; j &lt; 4; j++) {</span>
+<span class="fc" id="L80">                AESKey[i * 4 + j] = (byte) (((digest[i * 4] * 0x1000000) &amp; 0xff000000</span>
+                        | ((digest[i * 4 + 1] * 0x10000) &amp; 0xff0000) | ((digest[i * 4 + 2] * 0x100) &amp; 0xff00)
+                        | digest[i * 4 + 3] &amp; 0xff) &gt;&gt;&gt; (j * 8));
+            }
+        }
+
+<span class="fc" id="L86">        Cipher cipher = Cipher.getInstance(&quot;AES/CBC/NoPadding&quot;);</span>
+<span class="fc" id="L87">        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(AESKey, &quot;AES&quot;), new IvParameterSpec(AESInit));</span>
+<span class="fc" id="L88">        return cipher;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

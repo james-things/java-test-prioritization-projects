@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubAllocator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.ppm</a> &gt; <span class="el_source">SubAllocator.java</span></div><h1>SubAllocator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.ppm;
+
+import java.util.Arrays;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">public class SubAllocator {</span>
+    public static final int N1 = 4, N2 = 4, N3 = 4, N4 = (128 + 3 - 1 * N1 - 2
+        * N2 - 3 * N3) / 4;
+
+    public static final int N_INDEXES = N1 + N2 + N3 + N4;
+
+<span class="fc" id="L34">    public static final int UNIT_SIZE = Math.max(PPMContext.size,</span>
+        RarMemBlock.size);
+
+    public static final int FIXED_UNIT_SIZE = 12;
+
+    private int subAllocatorSize;
+
+    // byte Indx2Units[N_INDEXES], Units2Indx[128], GlueCount;
+<span class="fc" id="L42">    private final int[] indx2Units = new int[N_INDEXES];</span>
+<span class="fc" id="L43">    private final int[] units2Indx = new int[128];</span>
+    private int glueCount;
+
+    // byte *HeapStart,*LoUnit, *HiUnit;
+    private int heapStart, loUnit, hiUnit;
+
+<span class="fc" id="L49">    private final RarNode[] freeList = new RarNode[N_INDEXES];</span>
+
+    // byte *pText, *UnitsStart,*HeapEnd,*FakeUnitsStart;
+    private int pText, unitsStart, heapEnd, fakeUnitsStart;
+
+    private byte[] heap;
+
+    private int freeListPos;
+
+    private int tempMemBlockPos;
+
+    // Temp fields
+<span class="fc" id="L61">    private RarNode tempRarNode = null;</span>
+<span class="fc" id="L62">    private RarMemBlock tempRarMemBlock1 = null;</span>
+<span class="fc" id="L63">    private RarMemBlock tempRarMemBlock2 = null;</span>
+<span class="fc" id="L64">    private RarMemBlock tempRarMemBlock3 = null;</span>
+
+<span class="fc" id="L66">    public SubAllocator() {</span>
+<span class="fc" id="L67">        clean();</span>
+<span class="fc" id="L68">    }</span>
+
+    public void clean() {
+<span class="fc" id="L71">        subAllocatorSize = 0;</span>
+<span class="fc" id="L72">    }</span>
+
+    private void insertNode(int p/* rarnode ptr */, int indx) {
+<span class="fc" id="L75">        RarNode temp = tempRarNode;</span>
+<span class="fc" id="L76">        temp.setAddress(p);</span>
+<span class="fc" id="L77">        temp.setNext(freeList[indx].getNext());</span>
+<span class="fc" id="L78">        freeList[indx].setNext(temp);</span>
+<span class="fc" id="L79">    }</span>
+
+    public void incPText() {
+<span class="fc" id="L82">        pText++;</span>
+<span class="fc" id="L83">    }</span>
+
+    private int removeNode(int indx) {
+<span class="fc" id="L86">        int retVal = freeList[indx].getNext();</span>
+<span class="fc" id="L87">        RarNode temp = tempRarNode;</span>
+<span class="fc" id="L88">        temp.setAddress(retVal);</span>
+<span class="fc" id="L89">        freeList[indx].setNext(temp.getNext());</span>
+<span class="fc" id="L90">        return retVal;</span>
+    }
+
+    private int U2B(int NU) {
+<span class="fc" id="L94">        return /* 8*NU+4*NU */UNIT_SIZE * NU;</span>
+    }
+
+    /* memblockptr */
+    private int MBPtr(int BasePtr, int Items) {
+<span class="nc" id="L99">        return (BasePtr + U2B(Items));</span>
+    }
+
+    private void splitBlock(int pv/* ptr */, int oldIndx, int newIndx) {
+<span class="nc" id="L103">        int i, uDiff = indx2Units[oldIndx] - indx2Units[newIndx];</span>
+<span class="nc" id="L104">        int p = pv + U2B(indx2Units[newIndx]);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (indx2Units[i = units2Indx[uDiff - 1]] != uDiff) {</span>
+<span class="nc" id="L106">            insertNode(p, --i);</span>
+<span class="nc" id="L107">            p += U2B(i = indx2Units[i]);</span>
+<span class="nc" id="L108">            uDiff -= i;</span>
+        }
+<span class="nc" id="L110">        insertNode(p, units2Indx[uDiff - 1]);</span>
+<span class="nc" id="L111">    }</span>
+
+    public void stopSubAllocator() {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (subAllocatorSize != 0) {</span>
+<span class="fc" id="L115">            subAllocatorSize = 0;</span>
+<span class="fc" id="L116">            heap = null;</span>
+<span class="fc" id="L117">            heapStart = 1;</span>
+            // rarfree(HeapStart);
+            // Free temp fields
+<span class="fc" id="L120">            tempRarNode = null;</span>
+<span class="fc" id="L121">            tempRarMemBlock1 = null;</span>
+<span class="fc" id="L122">            tempRarMemBlock2 = null;</span>
+<span class="fc" id="L123">            tempRarMemBlock3 = null;</span>
+        }
+<span class="fc" id="L125">    }</span>
+
+    public int GetAllocatedMemory() {
+<span class="nc" id="L128">        return subAllocatorSize;</span>
+    }
+
+    public boolean startSubAllocator(int SASize) {
+<span class="fc" id="L132">        int t = SASize &lt;&lt; 20;</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (subAllocatorSize == t) {</span>
+<span class="nc" id="L134">            return true;</span>
+        }
+<span class="fc" id="L136">        stopSubAllocator();</span>
+<span class="fc" id="L137">        int allocSize = t / FIXED_UNIT_SIZE * UNIT_SIZE + UNIT_SIZE;</span>
+
+        // adding space for freelist (needed for poiters)
+        // 1+ for null pointer
+<span class="fc" id="L141">        int realAllocSize = 1 + allocSize + 4 * N_INDEXES;</span>
+        // adding space for an additional memblock
+<span class="fc" id="L143">        tempMemBlockPos = realAllocSize;</span>
+<span class="fc" id="L144">        realAllocSize += RarMemBlock.size;</span>
+
+<span class="fc" id="L146">        heap = new byte[realAllocSize];</span>
+<span class="fc" id="L147">        heapStart = 1;</span>
+<span class="fc" id="L148">        heapEnd = heapStart + allocSize - UNIT_SIZE;</span>
+<span class="fc" id="L149">        subAllocatorSize = t;</span>
+        // Bug fixed
+<span class="fc" id="L151">        freeListPos = heapStart + allocSize;</span>
+<span class="pc bpc" id="L152" title="2 of 4 branches missed.">        assert (realAllocSize - tempMemBlockPos == RarMemBlock.size) : realAllocSize</span>
+                + &quot; &quot; + tempMemBlockPos + &quot; &quot; + RarMemBlock.size;
+
+        // Init freeList
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        for (int i = 0, pos = freeListPos; i &lt; freeList.length; i++, pos += RarNode.size) {</span>
+<span class="fc" id="L157">            freeList[i] = new RarNode(heap);</span>
+<span class="fc" id="L158">            freeList[i].setAddress(pos);</span>
+        }
+
+        // Init temp fields
+<span class="fc" id="L162">        tempRarNode = new RarNode(heap);</span>
+<span class="fc" id="L163">        tempRarMemBlock1 = new RarMemBlock(heap);</span>
+<span class="fc" id="L164">        tempRarMemBlock2 = new RarMemBlock(heap);</span>
+<span class="fc" id="L165">        tempRarMemBlock3 = new RarMemBlock(heap);</span>
+
+<span class="fc" id="L167">        return true;</span>
+    }
+
+    private void glueFreeBlocks() {
+<span class="nc" id="L171">        RarMemBlock s0 = tempRarMemBlock1;</span>
+<span class="nc" id="L172">        s0.setAddress(tempMemBlockPos);</span>
+<span class="nc" id="L173">        RarMemBlock p = tempRarMemBlock2;</span>
+<span class="nc" id="L174">        RarMemBlock p1 = tempRarMemBlock3;</span>
+        int i, k, sz;
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (loUnit != hiUnit) {</span>
+<span class="nc" id="L177">            heap[loUnit] = 0;</span>
+        }
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        for (i = 0, s0.setPrev(s0), s0.setNext(s0); i &lt; N_INDEXES; i++) {</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">            while (freeList[i].getNext() != 0) {</span>
+<span class="nc" id="L181">                p.setAddress(removeNode(i)); // =(RAR_MEM_BLK*)RemoveNode(i);</span>
+<span class="nc" id="L182">                p.insertAt(s0); // p-&gt;insertAt(&amp;s0);</span>
+<span class="nc" id="L183">                p.setStamp(0xFFFF); // p-&gt;Stamp=0xFFFF;</span>
+<span class="nc" id="L184">                p.setNU(indx2Units[i]); // p-&gt;NU=Indx2Units[i];</span>
+            }
+        }
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        for (p.setAddress(s0.getNext()); p.getAddress() != s0.getAddress(); p</span>
+<span class="nc" id="L188">                .setAddress(p.getNext())) {</span>
+            // while ((p1=MBPtr(p,p-&gt;NU))-&gt;Stamp == 0xFFFF &amp;&amp; int(p-&gt;NU)+p1-&gt;NU
+            // &lt; 0x10000)
+            // Bug fixed
+<span class="nc" id="L192">            p1.setAddress(MBPtr(p.getAddress(), p.getNU()));</span>
+<span class="nc bnc" id="L193" title="All 4 branches missed.">            while (p1.getStamp() == 0xFFFF &amp;&amp; p.getNU() + p1.getNU() &lt; 0x10000) {</span>
+<span class="nc" id="L194">                p1.remove();</span>
+<span class="nc" id="L195">                p.setNU(p.getNU() + p1.getNU()); // -&gt;NU += p1-&gt;NU;</span>
+<span class="nc" id="L196">                p1.setAddress(MBPtr(p.getAddress(), p.getNU()));</span>
+            }
+        }
+        // while ((p=s0.next) != &amp;s0)
+        // Bug fixed
+<span class="nc" id="L201">        p.setAddress(s0.getNext());</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        while (p.getAddress() != s0.getAddress()) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            for (p.remove(), sz = p.getNU(); sz &gt; 128; sz -= 128, p</span>
+<span class="nc" id="L204">                    .setAddress(MBPtr(p.getAddress(), 128))) {</span>
+<span class="nc" id="L205">                insertNode(p.getAddress(), N_INDEXES - 1);</span>
+            }
+<span class="nc bnc" id="L207" title="All 2 branches missed.">            if (indx2Units[i = units2Indx[sz - 1]] != sz) {</span>
+<span class="nc" id="L208">                k = sz - indx2Units[--i];</span>
+<span class="nc" id="L209">                insertNode(MBPtr(p.getAddress(), sz - k), k - 1);</span>
+            }
+<span class="nc" id="L211">            insertNode(p.getAddress(), i);</span>
+<span class="nc" id="L212">            p.setAddress(s0.getNext());</span>
+        }
+<span class="nc" id="L214">    }</span>
+
+    private int allocUnitsRare(int indx) {
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (glueCount == 0) {</span>
+<span class="nc" id="L218">            glueCount = 255;</span>
+<span class="nc" id="L219">            glueFreeBlocks();</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (freeList[indx].getNext() != 0) {</span>
+<span class="nc" id="L221">                return removeNode(indx);</span>
+            }
+        }
+<span class="nc" id="L224">        int i = indx;</span>
+        do {
+<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (++i == N_INDEXES) {</span>
+<span class="nc" id="L227">                glueCount--;</span>
+<span class="nc" id="L228">                i = U2B(indx2Units[indx]);</span>
+<span class="nc" id="L229">                int j = FIXED_UNIT_SIZE * indx2Units[indx];</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">                if (fakeUnitsStart - pText &gt; j) {</span>
+<span class="nc" id="L231">                    fakeUnitsStart -= j;</span>
+<span class="nc" id="L232">                    unitsStart -= i;</span>
+<span class="nc" id="L233">                    return unitsStart;</span>
+                }
+<span class="nc" id="L235">                return (0);</span>
+            }
+<span class="nc bnc" id="L237" title="All 2 branches missed.">        } while (freeList[i].getNext() == 0);</span>
+<span class="nc" id="L238">        int retVal = removeNode(i);</span>
+<span class="nc" id="L239">        splitBlock(retVal, i, indx);</span>
+<span class="nc" id="L240">        return retVal;</span>
+    }
+
+    public int allocUnits(int NU) {
+<span class="fc" id="L244">        int indx = units2Indx[NU - 1];</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (freeList[indx].getNext() != 0) {</span>
+<span class="fc" id="L246">            return removeNode(indx);</span>
+        }
+<span class="fc" id="L248">        int retVal = loUnit;</span>
+<span class="fc" id="L249">        loUnit += U2B(indx2Units[indx]);</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">        if (loUnit &lt;= hiUnit) {</span>
+<span class="fc" id="L251">            return retVal;</span>
+        }
+<span class="nc" id="L253">        loUnit -= U2B(indx2Units[indx]);</span>
+<span class="nc" id="L254">        return allocUnitsRare(indx);</span>
+    }
+
+    public int allocContext() {
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">        if (hiUnit != loUnit) {</span>
+<span class="fc" id="L259">            return (hiUnit -= UNIT_SIZE);</span>
+        }
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (freeList[0].getNext() != 0) {</span>
+<span class="nc" id="L262">            return removeNode(0);</span>
+        }
+<span class="nc" id="L264">        return allocUnitsRare(0);</span>
+    }
+
+    public int expandUnits(int oldPtr, int OldNU) {
+<span class="fc" id="L268">        int i0 = units2Indx[OldNU - 1];</span>
+<span class="fc" id="L269">        int i1 = units2Indx[OldNU - 1 + 1];</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">        if (i0 == i1) {</span>
+<span class="nc" id="L271">            return oldPtr;</span>
+        }
+<span class="fc" id="L273">        int ptr = allocUnits(OldNU + 1);</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (ptr != 0) {</span>
+            // memcpy(ptr,OldPtr,U2B(OldNU));
+<span class="fc" id="L276">            System.arraycopy(heap, oldPtr, heap, ptr, U2B(OldNU));</span>
+<span class="fc" id="L277">            insertNode(oldPtr, i0);</span>
+        }
+<span class="fc" id="L279">        return ptr;</span>
+    }
+
+    public int shrinkUnits(int oldPtr, int oldNU, int newNU) {
+        // System.out.println(&quot;SubAllocator.shrinkUnits(&quot; + OldPtr + &quot;, &quot; +
+        // OldNU + &quot;, &quot; + NewNU + &quot;)&quot;);
+<span class="nc" id="L285">        int i0 = units2Indx[oldNU - 1];</span>
+<span class="nc" id="L286">        int i1 = units2Indx[newNU - 1];</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">        if (i0 == i1) {</span>
+<span class="nc" id="L288">            return oldPtr;</span>
+        }
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        if (freeList[i1].getNext() != 0) {</span>
+<span class="nc" id="L291">            int ptr = removeNode(i1);</span>
+            // memcpy(ptr,OldPtr,U2B(NewNU));
+            // for (int i = 0; i &lt; U2B(NewNU); i++) {
+            // heap[ptr + i] = heap[OldPtr + i];
+            // }
+<span class="nc" id="L296">            System.arraycopy(heap, oldPtr, heap, ptr, U2B(newNU));</span>
+<span class="nc" id="L297">            insertNode(oldPtr, i0);</span>
+<span class="nc" id="L298">            return ptr;</span>
+        } else {
+<span class="nc" id="L300">            splitBlock(oldPtr, i0, i1);</span>
+<span class="nc" id="L301">            return oldPtr;</span>
+        }
+    }
+
+    public void freeUnits(int ptr, int OldNU) {
+<span class="nc" id="L306">        insertNode(ptr, units2Indx[OldNU - 1]);</span>
+<span class="nc" id="L307">    }</span>
+
+    public int getFakeUnitsStart() {
+<span class="fc" id="L310">        return fakeUnitsStart;</span>
+    }
+
+    public void setFakeUnitsStart(int fakeUnitsStart) {
+<span class="nc" id="L314">        this.fakeUnitsStart = fakeUnitsStart;</span>
+<span class="nc" id="L315">    }</span>
+
+    public int getHeapEnd() {
+<span class="fc" id="L318">        return heapEnd;</span>
+    }
+
+    public int getPText() {
+<span class="fc" id="L322">        return pText;</span>
+    }
+
+    public void setPText(int text) {
+<span class="nc" id="L326">        pText = text;</span>
+<span class="nc" id="L327">    }</span>
+
+    public void decPText(int dPText) {
+<span class="nc" id="L330">        setPText(getPText() - dPText);</span>
+<span class="nc" id="L331">    }</span>
+
+    public int getUnitsStart() {
+<span class="nc" id="L334">        return unitsStart;</span>
+    }
+
+    public void setUnitsStart(int unitsStart) {
+<span class="nc" id="L338">        this.unitsStart = unitsStart;</span>
+<span class="nc" id="L339">    }</span>
+
+    public void initSubAllocator() {
+        int i, k;
+<span class="fc" id="L343">        Arrays.fill(heap, freeListPos, freeListPos + sizeOfFreeList(), (byte) 0);</span>
+
+<span class="fc" id="L345">        pText = heapStart;</span>
+
+<span class="fc" id="L347">        int size2 = FIXED_UNIT_SIZE</span>
+                * (subAllocatorSize / 8 / FIXED_UNIT_SIZE * 7);
+<span class="fc" id="L349">        int realSize2 = size2 / FIXED_UNIT_SIZE * UNIT_SIZE;</span>
+<span class="fc" id="L350">        int size1 = subAllocatorSize - size2;</span>
+<span class="fc" id="L351">        int realSize1 = size1 / FIXED_UNIT_SIZE * UNIT_SIZE + size1</span>
+                % FIXED_UNIT_SIZE;
+<span class="fc" id="L353">        hiUnit = heapStart + subAllocatorSize;</span>
+<span class="fc" id="L354">        loUnit = unitsStart = heapStart + realSize1;</span>
+<span class="fc" id="L355">        fakeUnitsStart = heapStart + size1;</span>
+<span class="fc" id="L356">        hiUnit = loUnit + realSize2;</span>
+
+<span class="fc bfc" id="L358" title="All 2 branches covered.">        for (i = 0, k = 1; i &lt; N1; i++, k += 1) {</span>
+<span class="fc" id="L359">            indx2Units[i] = k &amp; 0xff;</span>
+        }
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        for (k++; i &lt; N1 + N2; i++, k += 2) {</span>
+<span class="fc" id="L362">            indx2Units[i] = k &amp; 0xff;</span>
+        }
+<span class="fc bfc" id="L364" title="All 2 branches covered.">        for (k++; i &lt; N1 + N2 + N3; i++, k += 3) {</span>
+<span class="fc" id="L365">            indx2Units[i] = k &amp; 0xff;</span>
+        }
+<span class="fc bfc" id="L367" title="All 2 branches covered.">        for (k++; i &lt; (N1 + N2 + N3 + N4); i++, k += 4) {</span>
+<span class="fc" id="L368">            indx2Units[i] = k &amp; 0xff;</span>
+        }
+
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        for (glueCount = 0, k = 0, i = 0; k &lt; 128; k++) {</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">            i += ((indx2Units[i] &lt; (k + 1)) ? 1 : 0);</span>
+<span class="fc" id="L373">            units2Indx[k] = i &amp; 0xff;</span>
+        }
+
+<span class="fc" id="L376">    }</span>
+
+    private int sizeOfFreeList() {
+<span class="fc" id="L379">        return freeList.length * RarNode.size;</span>
+    }
+
+    public byte[] getHeap() {
+<span class="fc" id="L383">        return heap;</span>
+    }
+
+    // Debug
+    // public void dumpHeap() {
+    // File file = new File(&quot;P:\\test\\heapdumpj&quot;);
+    // OutputStream out = null;
+    // try {
+    // out = new FileOutputStream(file);
+    // out.write(heap, heapStart, heapEnd - heapStart);
+    // out.flush();
+    // System.out.println(&quot;Heap dumped to &quot; + file.getAbsolutePath());
+    // }
+    // catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    // finally {
+    // FileUtil.close(out);
+    // }
+    // }
+
+    // Debug
+    public String toString() {
+<span class="nc" id="L406">        StringBuilder buffer = new StringBuilder();</span>
+<span class="nc" id="L407">        buffer.append(&quot;SubAllocator[&quot;);</span>
+<span class="nc" id="L408">        buffer.append(&quot;\n  subAllocatorSize=&quot;);</span>
+<span class="nc" id="L409">        buffer.append(subAllocatorSize);</span>
+<span class="nc" id="L410">        buffer.append(&quot;\n  glueCount=&quot;);</span>
+<span class="nc" id="L411">        buffer.append(glueCount);</span>
+<span class="nc" id="L412">        buffer.append(&quot;\n  heapStart=&quot;);</span>
+<span class="nc" id="L413">        buffer.append(heapStart);</span>
+<span class="nc" id="L414">        buffer.append(&quot;\n  loUnit=&quot;);</span>
+<span class="nc" id="L415">        buffer.append(loUnit);</span>
+<span class="nc" id="L416">        buffer.append(&quot;\n  hiUnit=&quot;);</span>
+<span class="nc" id="L417">        buffer.append(hiUnit);</span>
+<span class="nc" id="L418">        buffer.append(&quot;\n  pText=&quot;);</span>
+<span class="nc" id="L419">        buffer.append(pText);</span>
+<span class="nc" id="L420">        buffer.append(&quot;\n  unitsStart=&quot;);</span>
+<span class="nc" id="L421">        buffer.append(unitsStart);</span>
+<span class="nc" id="L422">        buffer.append(&quot;\n]&quot;);</span>
+<span class="nc" id="L423">        return buffer.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

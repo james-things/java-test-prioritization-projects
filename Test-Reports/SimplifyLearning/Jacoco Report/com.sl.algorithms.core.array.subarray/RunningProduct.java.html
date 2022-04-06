@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RunningProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.array.subarray</a> &gt; <span class="el_source">RunningProduct.java</span></div><h1>RunningProduct.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.array.subarray;
+
+import com.sl.algorithms.core.interfaces.count.ProductCalculator;
+
+<span class="fc" id="L5">public class RunningProduct implements ProductCalculator {</span>
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/product-of-array-except-self/description/&quot;&gt;Product
+   * Except Self&lt;/a&gt;
+   */
+  @Override
+  public int[] productExceptSelf(int[] nums) {
+<span class="fc bfc" id="L13" title="All 4 branches covered.">    if (nums == null || nums.length == 0) {</span>
+<span class="fc" id="L14">      return nums;</span>
+    }
+
+<span class="fc" id="L17">    int length = nums.length, left = 1, right = 1;</span>
+<span class="fc" id="L18">    int[] output = new int[length];</span>
+<span class="fc" id="L19">    output[0] = 1;</span>
+
+    // get left side products
+<span class="fc bfc" id="L22" title="All 2 branches covered.">    for (int i = 1; i &lt; length; i++) {</span>
+<span class="fc" id="L23">      left *= nums[i - 1];</span>
+<span class="fc" id="L24">      output[i] = left;</span>
+    }
+
+    // get right side and final products
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    for (int i = length - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L29">      right *= nums[i + 1];</span>
+<span class="fc" id="L30">      output[i] *= right;</span>
+    }
+
+<span class="fc" id="L33">    return output;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

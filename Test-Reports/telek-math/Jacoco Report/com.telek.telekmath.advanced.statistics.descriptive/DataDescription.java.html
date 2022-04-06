@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataDescription.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.statistics.descriptive</a> &gt; <span class="el_source">DataDescription.java</span></div><h1>DataDescription.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.statistics.descriptive;
+
+
+import com.telek.telekmath.utils.TMath;
+
+import java.util.Objects;
+
+/**
+ * A class containing all measures inside it.
+ */
+public class DataDescription {
+
+
+    public static class Mode{
+        public final double value, count;
+
+<span class="fc" id="L17">        public Mode(double modeValue, double modeCount) {</span>
+<span class="fc" id="L18">            this.value = modeValue;</span>
+<span class="fc" id="L19">            this.count = modeCount;</span>
+<span class="fc" id="L20">        }</span>
+
+        @Override
+        public String toString() {
+<span class="nc" id="L24">            return &quot;Mode{&quot; + &quot;value=&quot; + value + &quot;, count=&quot; + count + '}';</span>
+        }
+
+        @Override
+        public boolean equals(Object o) {
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">            if (this == o) return true;</span>
+<span class="pc bpc" id="L30" title="2 of 4 branches missed.">            if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L31">            Mode mode = (Mode) o;</span>
+<span class="pc bpc" id="L32" title="2 of 4 branches missed.">            return Double.compare(mode.value, value) == 0 &amp;&amp; Double.compare(mode.count, count) == 0;</span>
+        }
+
+        @Override
+        public int hashCode() {
+<span class="nc" id="L37">            return Objects.hash(value, count);</span>
+        }
+    }
+
+    //////////////
+    /*  FIELDS  */
+    //////////////
+
+    public final Mode mode;
+
+    // values without javadocs (self-explanatory variable names)
+    public final double count, mean, sum, interquartileRange, sampleVariance, variance, sampleStddev;
+
+    /** The value that divides the whole data set into 2 equal parts, also it's equal to {@link #quartile2}. */
+    public final double median;
+
+    /** Quartiles are calculated with exclusive percentages. &lt;br&gt; Same as QUARTILE.EXC(arr, i) in Excel. */
+    public final double quartile1, quartile2, quartile3;
+
+    /** Maximum value */
+    public final double min;
+
+    /** Minimum value */
+    public final double max;
+
+    /** Specifies (maxValue - minValue) value. */
+    public final double range;
+
+    /** Standard deviation */
+    public final double stddev;
+
+
+    /** A value in range [-1,1] to estimate the skewness of this data set. &lt;br&gt;
+     * skewness &gt; 0 means it's skewed to right. &lt;br&gt;
+     * skewness = 0 means it's symmetrical. &lt;br&gt;
+     * skewness &lt; 0 means it's skewed to left.
+     * */
+    public final double pearsonSkewCoef, bowleySkewCoef;
+
+
+    ////////////////////
+    /*  CONSTRUCTORS  */
+    ////////////////////
+
+    DataDescription(double variance, double sampleVariance, double mean,
+                    double sum, double interquartileRange, double count,
+                    double quartile1, Mode mode, double median,
+                    double quartile2, double quartile3, double min, double max,
+                    double range, double stddev, double pearsonSkewCoef, double bowleySkewCoef)
+<span class="fc" id="L86">    {</span>
+<span class="fc" id="L87">        this.interquartileRange = interquartileRange;</span>
+<span class="fc" id="L88">        this.pearsonSkewCoef = pearsonSkewCoef;</span>
+<span class="fc" id="L89">        this.bowleySkewCoef = bowleySkewCoef;</span>
+<span class="fc" id="L90">        this.sampleVariance = sampleVariance;</span>
+<span class="fc" id="L91">        this.sampleStddev = TMath.sqrt(sampleVariance);</span>
+<span class="fc" id="L92">        this.quartile1 = quartile1;</span>
+<span class="fc" id="L93">        this.quartile2 = quartile2;</span>
+<span class="fc" id="L94">        this.quartile3 = quartile3;</span>
+<span class="fc" id="L95">        this.variance = variance;</span>
+<span class="fc" id="L96">        this.median = median;</span>
+<span class="fc" id="L97">        this.stddev = stddev;</span>
+<span class="fc" id="L98">        this.range = range;</span>
+<span class="fc" id="L99">        this.count = count;</span>
+<span class="fc" id="L100">        this.mean = mean;</span>
+<span class="fc" id="L101">        this.mode = mode;</span>
+<span class="fc" id="L102">        this.sum = sum;</span>
+<span class="fc" id="L103">        this.min = min;</span>
+<span class="fc" id="L104">        this.max = max;</span>
+<span class="fc" id="L105">    }</span>
+
+    /////////////////////////////////////////////////////////////////////////////////
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L112">        return &quot;DataDescription{&quot; +</span>
+                &quot;mode=&quot; + mode +
+                &quot;, count=&quot; + count +
+                &quot;, mean=&quot; + mean +
+                &quot;, sum=&quot; + sum +
+                &quot;, interquartileRange=&quot; + interquartileRange +
+                &quot;, sampleVariance=&quot; + sampleVariance +
+                &quot;, variance=&quot; + variance +
+                &quot;, sampleStddev=&quot; + sampleStddev +
+                &quot;, median=&quot; + median +
+                &quot;, quartile1=&quot; + quartile1 +
+                &quot;, quartile2=&quot; + quartile2 +
+                &quot;, quartile3=&quot; + quartile3 +
+                &quot;, min=&quot; + min +
+                &quot;, max=&quot; + max +
+                &quot;, range=&quot; + range +
+                &quot;, stddev=&quot; + stddev +
+                &quot;, pearsonSkewCoef=&quot; + pearsonSkewCoef +
+                &quot;, bowleySkewCoef=&quot; + bowleySkewCoef +
+                '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L138" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L139">        DataDescription that = (DataDescription) o;</span>
+<span class="pc bpc" id="L140" title="2 of 4 branches missed.">        return Double.compare(that.count, count) == 0 &amp;&amp; Double.compare(that.mean, mean) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                Double.compare(that.sum, sum) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                Double.compare(that.interquartileRange, interquartileRange) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">                Double.compare(that.sampleVariance, sampleVariance) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">                Double.compare(that.variance, variance) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">                Double.compare(that.sampleStddev, sampleStddev) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">                Double.compare(that.median, median) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">                Double.compare(that.quartile1, quartile1) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">                Double.compare(that.quartile2, quartile2) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">                Double.compare(that.quartile3, quartile3) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">                Double.compare(that.min, min) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">                Double.compare(that.max, max) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">                Double.compare(that.range, range) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">                Double.compare(that.stddev, stddev) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">                Double.compare(that.pearsonSkewCoef, pearsonSkewCoef) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                Double.compare(that.bowleySkewCoef, bowleySkewCoef) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                Objects.equals(mode, that.mode);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L161">        return Objects.hash(mode, count, mean, sum, interquartileRange,</span>
+<span class="nc" id="L162">                sampleVariance, variance, sampleStddev, median, quartile1, quartile2, quartile3,</span>
+<span class="nc" id="L163">                min, max, range, stddev, pearsonSkewCoef, bowleySkewCoef);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VMPreparedProgram.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.vm</a> &gt; <span class="el_source">VMPreparedProgram.java</span></div><h1>VMPreparedProgram.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.vm;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class VMPreparedProgram {
+<span class="fc" id="L31">    private List&lt;VMPreparedCommand&gt; Cmd = new ArrayList&lt;&gt;();</span>
+    private List&lt;VMPreparedCommand&gt; AltCmd;
+    private int CmdCount;
+
+
+<span class="fc" id="L36">    private Vector&lt;Byte&gt; GlobalData = new Vector&lt;&gt;();</span>
+<span class="fc" id="L37">    private Vector&lt;Byte&gt; StaticData = new Vector&lt;&gt;(); // static data contained in DB operators</span>
+<span class="fc" id="L38">    private int[] InitR = new int[7];</span>
+
+    private int FilteredDataOffset;
+    private int FilteredDataSize;
+
+<span class="fc" id="L43">    public VMPreparedProgram() {</span>
+<span class="fc" id="L44">        AltCmd = null;</span>
+<span class="fc" id="L45">    }</span>
+
+
+
+    public List&lt;VMPreparedCommand&gt; getAltCmd() {
+<span class="fc" id="L50">        return AltCmd;</span>
+    }
+
+
+
+    public void setAltCmd(List&lt;VMPreparedCommand&gt; altCmd) {
+<span class="fc" id="L56">        AltCmd = altCmd;</span>
+<span class="fc" id="L57">    }</span>
+
+
+
+    public List&lt;VMPreparedCommand&gt; getCmd() {
+<span class="fc" id="L62">        return Cmd;</span>
+    }
+
+    public void setCmd(List&lt;VMPreparedCommand&gt; cmd) {
+<span class="nc" id="L66">        Cmd = cmd;</span>
+<span class="nc" id="L67">    }</span>
+
+    public int getCmdCount() {
+<span class="fc" id="L70">        return CmdCount;</span>
+    }
+
+    public void setCmdCount(int cmdCount) {
+<span class="fc" id="L74">        CmdCount = cmdCount;</span>
+<span class="fc" id="L75">    }</span>
+
+
+
+    public int getFilteredDataOffset() {
+<span class="fc" id="L80">        return FilteredDataOffset;</span>
+    }
+
+
+
+    public void setFilteredDataOffset(int filteredDataOffset) {
+<span class="fc" id="L86">        FilteredDataOffset = filteredDataOffset;</span>
+<span class="fc" id="L87">    }</span>
+
+
+
+    public int getFilteredDataSize() {
+<span class="fc" id="L92">        return FilteredDataSize;</span>
+    }
+
+    public void setFilteredDataSize(int filteredDataSize) {
+<span class="fc" id="L96">        FilteredDataSize = filteredDataSize;</span>
+<span class="fc" id="L97">    }</span>
+
+    public Vector&lt;Byte&gt; getGlobalData() {
+<span class="fc" id="L100">        return GlobalData;</span>
+    }
+
+    public void setGlobalData(Vector&lt;Byte&gt; globalData) {
+<span class="nc" id="L104">        GlobalData = globalData;</span>
+<span class="nc" id="L105">    }</span>
+
+    public int[] getInitR() {
+<span class="fc" id="L108">        return InitR;</span>
+    }
+
+    public void setInitR(int[] initR) {
+<span class="nc" id="L112">        InitR = initR;</span>
+<span class="nc" id="L113">    }</span>
+
+    public Vector&lt;Byte&gt; getStaticData() {
+<span class="fc" id="L116">        return StaticData;</span>
+    }
+
+    public void setStaticData(Vector&lt;Byte&gt; staticData) {
+<span class="nc" id="L120">        StaticData = staticData;</span>
+<span class="nc" id="L121">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

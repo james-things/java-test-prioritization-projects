@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AudioVariables.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.decode</a> &gt; <span class="el_source">AudioVariables.java</span></div><h1>AudioVariables.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 01.06.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.decode;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="fc" id="L26">public class AudioVariables {</span>
+    int k1, k2, k3, k4, k5;
+
+    int d1, d2, d3, d4;
+
+    int lastDelta;
+
+<span class="fc" id="L33">    int[] dif = new int[11];</span>
+
+    int byteCount;
+
+    int lastChar;
+
+    public int getByteCount() {
+<span class="fc" id="L40">        return byteCount;</span>
+    }
+
+    public void setByteCount(int byteCount) {
+<span class="fc" id="L44">        this.byteCount = byteCount;</span>
+<span class="fc" id="L45">    }</span>
+
+    public int getD1() {
+<span class="fc" id="L48">        return d1;</span>
+    }
+
+    public void setD1(int d1) {
+<span class="fc" id="L52">        this.d1 = d1;</span>
+<span class="fc" id="L53">    }</span>
+
+    public int getD2() {
+<span class="fc" id="L56">        return d2;</span>
+    }
+
+    public void setD2(int d2) {
+<span class="fc" id="L60">        this.d2 = d2;</span>
+<span class="fc" id="L61">    }</span>
+
+    public int getD3() {
+<span class="fc" id="L64">        return d3;</span>
+    }
+
+    public void setD3(int d3) {
+<span class="fc" id="L68">        this.d3 = d3;</span>
+<span class="fc" id="L69">    }</span>
+
+    public int getD4() {
+<span class="fc" id="L72">        return d4;</span>
+    }
+
+    public void setD4(int d4) {
+<span class="fc" id="L76">        this.d4 = d4;</span>
+<span class="fc" id="L77">    }</span>
+
+    public int[] getDif() {
+<span class="fc" id="L80">        return dif;</span>
+    }
+
+    public void setDif(int[] dif) {
+<span class="nc" id="L84">        this.dif = dif;</span>
+<span class="nc" id="L85">    }</span>
+
+    public int getK1() {
+<span class="fc" id="L88">        return k1;</span>
+    }
+
+    public void setK1(int k1) {
+<span class="fc" id="L92">        this.k1 = k1;</span>
+<span class="fc" id="L93">    }</span>
+
+    public int getK2() {
+<span class="fc" id="L96">        return k2;</span>
+    }
+
+    public void setK2(int k2) {
+<span class="fc" id="L100">        this.k2 = k2;</span>
+<span class="fc" id="L101">    }</span>
+
+    public int getK3() {
+<span class="fc" id="L104">        return k3;</span>
+    }
+
+    public void setK3(int k3) {
+<span class="fc" id="L108">        this.k3 = k3;</span>
+<span class="fc" id="L109">    }</span>
+
+    public int getK4() {
+<span class="fc" id="L112">        return k4;</span>
+    }
+
+    public void setK4(int k4) {
+<span class="fc" id="L116">        this.k4 = k4;</span>
+<span class="fc" id="L117">    }</span>
+
+    public int getK5() {
+<span class="fc" id="L120">        return k5;</span>
+    }
+
+    public void setK5(int k5) {
+<span class="fc" id="L124">        this.k5 = k5;</span>
+<span class="fc" id="L125">    }</span>
+
+    public int getLastChar() {
+<span class="fc" id="L128">        return lastChar;</span>
+    }
+
+    public void setLastChar(int lastChar) {
+<span class="fc" id="L132">        this.lastChar = lastChar;</span>
+<span class="fc" id="L133">    }</span>
+
+    public int getLastDelta() {
+<span class="fc" id="L136">        return lastDelta;</span>
+    }
+
+    public void setLastDelta(int lastDelta) {
+<span class="fc" id="L140">        this.lastDelta = lastDelta;</span>
+<span class="fc" id="L141">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

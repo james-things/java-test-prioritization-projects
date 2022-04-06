@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkedListRotation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.list.rotation</a> &gt; <span class="el_source">LinkedListRotation.java</span></div><h1>LinkedListRotation.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.list.rotation;
+
+import static com.sl.algorithms.core.list.ListNode.createLinkedList;
+
+import com.sl.algorithms.core.interfaces.rotate.RotationEngine;
+import com.sl.algorithms.core.list.ListNode;
+
+/**
+ * &lt;br&gt;&lt;u&gt;Requirement&lt;/u&gt;: rotate w/in O(n) time and O(1) space.&lt;br&gt;
+ */
+<span class="fc" id="L11">public class LinkedListRotation&lt;T extends Comparable&gt; implements RotationEngine&lt;T&gt; {</span>
+
+  /**
+   * &lt;br&gt;&lt;u&gt;Approach&lt;/u&gt;: &lt;br&gt;0. If kMax%size or kMax == 0 then no/full rotation. &lt;br&gt;1. Track 2
+   * pointers, one for originalTail and second for newTail. &lt;br&gt;2. Join originalTail with
+   * originalHead. &lt;br&gt;3. newTail : right=(n-kMax) | left=(kMax) &lt;br&gt;4. newHead = newTail.next,
+   * newTail.next = null. &lt;br&gt;5. Handle scenario when kMax is greater than the size of the list
+   * (solution: kMax = kMax%size).
+   */
+  @Override
+  public ListNode&lt;T&gt; rotate(ListNode&lt;T&gt; head, int k, boolean clockwise) {
+<span class="fc bfc" id="L22" title="All 6 branches covered.">    if (head == null || head.next == null || k == 0) {</span>
+<span class="fc" id="L23">      return head;</span>
+    }
+<span class="fc" id="L25">    int size = 1, lowerBound = 1, upperBound;</span>
+<span class="fc" id="L26">    ListNode&lt;T&gt; tail = head, newTail = head;</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">    while (tail.next != null) {</span>
+<span class="fc" id="L28">      size++;</span>
+<span class="fc" id="L29">      tail = tail.next;</span>
+    }
+<span class="fc" id="L31">    k %= size;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (k == 0) {</span>
+<span class="fc" id="L33">      return head;</span>
+    }
+<span class="fc" id="L35">    tail.next = head;</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (clockwise) { // newTail = (n-kMax)</span>
+<span class="fc" id="L37">      upperBound = size - k;</span>
+    } else { // newTail = kMax
+<span class="fc" id="L39">      upperBound = k;</span>
+    }
+<span class="fc bfc" id="L41" title="All 2 branches covered.">    for (int i = lowerBound; i &lt; upperBound; i++) {</span>
+<span class="fc" id="L42">      newTail = newTail.next;</span>
+    }
+<span class="fc" id="L44">    head = newTail.next;</span>
+<span class="fc" id="L45">    newTail.next = null;</span>
+<span class="fc" id="L46">    return head;</span>
+  }
+
+  public ListNode&lt;T&gt; rotateListLeft(ListNode&lt;T&gt; head, int k) {
+<span class="fc" id="L50">    return rotate(head, k, false);</span>
+  }
+
+  public ListNode&lt;T&gt; rotateListRight(ListNode&lt;T&gt; head, int k) {
+<span class="fc" id="L54">    return rotate(head, k, true);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public T[] rotate(T[] objects, int k, boolean clockwise) {
+<span class="fc" id="L60">    ListNode&lt;T&gt; rotatedList = rotate(createLinkedList(objects), k, clockwise);</span>
+<span class="fc" id="L61">    T[] outputArray = (T[]) new Comparable[objects.length];</span>
+<span class="fc" id="L62">    int index = 0;</span>
+<span class="fc" id="L63">    ListNode&lt;T&gt; ptr = rotatedList;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    while (ptr != null) {</span>
+<span class="fc" id="L65">      outputArray[index] = ptr.data;</span>
+<span class="fc" id="L66">      ptr = ptr.next;</span>
+<span class="fc" id="L67">      index++;</span>
+    }
+<span class="fc" id="L69">    return outputArray;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

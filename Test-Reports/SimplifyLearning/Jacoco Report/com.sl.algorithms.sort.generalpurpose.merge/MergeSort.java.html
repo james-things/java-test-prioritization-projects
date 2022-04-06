@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MergeSort.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.sort.generalpurpose.merge</a> &gt; <span class="el_source">MergeSort.java</span></div><h1>MergeSort.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.sort.generalpurpose.merge;
+
+import com.sl.algorithms.core.interfaces.sort.SortingEngine;
+
+/**
+ * &lt;br&gt;A general-purpose stable sort algorithm with a guaranteed time complexity of O(nlogn) and
+ * O(n) space.&lt;br&gt; &lt;br&gt;&lt;u&gt;Inventor&lt;/u&gt;:&amp;nbsp;&lt;a href=&quot;https://en.wikipedia.org/wiki/John_von_Neumann&quot;&gt;John
+ * Von Neumann&lt;/a&gt;&lt;br&gt; &lt;br&gt;&lt;a href=&quot;https://brilliant.org/wiki/merge/&quot;&gt;Reference 1&lt;/a&gt; &lt;br&gt;&lt;a
+ * href=&quot;https://en.wikipedia.org/wiki/Merge_sort&quot;&gt;Reference 2&lt;/a&gt;
+ */
+@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L12">public abstract class MergeSort&lt;T extends Comparable&gt; implements SortingEngine&lt;T&gt; {</span>
+
+  /**
+   * &lt;u&gt;Objective&lt;/u&gt;: MERGE and SORT 2 parts (s to m and m to e) of an array A (read-only), into an
+   * output array B.
+   *
+   * @param source unsorted input array
+   * @param s start index
+   * @param m midpoint
+   * @param e end index
+   * @param target auxiliary array to help in the sort process
+   */
+  public void merge(T[] source, int s, int m, int e, T[] target) {
+<span class="fc" id="L25">    int i = s, j = m;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">    for (int k = s; k &lt; e; k++) {</span>
+<span class="fc bfc" id="L27" title="All 6 branches covered.">      if (i &lt; m &amp;&amp; (j &gt;= e || source[i].compareTo(source[j]) &lt;= 0)) {</span>
+<span class="fc" id="L28">        target[k] = source[i];</span>
+<span class="fc" id="L29">        i++;</span>
+      } else {
+<span class="fc" id="L31">        target[k] = source[j];</span>
+<span class="fc" id="L32">        j++;</span>
+      }
+    }
+<span class="fc" id="L35">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

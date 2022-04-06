@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChiSquaredDist.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.distributions.cont</a> &gt; <span class="el_source">ChiSquaredDist.java</span></div><h1>ChiSquaredDist.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.telek.telekmath.advanced.distributions.cont;
+
+
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.utils.TelekMathException.*;
+import com.telek.telekmath.utils.TMath;
+
+
+
+public class ChiSquaredDist  {
+
+
+    /* No constructor */
+    private ChiSquaredDist(){}
+
+
+    ///////////////
+    /*  METHODS  */
+    ///////////////
+
+    public static double expectedValue(double degOfFreedom){
+<span class="fc" id="L39">        return degOfFreedom;</span>
+    }
+
+    public static double variance(double degOfFreedom){
+<span class="fc" id="L43">        return 2d * degOfFreedom;</span>
+    }
+
+    public static double getAlpha(double degOfFreedom){
+<span class="nc" id="L47">        return degOfFreedom / 2d;</span>
+    }
+
+    public static double getDegreeOfFreedom(double alpha){
+<span class="nc" id="L51">        return 2d * alpha;</span>
+    }
+
+
+    /**
+     * @param v degrees of freedom
+     * @param x any value
+     * @return probability density function (PDF) result for v and x
+     */
+    public static double density(double v, double x){
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if(x &lt; 0) return 0;</span>
+<span class="fc" id="L62">        double alpha = v / 2d;</span>
+<span class="fc" id="L63">        return TMath.pow(x / 2d, alpha - 1d) / 2d * TMath.exp(-x / 2d) / TMath.gamma(alpha);</span>
+    }
+
+
+
+    /**
+     * Returns P(X &lt;= x) &lt;br&gt;
+     * @param v degrees of freedom
+     * @param x any value
+     * @return cumulative density function (CDF) result
+     */
+    public static double cumulativeProbability(double v, double x){
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if(x &lt;= 0)</span>
+<span class="fc" id="L76">            return 0;</span>
+
+<span class="fc" id="L78">        return TMath.regularizedGammaP(v / 2d, x / 2d);</span>
+    }
+
+
+
+    /**
+     * Left tailed inverse cumulative density function (ICDF). &lt;br&gt;
+     * For degrees of freedom values higher than 10_000_000 this function might
+     * throw an Exception or just take a REALLY long time to finish. &lt;br&gt;
+     * Returns the variable &quot;val&quot; for this equation:  p = P(X &lt;= val)
+     * @param v degrees of freedom
+     * @param p any value in range [0,1]
+     * @return inverse cumulative density function (ICDF) result
+     */
+    public static double invCumLeftTailed(double v, double p) {
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if(!TRange.ZERO_TO_ONE.isInRange(p)) throw new NotInRangeException(TRange.ZERO_TO_ONE, p);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if(v &lt; 1d) throw new InvalidValueException(&quot;degrees of freedom (v)&quot;, v);</span>
+
+<span class="fc" id="L96">        double lowerBound = 0;</span>
+<span class="fc" id="L97">        double upperBound = Double.POSITIVE_INFINITY;</span>
+
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (p == 0.0) return lowerBound;</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (p == 1.0) return upperBound;</span>
+
+<span class="fc" id="L102">        final double mu = expectedValue(v);</span>
+<span class="fc" id="L103">        final double sig = TMath.sqrt(variance(v));</span>
+
+<span class="pc bpc" id="L105" title="2 of 4 branches missed.">        final boolean chebyshevApplies = !(Double.isInfinite(mu) || Double.isNaN(mu) ||</span>
+<span class="pc bpc" id="L106" title="2 of 4 branches missed.">                Double.isInfinite(sig) || Double.isNaN(sig));</span>
+
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (lowerBound == Double.NEGATIVE_INFINITY) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (chebyshevApplies) {</span>
+<span class="nc" id="L110">                lowerBound = mu - sig * TMath.sqrt((1d - p) / p);</span>
+            }
+            else {
+<span class="nc" id="L113">                lowerBound = -1d;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                while (cumulativeProbability(v, lowerBound) &gt;= p)</span>
+<span class="nc" id="L115">                    lowerBound *= 2d;</span>
+            }
+        }
+
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (upperBound == Double.POSITIVE_INFINITY) {</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">            if (chebyshevApplies) {</span>
+<span class="fc" id="L121">                upperBound = mu + sig * TMath.sqrt(p / (1d - p));</span>
+            }
+            else {
+<span class="nc" id="L124">                upperBound = 1d;</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                while (cumulativeProbability(v, upperBound) &lt; p)</span>
+<span class="nc" id="L126">                    upperBound *= 2d;</span>
+            }
+        }
+
+
+<span class="fc" id="L131">        double initial = lowerBound + 0.5d * (upperBound - lowerBound);</span>
+
+<span class="fc" id="L133">        double yInitial = computeObjectiveValue(v, p, initial);</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (TMath.abs(yInitial) &lt;= 1E-15) return initial;</span>
+
+<span class="fc" id="L136">        double yMin = computeObjectiveValue(v, p, lowerBound);</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (TMath.abs(yMin) &lt;= 1E-15) return lowerBound;</span>
+
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (yInitial * yMin &lt; 0)</span>
+<span class="fc" id="L140">            return brent(v, p, lowerBound, initial, yMin, yInitial);</span>
+
+<span class="fc" id="L142">        double yMax = computeObjectiveValue(v, p, upperBound);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (TMath.abs(yMax) &lt;= 1E-15) return upperBound;</span>
+
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (yInitial * yMax &lt; 0) return brent(v, p, initial, upperBound, yInitial, yMax);</span>
+
+<span class="nc" id="L147">        throw new ThisLineIsNeverExecutedException();</span>
+    }
+
+
+
+
+    /**
+     * Right tailed inverse cumulative density function. &lt;br&gt;
+     * Returns the variable &quot;val&quot; for this equation:  p = P(X &gt;= val)
+     * @param v degrees of freedom
+     * @param p any value in range [0,1]
+     * @return inverse cumulative density function (ICDF) result
+     */
+    public static double invCumRightTailed(double v, double p){
+<span class="fc" id="L161">        return invCumLeftTailed(v, 1d - p);</span>
+    }
+
+
+
+
+
+    ///////////////
+    /*  HELPERS  */
+    ///////////////
+
+    private static double computeObjectiveValue(double v, double p, double x) {
+<span class="fc" id="L173">        return cumulativeProbability(v, x) - p;</span>
+    }
+
+    private static double brent(double v, double prob, double lo, double hi, double fLo, double fHi) {
+<span class="fc" id="L177">        double a = lo;</span>
+<span class="fc" id="L178">        double fa = fLo;</span>
+<span class="fc" id="L179">        double b = hi;</span>
+<span class="fc" id="L180">        double fb = fHi;</span>
+<span class="fc" id="L181">        double c = a;</span>
+<span class="fc" id="L182">        double fc = fa;</span>
+<span class="fc" id="L183">        double d = b - a;</span>
+<span class="fc" id="L184">        double e = d;</span>
+
+<span class="fc" id="L186">        final double t = 1.0E-9;</span>
+<span class="fc" id="L187">        final double eps = 1e-14;</span>
+
+        while (true) {
+<span class="fc bfc" id="L190" title="All 2 branches covered.">            if (TMath.abs(fc) &lt; TMath.abs(fb)) {</span>
+<span class="fc" id="L191">                a = b;</span>
+<span class="fc" id="L192">                b = c;</span>
+<span class="fc" id="L193">                c = a;</span>
+<span class="fc" id="L194">                fa = fb;</span>
+<span class="fc" id="L195">                fb = fc;</span>
+<span class="fc" id="L196">                fc = fa;</span>
+            }
+
+<span class="fc" id="L199">            final double tol = 2 * eps * TMath.abs(b) + t;</span>
+<span class="fc" id="L200">            final double m = 0.5 * (c - b);</span>
+
+<span class="fc bfc" id="L202" title="All 4 branches covered.">            if (TMath.abs(m) &lt;= tol || eqForBrent(fb))</span>
+<span class="fc" id="L203">                return b;</span>
+
+
+<span class="fc bfc" id="L206" title="All 4 branches covered.">            if (TMath.abs(e) &lt; tol || TMath.abs(fa) &lt;= TMath.abs(fb)) {</span>
+<span class="fc" id="L207">                d = m;</span>
+<span class="fc" id="L208">                e = d;</span>
+            }
+
+            else {
+<span class="fc" id="L212">                double s = fb / fa;</span>
+                double p, q;
+<span class="fc bfc" id="L214" title="All 2 branches covered.">                if (a == c) {</span>
+<span class="fc" id="L215">                    p = 2 * m * s;</span>
+<span class="fc" id="L216">                    q = 1 - s;</span>
+                }
+                else {
+<span class="fc" id="L219">                    q = fa / fc;</span>
+<span class="fc" id="L220">                    final double r = fb / fc;</span>
+<span class="fc" id="L221">                    p = s * (2 * m * q * (q - r) - (b - a) * (r - 1));</span>
+<span class="fc" id="L222">                    q = (q - 1) * (r - 1) * (s - 1);</span>
+                }
+<span class="fc bfc" id="L224" title="All 2 branches covered.">                if (p &gt; 0) {</span>
+<span class="fc" id="L225">                    q = -q;</span>
+                }
+                else {
+<span class="fc" id="L228">                    p = -p;</span>
+                }
+<span class="fc" id="L230">                s = e;</span>
+<span class="fc" id="L231">                e = d;</span>
+<span class="fc bfc" id="L232" title="All 4 branches covered.">                if (p &gt;= 1.5 * m * q - TMath.abs(tol * q) || p &gt;= TMath.abs(0.5 * s * q)) {</span>
+<span class="fc" id="L233">                    d = m;</span>
+<span class="fc" id="L234">                    e = d;</span>
+                }
+                else {
+<span class="fc" id="L237">                    d = p / q;</span>
+                }
+            }
+<span class="fc" id="L240">            a = b;</span>
+<span class="fc" id="L241">            fa = fb;</span>
+
+<span class="fc bfc" id="L243" title="All 2 branches covered.">            if (TMath.abs(d) &gt; tol) {</span>
+<span class="fc" id="L244">                b += d;</span>
+            }
+<span class="fc bfc" id="L246" title="All 2 branches covered.">            else if (m &gt; 0) {</span>
+<span class="fc" id="L247">                b += tol;</span>
+            }
+            else {
+<span class="fc" id="L250">                b -= tol;</span>
+            }
+<span class="fc" id="L252">            fb = computeObjectiveValue(v, prob, b);</span>
+<span class="fc bfc" id="L253" title="All 8 branches covered.">            if ((fb &gt; 0 &amp;&amp; fc &gt; 0) || (fb &lt;= 0 &amp;&amp; fc &lt;= 0)) {</span>
+<span class="fc" id="L254">                c = a;</span>
+<span class="fc" id="L255">                fc = fa;</span>
+<span class="fc" id="L256">                d = b - a;</span>
+<span class="fc" id="L257">                e = d;</span>
+            }
+
+<span class="fc" id="L260">        }</span>
+    }
+
+    private static boolean eqForBrent(double x) {
+<span class="fc" id="L264">        long xInt = Double.doubleToLongBits(x);</span>
+<span class="fc" id="L265">        long yInt = Double.doubleToLongBits(0);</span>
+
+<span class="fc" id="L267">        final long SGN_MASK = 0x8000000000000000L;</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        if (xInt &lt; 0) xInt = SGN_MASK - xInt;</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (yInt &lt; 0) yInt = SGN_MASK - yInt;</span>
+
+<span class="pc bpc" id="L271" title="1 of 4 branches missed.">        return TMath.abs(xInt - yInt) &lt;= 1 &amp;&amp; !Double.isNaN(x);</span>
+    }
+
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

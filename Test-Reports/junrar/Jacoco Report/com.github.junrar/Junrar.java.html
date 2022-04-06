@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Junrar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar</a> &gt; <span class="el_source">Junrar.java</span></div><h1>Junrar.java</h1><pre class="source lang-java linenums">package com.github.junrar;
+
+import com.github.junrar.exception.RarException;
+import com.github.junrar.rarfile.FileHeader;
+import com.github.junrar.volume.VolumeManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L16">public class Junrar {</span>
+
+<span class="fc" id="L18">    private static final Logger logger = LoggerFactory.getLogger(Junrar.class);</span>
+
+    public static List&lt;File&gt; extract(final String rarPath, final String destinationPath) throws IOException, RarException {
+<span class="fc" id="L21">        return extract(rarPath, destinationPath, null);</span>
+    }
+
+    public static List&lt;File&gt; extract(final String rarPath, final String destinationPath, final String password) throws IOException, RarException {
+<span class="pc bpc" id="L25" title="2 of 4 branches missed.">        if (rarPath == null || destinationPath == null) {</span>
+<span class="nc" id="L26">            throw new IllegalArgumentException(&quot;archive and destination must be set&quot;);</span>
+        }
+<span class="fc" id="L28">        return extract(new File(rarPath), new File(destinationPath), password);</span>
+    }
+
+    public static List&lt;File&gt; extract(final File rar, final File destinationFolder) throws RarException, IOException {
+<span class="fc" id="L32">        return extract(rar, destinationFolder, null);</span>
+    }
+
+    public static List&lt;File&gt; extract(final File rar, final File destinationFolder, final String password)
+            throws RarException, IOException {
+<span class="fc" id="L37">        validateRarPath(rar);</span>
+<span class="fc" id="L38">        validateDestinationPath(destinationFolder);</span>
+
+<span class="fc" id="L40">        final Archive archive = createArchiveOrThrowException(rar, password);</span>
+<span class="fc" id="L41">        LocalFolderExtractor lfe = new LocalFolderExtractor(destinationFolder);</span>
+<span class="fc" id="L42">        return extractArchiveTo(archive, lfe);</span>
+    }
+
+    public static List&lt;File&gt; extract(final InputStream resourceAsStream, final File destinationFolder) throws RarException, IOException {
+<span class="fc" id="L46">        return extract(resourceAsStream, destinationFolder, null);</span>
+    }
+
+    public static List&lt;File&gt; extract(final InputStream resourceAsStream, final File destinationFolder, final String password) throws RarException, IOException {
+<span class="fc" id="L50">        validateDestinationPath(destinationFolder);</span>
+
+<span class="fc" id="L52">        final Archive arch = createArchiveOrThrowException(resourceAsStream, password);</span>
+<span class="fc" id="L53">        LocalFolderExtractor lfe = new LocalFolderExtractor(destinationFolder);</span>
+<span class="fc" id="L54">        return extractArchiveTo(arch, lfe);</span>
+    }
+
+    public static List&lt;File&gt; extract(final VolumeManager volumeManager, final File destinationFolder) throws IOException, RarException {
+<span class="fc" id="L58">        validateDestinationPath(destinationFolder);</span>
+
+<span class="fc" id="L60">        final Archive arch = createArchiveOrThrowException(volumeManager, null);</span>
+<span class="fc" id="L61">        LocalFolderExtractor lfe = new LocalFolderExtractor(destinationFolder);</span>
+<span class="fc" id="L62">        return extractArchiveTo(arch, lfe);</span>
+    }
+
+    public static List&lt;File&gt; extract(final VolumeManager volumeManager, final File destinationFolder, final String password) throws IOException, RarException {
+<span class="nc" id="L66">        validateDestinationPath(destinationFolder);</span>
+
+<span class="nc" id="L68">        final Archive arch = createArchiveOrThrowException(volumeManager, password);</span>
+<span class="nc" id="L69">        LocalFolderExtractor lfe = new LocalFolderExtractor(destinationFolder);</span>
+<span class="nc" id="L70">        return extractArchiveTo(arch, lfe);</span>
+    }
+
+
+    public static List&lt;ContentDescription&gt; getContentsDescription(final File rar) throws RarException, IOException {
+<span class="fc" id="L75">        validateRarPath(rar);</span>
+<span class="fc" id="L76">        final Archive arch = createArchiveOrThrowException(rar, null);</span>
+<span class="fc" id="L77">        return getContentsDescriptionFromArchive(arch);</span>
+    }
+
+    public static List&lt;ContentDescription&gt; getContentsDescription(final InputStream resourceAsStream) throws RarException, IOException {
+<span class="fc" id="L81">        final Archive arch = createArchiveOrThrowException(resourceAsStream, null);</span>
+<span class="fc" id="L82">        return getContentsDescriptionFromArchive(arch);</span>
+    }
+
+    private static List&lt;ContentDescription&gt; getContentsDescriptionFromArchive(final Archive arch) throws RarException, IOException {
+<span class="fc" id="L86">        final List&lt;ContentDescription&gt; contents = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if (arch.isEncrypted()) {</span>
+<span class="nc" id="L89">                logger.warn(&quot;archive is encrypted cannot extract&quot;);</span>
+<span class="nc" id="L90">                return new ArrayList&lt;&gt;();</span>
+            }
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            for (final FileHeader fileHeader : arch) {</span>
+<span class="fc" id="L93">                contents.add(new ContentDescription(fileHeader.getFileName(), fileHeader.getUnpSize()));</span>
+<span class="fc" id="L94">            }</span>
+        } finally {
+<span class="fc" id="L96">            arch.close();</span>
+        }
+<span class="fc" id="L98">        return contents;</span>
+    }
+
+    private static Archive createArchiveOrThrowException(final VolumeManager volumeManager, final String password) throws RarException, IOException {
+        try {
+<span class="fc" id="L103">            return new Archive(volumeManager, null, password);</span>
+<span class="nc" id="L104">        } catch (final RarException | IOException e) {</span>
+<span class="nc" id="L105">            Junrar.logger.error(&quot;Error while creating archive&quot;, e);</span>
+<span class="nc" id="L106">            throw e;</span>
+        }
+    }
+
+    private static Archive createArchiveOrThrowException(final InputStream rarAsStream, final String password) throws RarException, IOException {
+        try {
+<span class="fc" id="L112">            return new Archive(rarAsStream, password);</span>
+<span class="fc" id="L113">        } catch (final RarException | IOException e) {</span>
+<span class="fc" id="L114">            Junrar.logger.error(&quot;Error while creating archive&quot;, e);</span>
+<span class="fc" id="L115">            throw e;</span>
+        }
+    }
+
+    private static Archive createArchiveOrThrowException(final File file, final String password) throws RarException, IOException {
+        try {
+<span class="fc" id="L121">            return new Archive(file, password);</span>
+<span class="fc" id="L122">        } catch (final RarException | IOException e) {</span>
+<span class="fc" id="L123">            Junrar.logger.error(&quot;Error while creating archive&quot;, e);</span>
+<span class="fc" id="L124">            throw e;</span>
+        }
+    }
+
+    private static void validateDestinationPath(final File destinationFolder) {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (destinationFolder == null) {</span>
+<span class="nc" id="L130">            throw new IllegalArgumentException(&quot;archive and destination must me set&quot;);</span>
+        }
+<span class="pc bpc" id="L132" title="1 of 4 branches missed.">        if (!destinationFolder.exists() || !destinationFolder.isDirectory()) {</span>
+<span class="fc" id="L133">            throw new IllegalArgumentException(&quot;the destination must exist and point to a directory: &quot; + destinationFolder);</span>
+        }
+<span class="fc" id="L135">    }</span>
+
+    private static void validateRarPath(final File rar) {
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (rar == null) {</span>
+<span class="nc" id="L139">            throw new IllegalArgumentException(&quot;archive and destination must me set&quot;);</span>
+        }
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">        if (!rar.exists()) {</span>
+<span class="nc" id="L142">            throw new IllegalArgumentException(&quot;the archive does not exit: &quot; + rar);</span>
+        }
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (!rar.isFile()) {</span>
+<span class="fc" id="L145">            throw new IllegalArgumentException(&quot;First argument should be a file but was &quot; + rar.getAbsolutePath());</span>
+        }
+<span class="fc" id="L147">    }</span>
+
+    private static List&lt;File&gt; extractArchiveTo(final Archive arch, final LocalFolderExtractor destination) throws IOException, RarException {
+<span class="fc" id="L150">        final List&lt;File&gt; extractedFiles = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="fc bfc" id="L152" title="All 2 branches covered.">            for (final FileHeader fh : arch) {</span>
+                try {
+<span class="fc" id="L154">                    final File file = tryToExtract(destination, arch, fh);</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">                    if (file != null) {</span>
+<span class="fc" id="L156">                        extractedFiles.add(file);</span>
+                    }
+<span class="nc" id="L158">                } catch (final IOException | RarException e) {</span>
+<span class="nc" id="L159">                    logger.error(&quot;error extracting the file&quot;, e);</span>
+<span class="nc" id="L160">                    throw e;</span>
+<span class="fc" id="L161">                }</span>
+<span class="fc" id="L162">            }</span>
+        } finally {
+<span class="fc" id="L164">            arch.close();</span>
+        }
+<span class="fc" id="L166">        return extractedFiles;</span>
+    }
+
+    private static File tryToExtract(
+            final LocalFolderExtractor destination,
+            final Archive arch,
+            final FileHeader fileHeader
+    ) throws IOException, RarException {
+<span class="fc" id="L174">        final String fileNameString = fileHeader.getFileName();</span>
+
+<span class="fc" id="L176">        Junrar.logger.info(&quot;extracting: {}&quot;, fileNameString);</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        if (fileHeader.isDirectory()) {</span>
+<span class="fc" id="L178">            return destination.createDirectory(fileHeader);</span>
+        } else {
+<span class="fc" id="L180">            return destination.extract(arch, fileHeader);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VMOpType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.unpack.vm</a> &gt; <span class="el_source">VMOpType.java</span></div><h1>VMOpType.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 31.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.unpack.vm;
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+<span class="fc" id="L26">public enum VMOpType {</span>
+<span class="fc" id="L27">    VM_OPREG(0),</span>
+<span class="fc" id="L28">    VM_OPINT(1),</span>
+<span class="fc" id="L29">    VM_OPREGMEM(2),</span>
+<span class="fc" id="L30">    VM_OPNONE(3);</span>
+
+    private final int opType;
+
+<span class="fc" id="L34">    VMOpType(int opType) {</span>
+<span class="fc" id="L35">        this.opType = opType;</span>
+<span class="fc" id="L36">    }</span>
+
+    public int getOpType() {
+<span class="nc" id="L39">        return opType;</span>
+    }
+
+
+    public boolean equals(int opType) {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        return this.opType == opType;</span>
+    }
+    public static VMOpType findOpType(int opType) {
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (VM_OPREG.equals(opType)) {</span>
+<span class="nc" id="L49">            return VM_OPREG;</span>
+        }
+
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (VM_OPINT.equals(opType)) {</span>
+<span class="nc" id="L54">            return VM_OPINT;</span>
+        }
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (VM_OPREGMEM.equals(opType)) {</span>
+<span class="nc" id="L58">            return VM_OPREGMEM;</span>
+        }
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (VM_OPNONE.equals(opType)) {</span>
+<span class="nc" id="L62">            return VM_OPNONE;</span>
+        }
+<span class="nc" id="L64">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

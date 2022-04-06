@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileHeader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">junrar</a> &gt; <a href="index.source.html" class="el_package">com.github.junrar.rarfile</a> &gt; <span class="el_source">FileHeader.java</span></div><h1>FileHeader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
+ * Original author: Edmund Wagner
+ * Creation date: 22.05.2007
+ *
+ * Source: $HeadURL$
+ * Last changed: $LastChangedDate$
+ *
+ *
+ * the unrar licence applies to all junrar source and binary distributions
+ * you are not allowed to use this source to re-create the RAR compression algorithm
+ *
+ * Here some html entities which can be used for escaping javadoc tags:
+ * &quot;&amp;&quot;:  &quot;&amp;#038;&quot; or &quot;&amp;amp;&quot;
+ * &quot;&lt;&quot;:  &quot;&amp;#060;&quot; or &quot;&amp;lt;&quot;
+ * &quot;&gt;&quot;:  &quot;&amp;#062;&quot; or &quot;&amp;gt;&quot;
+ * &quot;@&quot;:  &quot;&amp;#064;&quot;
+ */
+package com.github.junrar.rarfile;
+
+import com.github.junrar.io.Raw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+
+/**
+ * DOCUMENT ME
+ *
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
+ */
+public class FileHeader extends BlockHeader {
+
+<span class="fc" id="L40">    private static final Logger logger = LoggerFactory.getLogger(FileHeader.class);</span>
+
+    private static final byte SALT_SIZE = 8;
+
+    private static final byte NEWLHD_SIZE = 32;
+
+    private static final long NANOS_PER_UNIT = 100L; // 100ns units
+
+    private final long unpSize;
+
+    private final HostSystem hostOS;
+
+    private final int fileCRC;
+
+    private byte unpVersion;
+
+    private byte unpMethod;
+
+    private short nameSize;
+
+    private final int highPackSize;
+
+    private int highUnpackSize;
+
+    private final byte[] fileNameBytes;
+
+    private String fileName;
+    private String fileNameW;
+
+    private byte[] subData;
+
+<span class="fc" id="L71">    private final byte[] salt = new byte[SALT_SIZE];</span>
+
+    private FileTime mTime;
+
+    private FileTime cTime;
+
+    private FileTime aTime;
+
+    private FileTime arcTime;
+
+    private long fullPackSize;
+
+    private long fullUnpackSize;
+
+    private int fileAttr;
+
+    private int subFlags; // same as fileAttr (in header)
+
+<span class="fc" id="L89">    private int recoverySectors = -1;</span>
+
+    public FileHeader(BlockHeader bh, byte[] fileHeader) {
+<span class="fc" id="L92">        super(bh);</span>
+
+<span class="fc" id="L94">        int position = 0;</span>
+<span class="fc" id="L95">        unpSize = Raw.readIntLittleEndianAsLong(fileHeader, position);</span>
+<span class="fc" id="L96">        position += 4;</span>
+<span class="fc" id="L97">        hostOS = HostSystem.findHostSystem(fileHeader[4]);</span>
+<span class="fc" id="L98">        position++;</span>
+
+<span class="fc" id="L100">        fileCRC = Raw.readIntLittleEndian(fileHeader, position);</span>
+<span class="fc" id="L101">        position += 4;</span>
+
+<span class="fc" id="L103">        int fileTime = Raw.readIntLittleEndian(fileHeader, position);</span>
+<span class="fc" id="L104">        position += 4;</span>
+
+<span class="fc" id="L106">        unpVersion |= fileHeader[13] &amp; 0xff;</span>
+<span class="fc" id="L107">        position++;</span>
+<span class="fc" id="L108">        unpMethod |= fileHeader[14] &amp; 0xff;</span>
+<span class="fc" id="L109">        position++;</span>
+<span class="fc" id="L110">        nameSize = Raw.readShortLittleEndian(fileHeader, position);</span>
+<span class="fc" id="L111">        position += 2;</span>
+
+<span class="fc" id="L113">        fileAttr = Raw.readIntLittleEndian(fileHeader, position);</span>
+<span class="fc" id="L114">        position += 4;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (isLargeBlock()) {</span>
+<span class="nc" id="L116">            highPackSize = Raw.readIntLittleEndian(fileHeader, position);</span>
+<span class="nc" id="L117">            position += 4;</span>
+
+<span class="nc" id="L119">            highUnpackSize = Raw.readIntLittleEndian(fileHeader, position);</span>
+<span class="nc" id="L120">            position += 4;</span>
+        } else {
+<span class="fc" id="L122">            highPackSize = 0;</span>
+<span class="fc" id="L123">            highUnpackSize = 0;</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (unpSize == 0xffffffff) {</span>
+<span class="nc" id="L125">                highUnpackSize = Integer.MAX_VALUE;</span>
+            }
+
+        }
+<span class="fc" id="L129">        fullPackSize |= highPackSize;</span>
+<span class="fc" id="L130">        fullPackSize &lt;&lt;= 32;</span>
+<span class="fc" id="L131">        fullPackSize |= getPackSize();</span>
+
+<span class="fc" id="L133">        fullUnpackSize |= highUnpackSize;</span>
+<span class="fc" id="L134">        fullUnpackSize &lt;&lt;= 32;</span>
+<span class="fc" id="L135">        fullUnpackSize += unpSize;</span>
+
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        nameSize = nameSize &gt; 4 * 1024 ? 4 * 1024 : nameSize;</span>
+
+<span class="fc" id="L139">        fileNameBytes = new byte[nameSize];</span>
+<span class="fc" id="L140">        System.arraycopy(fileHeader, position, fileNameBytes, 0, nameSize);</span>
+<span class="fc" id="L141">        position += nameSize;</span>
+
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (isFileHeader()) {</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            if (isUnicode()) {</span>
+<span class="fc" id="L145">                int length = 0;</span>
+<span class="pc bpc" id="L146" title="1 of 4 branches missed.">                while (length &lt; fileNameBytes.length</span>
+                        &amp;&amp; fileNameBytes[length] != 0) {
+<span class="fc" id="L148">                    length++;</span>
+                }
+<span class="fc" id="L150">                fileName = new String(fileNameBytes, 0, length);</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">                if (length != nameSize) {</span>
+<span class="fc" id="L152">                    length++;</span>
+<span class="fc" id="L153">                    fileNameW = FileNameDecoder.decode(fileNameBytes, length);</span>
+                } else {
+<span class="nc" id="L155">                    fileNameW = &quot;&quot;;</span>
+                }
+<span class="fc" id="L157">            } else {</span>
+<span class="fc" id="L158">                fileName = new String(fileNameBytes);</span>
+<span class="fc" id="L159">                fileNameW = &quot;&quot;;</span>
+            }
+        }
+
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (UnrarHeadertype.NewSubHeader.equals(headerType)) {</span>
+<span class="nc" id="L164">            int datasize = headerSize - NEWLHD_SIZE - nameSize;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (hasSalt()) {</span>
+<span class="nc" id="L166">                datasize -= SALT_SIZE;</span>
+            }
+<span class="nc bnc" id="L168" title="All 2 branches missed.">            if (datasize &gt; 0) {</span>
+<span class="nc" id="L169">                subData = new byte[datasize];</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                for (int i = 0; i &lt; datasize; i++) {</span>
+<span class="nc" id="L171">                    subData[i] = (fileHeader[position]);</span>
+<span class="nc" id="L172">                    position++;</span>
+                }
+            }
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (NewSubHeaderType.SUBHEAD_TYPE_RR.byteEquals(fileNameBytes)) {</span>
+<span class="nc" id="L177">                recoverySectors = (subData[8] &amp; 0xff) + ((subData[9] &amp; 0xff) &lt;&lt; 8)</span>
+                        + ((subData[10] &amp; 0xff) &lt;&lt; 16) + ((subData[11] &amp; 0xff) &lt;&lt; 24);
+            }
+        }
+
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (hasSalt()) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            for (int i = 0; i &lt; SALT_SIZE; i++) {</span>
+<span class="fc" id="L184">                salt[i] = fileHeader[position];</span>
+<span class="fc" id="L185">                position++;</span>
+            }
+        }
+
+<span class="fc" id="L189">        mTime = FileTime.fromMillis(getDateDos(fileTime));</span>
+
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (hasExtTime()) {</span>
+<span class="fc" id="L192">            short extTimeFlags = Raw.readShortLittleEndian(fileHeader, position);</span>
+<span class="fc" id="L193">            position += 2;</span>
+
+<span class="fc" id="L195">            TimePositionTuple mTimeTuple = parseExtTime(12, extTimeFlags, fileHeader, position, mTime);</span>
+<span class="fc" id="L196">            mTime = mTimeTuple.time;</span>
+<span class="fc" id="L197">            position = mTimeTuple.position;</span>
+
+<span class="fc" id="L199">            TimePositionTuple cTimeTuple = parseExtTime(8, extTimeFlags, fileHeader, position);</span>
+<span class="fc" id="L200">            cTime = cTimeTuple.time;</span>
+<span class="fc" id="L201">            position = cTimeTuple.position;</span>
+
+<span class="fc" id="L203">            TimePositionTuple aTimeTuple = parseExtTime(4, extTimeFlags, fileHeader, position);</span>
+<span class="fc" id="L204">            aTime = aTimeTuple.time;</span>
+<span class="fc" id="L205">            position = aTimeTuple.position;</span>
+
+<span class="fc" id="L207">            TimePositionTuple arcTimeTuple = parseExtTime(0, extTimeFlags, fileHeader, position);</span>
+<span class="fc" id="L208">            arcTime = arcTimeTuple.time;</span>
+<span class="fc" id="L209">            position = arcTimeTuple.position;</span>
+        }
+<span class="fc" id="L211">    }</span>
+
+    private static final class TimePositionTuple {
+        private final int position;
+        private final FileTime time;
+
+<span class="fc" id="L217">        private TimePositionTuple(int position, FileTime time) {</span>
+<span class="fc" id="L218">            this.position = position;</span>
+<span class="fc" id="L219">            this.time = time;</span>
+<span class="fc" id="L220">        }</span>
+    }
+
+    private static TimePositionTuple parseExtTime(int shift, short flags, byte[] fileHeader, int position) {
+<span class="fc" id="L224">        return parseExtTime(shift, flags, fileHeader, position, null);</span>
+    }
+
+    private static TimePositionTuple parseExtTime(int shift, short flags, byte[] fileHeader, int position, FileTime baseTime) {
+<span class="fc" id="L228">        int flag = flags &gt;&gt;&gt; shift;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if ((flag &amp; 0x8) != 0) {</span>
+            long seconds;
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            if (baseTime != null) {</span>
+<span class="fc" id="L232">                seconds = baseTime.to(TimeUnit.SECONDS);</span>
+            } else {
+<span class="fc" id="L234">                seconds = TimeUnit.MILLISECONDS.toSeconds(getDateDos(Raw.readIntLittleEndian(fileHeader, position)));</span>
+<span class="fc" id="L235">                position += 4;</span>
+            }
+<span class="fc" id="L237">            int count = flag &amp; 0x3;</span>
+<span class="fc" id="L238">            long remainder = 0;</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">            for (int i = 0; i &lt; count; i++) {</span>
+<span class="fc" id="L240">                int b = fileHeader[position] &amp; 0xff;</span>
+<span class="fc" id="L241">                remainder = (b &lt;&lt; 16) | (remainder &gt;&gt;&gt; 8);</span>
+<span class="fc" id="L242">                position++;</span>
+            }
+<span class="fc" id="L244">            long nanos = remainder * NANOS_PER_UNIT;</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">            if ((flag &amp; 0x4) != 0) {</span>
+<span class="fc" id="L246">                nanos += TimeUnit.SECONDS.toNanos(1);</span>
+            }
+<span class="fc" id="L248">            FileTime time = FileTime.from(Instant.ofEpochSecond(seconds, nanos));</span>
+<span class="fc" id="L249">            return new TimePositionTuple(position, time);</span>
+        } else {
+<span class="fc" id="L251">            return new TimePositionTuple(position, baseTime);</span>
+        }
+    }
+
+    @Override
+    public void print() {
+<span class="nc" id="L257">        super.print();</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (logger.isInfoEnabled()) {</span>
+<span class="nc" id="L259">            StringBuilder str = new StringBuilder();</span>
+<span class="nc" id="L260">            str.append(&quot;unpSize: &quot;).append(getUnpSize());</span>
+<span class="nc" id="L261">            str.append(&quot;\nHostOS: &quot;).append(hostOS.name());</span>
+<span class="nc" id="L262">            str.append(&quot;\nMTime: &quot;).append(mTime);</span>
+<span class="nc" id="L263">            str.append(&quot;\nCTime: &quot;).append(cTime);</span>
+<span class="nc" id="L264">            str.append(&quot;\nATime: &quot;).append(aTime);</span>
+<span class="nc" id="L265">            str.append(&quot;\nArcTime: &quot;).append(arcTime);</span>
+<span class="nc" id="L266">            str.append(&quot;\nFileName: &quot;).append(fileName);</span>
+<span class="nc" id="L267">            str.append(&quot;\nFileNameW: &quot;).append(fileNameW);</span>
+<span class="nc" id="L268">            str.append(&quot;\nunpMethod: &quot;).append(Integer.toHexString(getUnpMethod()));</span>
+<span class="nc" id="L269">            str.append(&quot;\nunpVersion: &quot;).append(Integer.toHexString(getUnpVersion()));</span>
+<span class="nc" id="L270">            str.append(&quot;\nfullpackedsize: &quot;).append(getFullPackSize());</span>
+<span class="nc" id="L271">            str.append(&quot;\nfullunpackedsize: &quot;).append(getFullUnpackSize());</span>
+<span class="nc" id="L272">            str.append(&quot;\nisEncrypted: &quot;).append(isEncrypted());</span>
+<span class="nc" id="L273">            str.append(&quot;\nisfileHeader: &quot;).append(isFileHeader());</span>
+<span class="nc" id="L274">            str.append(&quot;\nisSolid: &quot;).append(isSolid());</span>
+<span class="nc" id="L275">            str.append(&quot;\nisSplitafter: &quot;).append(isSplitAfter());</span>
+<span class="nc" id="L276">            str.append(&quot;\nisSplitBefore:&quot;).append(isSplitBefore());</span>
+<span class="nc" id="L277">            str.append(&quot;\nunpSize: &quot;).append(getUnpSize());</span>
+<span class="nc" id="L278">            str.append(&quot;\ndataSize: &quot;).append(getDataSize());</span>
+<span class="nc" id="L279">            str.append(&quot;\nisUnicode: &quot;).append(isUnicode());</span>
+<span class="nc" id="L280">            str.append(&quot;\nhasVolumeNumber: &quot;).append(hasVolumeNumber());</span>
+<span class="nc" id="L281">            str.append(&quot;\nhasArchiveDataCRC: &quot;).append(hasArchiveDataCRC());</span>
+<span class="nc" id="L282">            str.append(&quot;\nhasSalt: &quot;).append(hasSalt());</span>
+<span class="nc" id="L283">            str.append(&quot;\nhasEncryptVersions: &quot;).append(hasEncryptVersion());</span>
+<span class="nc" id="L284">            str.append(&quot;\nisSubBlock: &quot;).append(isSubBlock());</span>
+<span class="nc" id="L285">            logger.info(str.toString());</span>
+        }
+<span class="nc" id="L287">    }</span>
+
+    private static long getDateDos(int time) {
+<span class="fc" id="L290">        Calendar cal = Calendar.getInstance();</span>
+<span class="fc" id="L291">        cal.set(Calendar.YEAR, (time &gt;&gt;&gt; 25) + 1980);</span>
+<span class="fc" id="L292">        cal.set(Calendar.MONTH, ((time &gt;&gt;&gt; 21) &amp; 0x0f) - 1);</span>
+<span class="fc" id="L293">        cal.set(Calendar.DAY_OF_MONTH, (time &gt;&gt;&gt; 16) &amp; 0x1f);</span>
+<span class="fc" id="L294">        cal.set(Calendar.HOUR_OF_DAY, (time &gt;&gt;&gt; 11) &amp; 0x1f);</span>
+<span class="fc" id="L295">        cal.set(Calendar.MINUTE, (time &gt;&gt;&gt; 5) &amp; 0x3f);</span>
+<span class="fc" id="L296">        cal.set(Calendar.SECOND, (time &amp; 0x1f) * 2);</span>
+<span class="fc" id="L297">        cal.set(Calendar.MILLISECOND, 0);</span>
+<span class="fc" id="L298">        return cal.getTimeInMillis();</span>
+    }
+
+    private static Date toDate(FileTime time) {
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">        return time != null ? new Date(time.toMillis()) : null;</span>
+    }
+
+    private static FileTime toFileTime(Date time) {
+<span class="nc bnc" id="L306" title="All 2 branches missed.">        return time != null ? FileTime.fromMillis(time.getTime()) : null;</span>
+    }
+
+    /**
+     * The time in which the file was archived.
+     * Corresponds to te {@link FileHeader#arcTime} field.
+     *
+     * @return the timestamp, or null if absent.
+     */
+    public FileTime getArchivalTime() {
+<span class="nc" id="L316">        return arcTime;</span>
+    }
+
+    /**
+     * Sets the time in which the file was archived.
+     * Corresponds to te {@link FileHeader#arcTime} field.
+     *
+     * @param archivalTime the timestamp, or null to clear it.
+     */
+    public void setArchivalTime(FileTime archivalTime) {
+<span class="nc" id="L326">        this.arcTime = archivalTime;</span>
+<span class="nc" id="L327">    }</span>
+
+    /**
+     * Gets {@link FileHeader#getArchivalTime()} as a {@link Date}.
+     * The maximum granularity is reduced from microseconds to milliseconds.
+     *
+     * @return the date, or null if absent.
+     */
+    public Date getArcTime() {
+<span class="nc" id="L336">        return toDate(getArchivalTime());</span>
+    }
+
+    /**
+     * Sets {@link FileHeader#setArchivalTime(FileTime)} from a {@link Date}.
+     *
+     * @param arcTime the date, or null to clear it.
+     */
+    public void setArcTime(Date arcTime) {
+<span class="nc" id="L345">        setArchivalTime(toFileTime(arcTime));</span>
+<span class="nc" id="L346">    }</span>
+
+    /**
+     * The time in which the file was last accessed.
+     * Corresponds to te {@link FileHeader#aTime} field.
+     *
+     * @return the timestamp, or null if absent.
+     */
+    public FileTime getLastAccessTime() {
+<span class="fc" id="L355">        return aTime;</span>
+    }
+
+    /**
+     * Sets the time in which the file was last accessed.
+     * Corresponds to te {@link FileHeader#aTime} field.
+     *
+     * @param time the timestamp, or null to clear it.
+     */
+    public void setLastAccessTime(FileTime time) {
+<span class="nc" id="L365">        aTime = time;</span>
+<span class="nc" id="L366">    }</span>
+
+    /**
+     * Gets {@link FileHeader#getLastAccessTime()} as a {@link Date}.
+     * The maximum granularity is reduced from microseconds to milliseconds.
+     *
+     * @return the date, or null if absent.
+     */
+    public Date getATime() {
+<span class="fc" id="L375">        return toDate(getLastAccessTime());</span>
+    }
+
+    /**
+     * Sets {@link FileHeader#setLastAccessTime(FileTime)} from a {@link Date}.
+     *
+     * @param time the date, or null to clear it.
+     */
+    public void setATime(Date time) {
+<span class="nc" id="L384">        setLastAccessTime(toFileTime(time));</span>
+<span class="nc" id="L385">    }</span>
+
+    /**
+     * The time in which the file was created.
+     * Corresponds to te {@link FileHeader#cTime} field.
+     *
+     * @return the timestamp, or null if absent.
+     */
+    public FileTime getCreationTime() {
+<span class="fc" id="L394">        return cTime;</span>
+    }
+
+    /**
+     * Sets the time in which the file was created.
+     * Corresponds to te {@link FileHeader#cTime} field.
+     *
+     * @param time the timestamp, or null to clear it.
+     */
+    public void setCreationTime(FileTime time) {
+<span class="nc" id="L404">        cTime = time;</span>
+<span class="nc" id="L405">    }</span>
+
+    /**
+     * Gets {@link FileHeader#getCreationTime()} as a {@link Date}.
+     * The maximum granularity is reduced from microseconds to milliseconds.
+     *
+     * @return the date, or null if absent.
+     */
+    public Date getCTime() {
+<span class="fc" id="L414">        return toDate(getCreationTime());</span>
+    }
+
+    /**
+     * Sets {@link FileHeader#setCreationTime(FileTime)} from a {@link Date}.
+     *
+     * @param time the date, or null to clear it.
+     */
+    public void setCTime(Date time) {
+<span class="nc" id="L423">        setCreationTime(toFileTime(time));</span>
+<span class="nc" id="L424">    }</span>
+
+    public int getFileAttr() {
+<span class="nc" id="L427">        return fileAttr;</span>
+    }
+
+    public void setFileAttr(int fileAttr) {
+<span class="nc" id="L431">        this.fileAttr = fileAttr;</span>
+<span class="nc" id="L432">    }</span>
+
+    public int getFileCRC() {
+<span class="fc" id="L435">        return fileCRC;</span>
+    }
+
+    public byte[] getFileNameByteArray() {
+<span class="nc" id="L439">        return fileNameBytes;</span>
+    }
+
+    /**
+     * The ASCII filename.
+     *
+     * @return the ASCII filename
+     * @deprecated As of 7.2.0, replaced by {@link #getFileName()}
+     */
+    @Deprecated
+    public String getFileNameString() {
+<span class="nc" id="L450">        return fileName;</span>
+    }
+
+    public void setFileName(String fileName) {
+<span class="nc" id="L454">        this.fileName = fileName;</span>
+<span class="nc" id="L455">    }</span>
+
+    /**
+     * The unicode filename.
+     *
+     * @return the Unicode filename, or null if the filename is ASCII only
+     * @deprecated As of 7.2.0, replaced by {@link #getFileName()}
+     */
+    @Deprecated
+    public String getFileNameW() {
+<span class="nc" id="L465">        return fileNameW;</span>
+    }
+
+    public void setFileNameW(String fileNameW) {
+<span class="nc" id="L469">        this.fileNameW = fileNameW;</span>
+<span class="nc" id="L470">    }</span>
+
+    public int getHighPackSize() {
+<span class="nc" id="L473">        return highPackSize;</span>
+    }
+
+    public int getHighUnpackSize() {
+<span class="nc" id="L477">        return highUnpackSize;</span>
+    }
+
+    public HostSystem getHostOS() {
+<span class="fc" id="L481">        return hostOS;</span>
+    }
+
+    /**
+     * The time in which the file was last modified.
+     * Corresponds to te {@link FileHeader#mTime} field.
+     *
+     * @return the timestamp, or null if absent.
+     */
+    public FileTime getLastModifiedTime() {
+<span class="fc" id="L491">        return mTime;</span>
+    }
+
+    /**
+     * Sets the time in which the file was last modified.
+     * Corresponds to te {@link FileHeader#mTime} field.
+     *
+     * @param time the timestamp, or null to clear it.
+     */
+    public void setLastModifiedTime(FileTime time) {
+<span class="nc" id="L501">        mTime = time;</span>
+<span class="nc" id="L502">    }</span>
+
+    /**
+     * Gets {@link FileHeader#getLastModifiedTime()} as a {@link Date}.
+     * The maximum granularity is reduced from microseconds to milliseconds.
+     *
+     * @return the date, or null if absent.
+     */
+    public Date getMTime() {
+<span class="fc" id="L511">        return toDate(getLastModifiedTime());</span>
+    }
+
+    /**
+     * Sets {@link FileHeader#setLastModifiedTime(FileTime)} from a {@link Date}.
+     *
+     * @param time the date, or null to clear it.
+     */
+    public void setMTime(Date time) {
+<span class="nc" id="L520">        setLastModifiedTime(toFileTime(time));</span>
+<span class="nc" id="L521">    }</span>
+
+    public short getNameSize() {
+<span class="nc" id="L524">        return nameSize;</span>
+    }
+
+    public int getRecoverySectors() {
+<span class="nc" id="L528">        return recoverySectors;</span>
+    }
+
+    public byte[] getSalt() {
+<span class="fc" id="L532">        return salt;</span>
+    }
+
+    public byte[] getSubData() {
+<span class="nc" id="L536">        return subData;</span>
+    }
+
+    public int getSubFlags() {
+<span class="nc" id="L540">        return subFlags;</span>
+    }
+
+    public byte getUnpMethod() {
+<span class="fc" id="L544">        return unpMethod;</span>
+    }
+
+    public long getUnpSize() {
+<span class="fc" id="L548">        return unpSize;</span>
+    }
+
+    public byte getUnpVersion() {
+<span class="fc" id="L552">        return unpVersion;</span>
+    }
+
+    public long getFullPackSize() {
+<span class="fc" id="L556">        return fullPackSize;</span>
+    }
+
+    public long getFullUnpackSize() {
+<span class="fc" id="L560">        return fullUnpackSize;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L565">        return super.toString();</span>
+    }
+
+    /**
+     * the file will be continued in the next archive part
+     *
+     * @return isSplitAfter
+     */
+    public boolean isSplitAfter() {
+<span class="fc bfc" id="L574" title="All 2 branches covered.">        return (this.flags &amp; BlockHeader.LHD_SPLIT_AFTER) != 0;</span>
+    }
+
+    /**
+     * the file is continued in this archive
+     *
+     * @return isSplitBefore
+     */
+    public boolean isSplitBefore() {
+<span class="nc bnc" id="L583" title="All 2 branches missed.">        return (this.flags &amp; LHD_SPLIT_BEFORE) != 0;</span>
+    }
+
+    /**
+     * this file is compressed as solid (all files handeled as one)
+     *
+     * @return isSolid
+     */
+    public boolean isSolid() {
+<span class="fc bfc" id="L592" title="All 2 branches covered.">        return (this.flags &amp; LHD_SOLID) != 0;</span>
+    }
+
+    /**
+     * the file is encrypted
+     *
+     * @return isEncrypted
+     */
+    public boolean isEncrypted() {
+<span class="fc bfc" id="L601" title="All 2 branches covered.">        return (this.flags &amp; BlockHeader.LHD_PASSWORD) != 0;</span>
+    }
+
+    /**
+     * the filename is also present in unicode
+     *
+     * @return isUnicode
+     */
+    public boolean isUnicode() {
+<span class="fc bfc" id="L610" title="All 2 branches covered.">        return (flags &amp; LHD_UNICODE) != 0;</span>
+    }
+
+    public boolean isFileHeader() {
+<span class="fc" id="L614">        return UnrarHeadertype.FileHeader.equals(headerType);</span>
+    }
+
+    public boolean hasSalt() {
+<span class="fc bfc" id="L618" title="All 2 branches covered.">        return (flags &amp; LHD_SALT) != 0;</span>
+    }
+
+    public boolean hasExtTime() {
+<span class="fc bfc" id="L622" title="All 2 branches covered.">        return (flags &amp; LHD_EXTTIME) != 0;</span>
+    }
+
+    public boolean isLargeBlock() {
+<span class="pc bpc" id="L626" title="1 of 2 branches missed.">        return (flags &amp; LHD_LARGE) != 0;</span>
+    }
+
+    /**
+     * whether this fileheader represents a directory
+     *
+     * @return isDirectory
+     */
+    public boolean isDirectory() {
+<span class="fc bfc" id="L635" title="All 2 branches covered.">        return (flags &amp; LHD_WINDOWMASK) == LHD_DIRECTORY;</span>
+    }
+
+    /**
+     * The filename either in Unicode or ASCII.
+     *
+     * @return the Unicode filename if it exists, else the ASCII filename
+     * @since 7.2.0
+     */
+    public String getFileName() {
+<span class="fc bfc" id="L645" title="All 2 branches covered.">        return isUnicode() ? fileNameW : fileName;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

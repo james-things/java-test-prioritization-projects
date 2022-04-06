@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Formulas.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.utils</a> &gt; <span class="el_source">Formulas.java</span></div><h1>Formulas.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.utils;
+
+import com.sl.algorithms.core.interfaces.base.Constants;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+@SuppressWarnings(&quot;javadoc&quot;)
+public class Formulas implements Constants {
+
+<span class="fc" id="L13">  Formulas() {</span>
+    /**
+     * This is a utility class.&lt;br&gt;
+     */
+<span class="fc" id="L17">  }</span>
+
+  public static int midPoint(int start, int end) {
+<span class="fc" id="L20">    int mid = start + (end - start) / 2; // the 2nd part is to prevent integer overflow</span>
+<span class="fc" id="L21">    return mid;</span>
+  }
+
+  /**
+   * O(log(n)) solution, based on the works of Euclid and Aryabhatta.&lt;br&gt;
+   *
+   * @param a integer
+   * @param b integer
+   * @return HCF
+   */
+  public static int hcf(int a, int b) {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (a == 0) {</span>
+<span class="fc" id="L33">      return b;</span>
+    }
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (b == 0) {</span>
+<span class="fc" id="L36">      return a;</span>
+    }
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    while (a != b) {</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">      if (a &lt; b) {</span>
+<span class="fc" id="L40">        b -= a;</span>
+      } else {
+<span class="fc" id="L42">        a -= b;</span>
+      }
+    }
+<span class="fc" id="L45">    return a;</span>
+  }
+
+  // O(n^1/2)
+  public static boolean isPrimeNumber(long n) {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    if (n &lt;= 1) {</span>
+<span class="fc" id="L51">      return false;</span>
+    }
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (n &lt;= 3) {</span>
+<span class="fc" id="L54">      return true;</span>
+    }
+<span class="fc bfc" id="L56" title="All 4 branches covered.">    if (n % 2 == 0 || n % 3 == 0) {</span>
+<span class="fc" id="L57">      return false;</span>
+    }
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    for (long i = 5; i * i &lt;= n; i += 4) {</span>
+<span class="fc bfc" id="L60" title="All 4 branches covered.">      if (n % i == 0 || n % (i + 2) == 0) {</span>
+<span class="fc" id="L61">        return false;</span>
+      }
+    }
+<span class="fc" id="L64">    return true;</span>
+  }
+
+  /**
+   * &lt;a href=&quot;https://en.wikipedia.org/wiki/Narcissistic_number&quot;&gt;Armstrong NumberOps&lt;/a&gt;
+   *
+   * @param number input
+   * @return true, when the number is Armstrong
+   */
+  public static boolean isArmstrongNumber(int number) {
+<span class="fc" id="L74">    int sum = 0;</span>
+<span class="fc" id="L75">    int power = orderOf(number);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">    for (int i = number; i &gt; 0; i /= DECIMAL_RADIX) {</span>
+<span class="fc" id="L77">      sum += raiseTo(i % DECIMAL_RADIX, power);</span>
+    }
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    return (sum == number);</span>
+  }
+
+  public static int orderOf(int n) {
+<span class="fc" id="L83">    int order = 0; // unknown</span>
+<span class="fc" id="L84">    int temp = n;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">    while (temp != 0) {</span>
+<span class="fc" id="L86">      temp = temp / DECIMAL_RADIX;</span>
+<span class="fc" id="L87">      ++order;</span>
+    }
+<span class="fc" id="L89">    return order;</span>
+  }
+
+  //TODO: this can be improved further to handle large powers
+  public static int raiseTo(int n, int p) {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if (n == 0) {</span>
+<span class="fc" id="L95">      return 0;</span>
+    }
+<span class="fc bfc" id="L97" title="All 2 branches covered.">    if (p == 0) {</span>
+<span class="fc" id="L98">      return 1;</span>
+    }
+<span class="fc bfc" id="L100" title="All 2 branches covered.">    if (n == 1) {</span>
+<span class="fc" id="L101">      return n;</span>
+    }
+<span class="fc" id="L103">    long result = n;</span>
+<span class="fc" id="L104">    int counter = 1;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">    while (counter &lt; p) {</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">      if (result * n &gt;= Integer.MAX_VALUE) {</span>
+<span class="fc" id="L107">        return Integer.MAX_VALUE;</span>
+      }
+<span class="fc" id="L109">      result *= n;</span>
+<span class="fc" id="L110">      counter++;</span>
+    }
+<span class="fc" id="L112">    return (int) result;</span>
+  }
+
+  /**
+   * &lt;a href=&quot;http://www.geeksforgeeks.org/neon-number/&quot;&gt;Neon NumberOps&lt;/a&gt;
+   *
+   * @param number input
+   * @return true, when the number is Neon
+   */
+  public static boolean isNeonNumber(int number) {
+<span class="fc" id="L122">    int sum = 0;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">    for (int i = number * number; i &gt; 0; i /= DECIMAL_RADIX) {</span>
+<span class="fc" id="L124">      sum += i % DECIMAL_RADIX;</span>
+    }
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    return (sum == number);</span>
+  }
+
+  /**
+   * @param a 32-bit unsigned integer
+   * @param b 32-bit unsigned integer
+   * @return true, when a and b have same digits and length
+   */
+  public static boolean haveSameDigitsAndLengthPrimes(int a, int b) {
+<span class="fc" id="L135">    int[] primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};</span>
+<span class="fc" id="L136">    int hashA = 1, hashB = 1;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">    while (a &gt; 0) {</span>
+<span class="fc" id="L138">      hashA *= primes[a % DECIMAL_RADIX];</span>
+<span class="fc" id="L139">      a /= DECIMAL_RADIX;</span>
+    }
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    while (b &gt; 0) {</span>
+<span class="fc" id="L142">      hashB *= primes[b % DECIMAL_RADIX];</span>
+<span class="fc" id="L143">      b /= DECIMAL_RADIX;</span>
+    }
+<span class="fc bfc" id="L145" title="All 2 branches covered.">    return (hashA == hashB);</span>
+  }
+
+  public static boolean haveSameDigitsAndLength(int a, int b) {
+<span class="pc bpc" id="L149" title="2 of 6 branches missed.">    if ((a == 0 || b == 0) &amp;&amp; a != b) {</span>
+<span class="fc" id="L150">      return false;</span>
+    }
+<span class="fc" id="L152">    int[] digits = new int[DECIMAL_RADIX];</span>
+<span class="fc" id="L153">    int i = a, j = b;</span>
+<span class="fc bfc" id="L154" title="All 4 branches covered.">    for (; i &gt; 0 &amp;&amp; j &gt; 0; i /= DECIMAL_RADIX, j /= DECIMAL_RADIX) {</span>
+<span class="fc" id="L155">      ++digits[i % DECIMAL_RADIX];</span>
+<span class="fc" id="L156">      --digits[j % DECIMAL_RADIX];</span>
+    }
+<span class="fc bfc" id="L158" title="All 4 branches covered.">    if (i != 0 || j != 0) {</span>
+<span class="fc" id="L159">      return false;</span>
+    }
+<span class="fc bfc" id="L161" title="All 2 branches covered.">    for (int digit : digits) {</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">      if (digit != 0) {</span>
+<span class="fc" id="L163">        return false;</span>
+      }
+    }
+<span class="fc" id="L166">    return true;</span>
+  }
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Palindromic_number&quot;&gt;Palindromic NumberOps&lt;/a&gt;&lt;br&gt;
+   * //O(n) time and O(1) space
+   *
+   * @param number input
+   * @return true, when the number has palindrome pattern
+   */
+  public static boolean isPalindrome(int number) {
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    if (number &lt; 0) {</span>
+<span class="nc" id="L178">      return false;</span>
+    }
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">    if (number == 0) {</span>
+<span class="nc" id="L181">      return true;</span>
+    }
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">    if (number % DECIMAL_RADIX == 0) {</span>
+<span class="nc" id="L184">      return false;</span>
+    }
+<span class="fc" id="L186">    int reverse = 0;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">    while (number &gt; reverse) {</span>
+<span class="fc" id="L188">      reverse = reverse * DECIMAL_RADIX + number % DECIMAL_RADIX;</span>
+<span class="fc" id="L189">      number /= DECIMAL_RADIX;</span>
+    }
+<span class="pc bpc" id="L191" title="1 of 4 branches missed.">    return (number == reverse || number == reverse / DECIMAL_RADIX);</span>
+  }
+
+  public static List&lt;Integer&gt; printArmstrongNumbers(int upperBound) throws InterruptedException {
+<span class="fc" id="L195">    List&lt;Integer&gt; outputList = new ArrayList&lt;&gt;();</span>
+    ExecutorService executorService = Executors
+<span class="fc" id="L197">        .newFixedThreadPool(Runtime.getRuntime().availableProcessors());</span>
+<span class="fc" id="L198">    int batchSize = 1000;</span>
+<span class="fc" id="L199">    long index = 1;</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">    while (index &lt; upperBound) {</span>
+<span class="fc" id="L201">      long start = index;</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">      long end = (index + batchSize) &lt;= upperBound ? index + batchSize : upperBound;</span>
+<span class="fc" id="L203">      executorService.execute(new Runnable() {</span>
+        @Override
+        public void run() {
+<span class="fc bfc" id="L206" title="All 2 branches covered.">          for (long i = start; i &lt; end; i++) {</span>
+<span class="fc" id="L207">            int numberToInspect = (int) i;</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (isArmstrongNumber(numberToInspect)) {</span>
+<span class="fc" id="L209">              outputList.add(numberToInspect);</span>
+            }
+          }
+<span class="fc" id="L212">        }</span>
+      });
+<span class="fc" id="L214">      index = end;</span>
+<span class="fc" id="L215">    }</span>
+<span class="fc" id="L216">    executorService.shutdown();</span>
+<span class="fc" id="L217">    executorService.awaitTermination(1, TimeUnit.MINUTES);</span>
+<span class="fc" id="L218">    return outputList;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

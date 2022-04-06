@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinkedListMergeDnQ.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.list.merge</a> &gt; <span class="el_source">LinkedListMergeDnQ.java</span></div><h1>LinkedListMergeDnQ.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.list.merge;
+
+import com.sl.algorithms.core.interfaces.merge.MergeEngine;
+import com.sl.algorithms.core.list.ListNode;
+import com.sl.algorithms.core.utils.Formulas;
+
+<span class="fc" id="L7">public class LinkedListMergeDnQ&lt;T extends Comparable&gt; implements MergeEngine&lt;T&gt; {</span>
+
+  /**
+   * &lt;br&gt;&lt;a href=&quot;https://leetcode.com/problems/merge-k-sorted-lists/description/&quot;&gt;Merge K sorted
+   * lists, using divide-n-conquer technique&lt;/a&gt;&lt;br&gt; &lt;br&gt;Complexity: &lt;br&gt;- Time: O(N * logK): N =
+   * total number of nodes and K = total number of lists. &lt;br&gt;- Space: O(N): because we're using the
+   * recursive @{@link LinkedListMergeDnQ#merge2SortedLists(ListNode, ListNode)} method.
+   */
+  @Override
+  public ListNode&lt;T&gt; mergeKSortedLists(ListNode&lt;T&gt;[] sortedListsArray) {
+<span class="fc" id="L17">    return partitionThenMerge(sortedListsArray, 0, sortedListsArray.length - 1);</span>
+  }
+
+  private ListNode&lt;T&gt; partitionThenMerge(ListNode&lt;T&gt;[] sortedListArray, int start, int end) {
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">    if (start &gt; end) {</span>
+<span class="nc" id="L22">      return null;</span>
+    }
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    if (start == end) {</span>
+<span class="fc" id="L25">      return sortedListArray[start];</span>
+    }
+<span class="fc" id="L27">    int midPoint = Formulas.midPoint(start, end);</span>
+<span class="fc" id="L28">    ListNode&lt;T&gt; listNode1 = partitionThenMerge(sortedListArray, start, midPoint);</span>
+<span class="fc" id="L29">    ListNode&lt;T&gt; listNode2 = partitionThenMerge(sortedListArray, midPoint + 1, end);</span>
+<span class="fc" id="L30">    return merge2SortedLists(listNode1, listNode2);</span>
+  }
+
+  /**
+   * &lt;br&gt;O(n+m) time and space recursive method to merge 2 sorted lists.&lt;br&gt;
+   */
+  public ListNode&lt;T&gt; merge2SortedLists(ListNode&lt;T&gt; list1, ListNode&lt;T&gt; list2) {
+<span class="fc bfc" id="L37" title="All 2 branches covered.">    if (list1 == null) {</span>
+<span class="fc" id="L38">      return list2;</span>
+    }
+<span class="fc bfc" id="L40" title="All 2 branches covered.">    if (list2 == null) {</span>
+<span class="fc" id="L41">      return list1;</span>
+    }
+    ListNode&lt;T&gt; mergedHead;
+<span class="fc bfc" id="L44" title="All 2 branches covered.">    if (list1.compareTo(list2) &lt;= 0) {</span>
+<span class="fc" id="L45">      mergedHead = list1;</span>
+<span class="fc" id="L46">      mergedHead.next = merge2SortedLists(list1.next, list2);</span>
+    } else {
+<span class="fc" id="L48">      mergedHead = list2;</span>
+<span class="fc" id="L49">      mergedHead.next = merge2SortedLists(list1, list2.next);</span>
+    }
+<span class="fc" id="L51">    return mergedHead;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

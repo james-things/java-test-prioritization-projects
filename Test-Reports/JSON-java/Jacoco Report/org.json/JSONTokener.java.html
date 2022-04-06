@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JSONTokener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JSON in Java</a> &gt; <a href="index.source.html" class="el_package">org.json</a> &gt; <span class="el_source">JSONTokener.java</span></div><h1>JSONTokener.java</h1><pre class="source lang-java linenums">package org.json;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+
+/*
+Copyright (c) 2002 JSON.org
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+The Software shall be used for Good, not Evil.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
+
+/**
+ * A JSONTokener takes a source string and extracts characters and tokens from
+ * it. It is used by the JSONObject and JSONArray constructors to parse
+ * JSON source strings.
+ * @author JSON.org
+ * @version 2014-05-03
+ */
+public class JSONTokener {
+    /** current read character position on the current line. */
+    private long character;
+    /** flag to indicate if the end of the input has been found. */
+    private boolean eof;
+    /** current read index of the input. */
+    private long index;
+    /** current line of the input. */
+    private long line;
+    /** previous character read from the input. */
+    private char previous;
+    /** Reader for the input. */
+    private final Reader reader;
+    /** flag to indicate that a previous character was requested. */
+    private boolean usePrevious;
+    /** the number of characters read in the previous line. */
+    private long characterPreviousLine;
+
+
+    /**
+     * Construct a JSONTokener from a Reader. The caller must close the Reader.
+     *
+     * @param reader     A reader.
+     */
+<span class="fc" id="L65">    public JSONTokener(Reader reader) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        this.reader = reader.markSupported()</span>
+<span class="fc" id="L67">                ? reader</span>
+<span class="fc" id="L68">                        : new BufferedReader(reader);</span>
+<span class="fc" id="L69">        this.eof = false;</span>
+<span class="fc" id="L70">        this.usePrevious = false;</span>
+<span class="fc" id="L71">        this.previous = 0;</span>
+<span class="fc" id="L72">        this.index = 0;</span>
+<span class="fc" id="L73">        this.character = 1;</span>
+<span class="fc" id="L74">        this.characterPreviousLine = 0;</span>
+<span class="fc" id="L75">        this.line = 1;</span>
+<span class="fc" id="L76">    }</span>
+
+
+    /**
+     * Construct a JSONTokener from an InputStream. The caller must close the input stream.
+     * @param inputStream The source.
+     */
+    public JSONTokener(InputStream inputStream) {
+<span class="fc" id="L84">        this(new InputStreamReader(inputStream));</span>
+<span class="fc" id="L85">    }</span>
+
+
+    /**
+     * Construct a JSONTokener from a string.
+     *
+     * @param s     A source string.
+     */
+    public JSONTokener(String s) {
+<span class="fc" id="L94">        this(new StringReader(s));</span>
+<span class="fc" id="L95">    }</span>
+
+
+    /**
+     * Back up one character. This provides a sort of lookahead capability,
+     * so that you can test for a digit or letter before attempting to parse
+     * the next number or identifier.
+     * @throws JSONException Thrown if trying to step back more than 1 step
+     *  or if already at the start of the string
+     */
+    public void back() throws JSONException {
+<span class="fc bfc" id="L106" title="All 4 branches covered.">        if (this.usePrevious || this.index &lt;= 0) {</span>
+<span class="fc" id="L107">            throw new JSONException(&quot;Stepping back two steps is not supported&quot;);</span>
+        }
+<span class="fc" id="L109">        this.decrementIndexes();</span>
+<span class="fc" id="L110">        this.usePrevious = true;</span>
+<span class="fc" id="L111">        this.eof = false;</span>
+<span class="fc" id="L112">    }</span>
+
+    /**
+     * Decrements the indexes for the {@link #back()} method based on the previous character read.
+     */
+    private void decrementIndexes() {
+<span class="fc" id="L118">        this.index--;</span>
+<span class="fc bfc" id="L119" title="All 4 branches covered.">        if(this.previous=='\r' || this.previous == '\n') {</span>
+<span class="fc" id="L120">            this.line--;</span>
+<span class="fc" id="L121">            this.character=this.characterPreviousLine ;</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        } else if(this.character &gt; 0){</span>
+<span class="fc" id="L123">            this.character--;</span>
+        }
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Get the hex value of a character (base16).
+     * @param c A character between '0' and '9' or between 'A' and 'F' or
+     * between 'a' and 'f'.
+     * @return  An int between 0 and 15, or -1 if c was not a hex digit.
+     */
+    public static int dehexchar(char c) {
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">        if (c &gt;= '0' &amp;&amp; c &lt;= '9') {</span>
+<span class="fc" id="L135">            return c - '0';</span>
+        }
+<span class="pc bpc" id="L137" title="1 of 4 branches missed.">        if (c &gt;= 'A' &amp;&amp; c &lt;= 'F') {</span>
+<span class="fc" id="L138">            return c - ('A' - 10);</span>
+        }
+<span class="pc bpc" id="L140" title="2 of 4 branches missed.">        if (c &gt;= 'a' &amp;&amp; c &lt;= 'f') {</span>
+<span class="fc" id="L141">            return c - ('a' - 10);</span>
+        }
+<span class="nc" id="L143">        return -1;</span>
+    }
+
+    /**
+     * Checks if the end of the input has been reached.
+     *  
+     * @return true if at the end of the file and we didn't step back
+     */
+    public boolean end() {
+<span class="pc bpc" id="L152" title="3 of 4 branches missed.">        return this.eof &amp;&amp; !this.usePrevious;</span>
+    }
+
+
+    /**
+     * Determine if the source string still contains characters that next()
+     * can consume.
+     * @return true if not yet at the end of the source.
+     * @throws JSONException thrown if there is an error stepping forward
+     *  or backward while checking for more data.
+     */
+    public boolean more() throws JSONException {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if(this.usePrevious) {</span>
+<span class="fc" id="L165">            return true;</span>
+        }
+        try {
+<span class="fc" id="L168">            this.reader.mark(1);</span>
+<span class="nc" id="L169">        } catch (IOException e) {</span>
+<span class="nc" id="L170">            throw new JSONException(&quot;Unable to preserve stream position&quot;, e);</span>
+<span class="fc" id="L171">        }</span>
+        try {
+            // -1 is EOF, but next() can not consume the null character '\0'
+<span class="fc bfc" id="L174" title="All 2 branches covered.">            if(this.reader.read() &lt;= 0) {</span>
+<span class="fc" id="L175">                this.eof = true;</span>
+<span class="fc" id="L176">                return false;</span>
+            }
+<span class="fc" id="L178">            this.reader.reset();</span>
+<span class="nc" id="L179">        } catch (IOException e) {</span>
+<span class="nc" id="L180">            throw new JSONException(&quot;Unable to read the next character from the stream&quot;, e);</span>
+<span class="fc" id="L181">        }</span>
+<span class="fc" id="L182">        return true;</span>
+    }
+
+
+    /**
+     * Get the next character in the source string.
+     *
+     * @return The next character, or 0 if past the end of the source string.
+     * @throws JSONException Thrown if there is an error reading the source string.
+     */
+    public char next() throws JSONException {
+        int c;
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (this.usePrevious) {</span>
+<span class="fc" id="L195">            this.usePrevious = false;</span>
+<span class="fc" id="L196">            c = this.previous;</span>
+        } else {
+            try {
+<span class="fc" id="L199">                c = this.reader.read();</span>
+<span class="nc" id="L200">            } catch (IOException exception) {</span>
+<span class="nc" id="L201">                throw new JSONException(exception);</span>
+<span class="fc" id="L202">            }</span>
+        }
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (c &lt;= 0) { // End of stream</span>
+<span class="fc" id="L205">            this.eof = true;</span>
+<span class="fc" id="L206">            return 0;</span>
+        }
+<span class="fc" id="L208">        this.incrementIndexes(c);</span>
+<span class="fc" id="L209">        this.previous = (char) c;</span>
+<span class="fc" id="L210">        return this.previous;</span>
+    }
+    
+    /**
+     * Get the last character read from the input or '\0' if nothing has been read yet.
+     * @return the last character read from the input.
+     */
+<span class="fc" id="L217">    protected char getPrevious() { return this.previous;}</span>
+
+    /**
+     * Increments the internal indexes according to the previous character
+     * read and the character passed as the current character.
+     * @param c the current character read.
+     */
+    private void incrementIndexes(int c) {
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">        if(c &gt; 0) {</span>
+<span class="fc" id="L226">            this.index++;</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            if(c=='\r') {</span>
+<span class="fc" id="L228">                this.line++;</span>
+<span class="fc" id="L229">                this.characterPreviousLine = this.character;</span>
+<span class="fc" id="L230">                this.character=0;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            }else if (c=='\n') {</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">                if(this.previous != '\r') {</span>
+<span class="fc" id="L233">                    this.line++;</span>
+<span class="fc" id="L234">                    this.characterPreviousLine = this.character;</span>
+                }
+<span class="fc" id="L236">                this.character=0;</span>
+            } else {
+<span class="fc" id="L238">                this.character++;</span>
+            }
+        }
+<span class="fc" id="L241">    }</span>
+
+    /**
+     * Consume the next character, and check that it matches a specified
+     * character.
+     * @param c The character to match.
+     * @return The character.
+     * @throws JSONException if the character does not match.
+     */
+    public char next(char c) throws JSONException {
+<span class="fc" id="L251">        char n = this.next();</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        if (n != c) {</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">            if(n &gt; 0) {</span>
+<span class="nc" id="L254">                throw this.syntaxError(&quot;Expected '&quot; + c + &quot;' and instead saw '&quot; +</span>
+                        n + &quot;'&quot;);
+            }
+<span class="fc" id="L257">            throw this.syntaxError(&quot;Expected '&quot; + c + &quot;' and instead saw ''&quot;);</span>
+        }
+<span class="fc" id="L259">        return n;</span>
+    }
+
+
+    /**
+     * Get the next n characters.
+     *
+     * @param n     The number of characters to take.
+     * @return      A string of n characters.
+     * @throws JSONException
+     *   Substring bounds error if there are not
+     *   n characters remaining in the source string.
+     */
+    public String next(int n) throws JSONException {
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">        if (n == 0) {</span>
+<span class="nc" id="L274">            return &quot;&quot;;</span>
+        }
+
+<span class="fc" id="L277">        char[] chars = new char[n];</span>
+<span class="fc" id="L278">        int pos = 0;</span>
+
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        while (pos &lt; n) {</span>
+<span class="fc" id="L281">            chars[pos] = this.next();</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">            if (this.end()) {</span>
+<span class="nc" id="L283">                throw this.syntaxError(&quot;Substring bounds error&quot;);</span>
+            }
+<span class="fc" id="L285">            pos += 1;</span>
+        }
+<span class="fc" id="L287">        return new String(chars);</span>
+    }
+
+
+    /**
+     * Get the next char in the string, skipping whitespace.
+     * @throws JSONException Thrown if there is an error reading the source string.
+     * @return  A character, or 0 if there are no more characters.
+     */
+    public char nextClean() throws JSONException {
+        for (;;) {
+<span class="fc" id="L298">            char c = this.next();</span>
+<span class="fc bfc" id="L299" title="All 4 branches covered.">            if (c == 0 || c &gt; ' ') {</span>
+<span class="fc" id="L300">                return c;</span>
+            }
+<span class="fc" id="L302">        }</span>
+    }
+
+
+    /**
+     * Return the characters up to the next close quote character.
+     * Backslash processing is done. The formal JSON format does not
+     * allow strings in single quotes, but an implementation is allowed to
+     * accept them.
+     * @param quote The quoting character, either
+     *      &lt;code&gt;&quot;&lt;/code&gt;&amp;nbsp;&lt;small&gt;(double quote)&lt;/small&gt; or
+     *      &lt;code&gt;'&lt;/code&gt;&amp;nbsp;&lt;small&gt;(single quote)&lt;/small&gt;.
+     * @return      A String.
+     * @throws JSONException Unterminated string.
+     */
+    public String nextString(char quote) throws JSONException {
+        char c;
+<span class="fc" id="L319">        StringBuilder sb = new StringBuilder();</span>
+        for (;;) {
+<span class="fc" id="L321">            c = this.next();</span>
+<span class="fc bfc" id="L322" title="All 3 branches covered.">            switch (c) {</span>
+            case 0:
+            case '\n':
+            case '\r':
+<span class="fc" id="L326">                throw this.syntaxError(&quot;Unterminated string&quot;);</span>
+            case '\\':
+<span class="fc" id="L328">                c = this.next();</span>
+<span class="pc bpc" id="L329" title="4 of 8 branches missed.">                switch (c) {</span>
+                case 'b':
+<span class="fc" id="L331">                    sb.append('\b');</span>
+<span class="fc" id="L332">                    break;</span>
+                case 't':
+<span class="fc" id="L334">                    sb.append('\t');</span>
+<span class="fc" id="L335">                    break;</span>
+                case 'n':
+<span class="nc" id="L337">                    sb.append('\n');</span>
+<span class="nc" id="L338">                    break;</span>
+                case 'f':
+<span class="nc" id="L340">                    sb.append('\f');</span>
+<span class="nc" id="L341">                    break;</span>
+                case 'r':
+<span class="nc" id="L343">                    sb.append('\r');</span>
+<span class="nc" id="L344">                    break;</span>
+                case 'u':
+                    try {
+<span class="nc" id="L347">                        sb.append((char)Integer.parseInt(this.next(4), 16));</span>
+<span class="fc" id="L348">                    } catch (NumberFormatException e) {</span>
+<span class="fc" id="L349">                        throw this.syntaxError(&quot;Illegal escape.&quot;, e);</span>
+<span class="nc" id="L350">                    }</span>
+                    break;
+                case '&quot;':
+                case '\'':
+                case '\\':
+                case '/':
+<span class="fc" id="L356">                    sb.append(c);</span>
+<span class="fc" id="L357">                    break;</span>
+                default:
+<span class="nc" id="L359">                    throw this.syntaxError(&quot;Illegal escape.&quot;);</span>
+                }
+                break;
+            default:
+<span class="fc bfc" id="L363" title="All 2 branches covered.">                if (c == quote) {</span>
+<span class="fc" id="L364">                    return sb.toString();</span>
+                }
+<span class="fc" id="L366">                sb.append(c);</span>
+            }
+        }
+    }
+
+
+    /**
+     * Get the text up but not including the specified character or the
+     * end of line, whichever comes first.
+     * @param  delimiter A delimiter character.
+     * @return   A string.
+     * @throws JSONException Thrown if there is an error while searching
+     *  for the delimiter
+     */
+    public String nextTo(char delimiter) throws JSONException {
+<span class="fc" id="L381">        StringBuilder sb = new StringBuilder();</span>
+        for (;;) {
+<span class="fc" id="L383">            char c = this.next();</span>
+<span class="pc bpc" id="L384" title="1 of 8 branches missed.">            if (c == delimiter || c == 0 || c == '\n' || c == '\r') {</span>
+<span class="fc bfc" id="L385" title="All 2 branches covered.">                if (c != 0) {</span>
+<span class="fc" id="L386">                    this.back();</span>
+                }
+<span class="fc" id="L388">                return sb.toString().trim();</span>
+            }
+<span class="fc" id="L390">            sb.append(c);</span>
+<span class="fc" id="L391">        }</span>
+    }
+
+
+    /**
+     * Get the text up but not including one of the specified delimiter
+     * characters or the end of line, whichever comes first.
+     * @param delimiters A set of delimiter characters.
+     * @return A string, trimmed.
+     * @throws JSONException Thrown if there is an error while searching
+     *  for the delimiter
+     */
+    public String nextTo(String delimiters) throws JSONException {
+        char c;
+<span class="fc" id="L405">        StringBuilder sb = new StringBuilder();</span>
+        for (;;) {
+<span class="fc" id="L407">            c = this.next();</span>
+<span class="pc bpc" id="L408" title="2 of 8 branches missed.">            if (delimiters.indexOf(c) &gt;= 0 || c == 0 ||</span>
+                    c == '\n' || c == '\r') {
+<span class="fc bfc" id="L410" title="All 2 branches covered.">                if (c != 0) {</span>
+<span class="fc" id="L411">                    this.back();</span>
+                }
+<span class="fc" id="L413">                return sb.toString().trim();</span>
+            }
+<span class="fc" id="L415">            sb.append(c);</span>
+        }
+    }
+
+
+    /**
+     * Get the next value. The value can be a Boolean, Double, Integer,
+     * JSONArray, JSONObject, Long, or String, or the JSONObject.NULL object.
+     * @throws JSONException If syntax error.
+     *
+     * @return An object.
+     */
+    public Object nextValue() throws JSONException {
+<span class="fc" id="L428">        char c = this.nextClean();</span>
+        String string;
+
+<span class="fc bfc" id="L431" title="All 4 branches covered.">        switch (c) {</span>
+        case '&quot;':
+        case '\'':
+<span class="fc" id="L434">            return this.nextString(c);</span>
+        case '{':
+<span class="fc" id="L436">            this.back();</span>
+            try {
+<span class="fc" id="L438">                return new JSONObject(this);</span>
+<span class="fc" id="L439">            } catch (StackOverflowError e) {</span>
+<span class="fc" id="L440">                throw new JSONException(&quot;JSON Array or Object depth too large to process.&quot;, e);</span>
+            }
+        case '[':
+<span class="fc" id="L443">            this.back();</span>
+            try {
+<span class="fc" id="L445">                return new JSONArray(this);</span>
+<span class="fc" id="L446">            } catch (StackOverflowError e) {</span>
+<span class="fc" id="L447">                throw new JSONException(&quot;JSON Array or Object depth too large to process.&quot;, e);</span>
+            }
+        }
+
+        /*
+         * Handle unquoted text. This could be the values true, false, or
+         * null, or it can be a number. An implementation (such as this one)
+         * is allowed to also accept non-standard forms.
+         *
+         * Accumulate characters until we reach the end of the text or a
+         * formatting character.
+         */
+
+<span class="fc" id="L460">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L461" title="All 4 branches covered.">        while (c &gt;= ' ' &amp;&amp; &quot;,:]}/\\\&quot;[{;=#&quot;.indexOf(c) &lt; 0) {</span>
+<span class="fc" id="L462">            sb.append(c);</span>
+<span class="fc" id="L463">            c = this.next();</span>
+        }
+<span class="fc bfc" id="L465" title="All 2 branches covered.">        if (!this.eof) {</span>
+<span class="fc" id="L466">            this.back();</span>
+        }
+
+<span class="fc" id="L469">        string = sb.toString().trim();</span>
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">        if (&quot;&quot;.equals(string)) {</span>
+<span class="nc" id="L471">            throw this.syntaxError(&quot;Missing value&quot;);</span>
+        }
+<span class="fc" id="L473">        return JSONObject.stringToValue(string);</span>
+    }
+
+
+    /**
+     * Skip characters until the next character is the requested character.
+     * If the requested character is not found, no characters are skipped.
+     * @param to A character to skip to.
+     * @return The requested character, or zero if the requested character
+     * is not found.
+     * @throws JSONException Thrown if there is an error while searching
+     *  for the to character
+     */
+    public char skipTo(char to) throws JSONException {
+        char c;
+        try {
+<span class="fc" id="L489">            long startIndex = this.index;</span>
+<span class="fc" id="L490">            long startCharacter = this.character;</span>
+<span class="fc" id="L491">            long startLine = this.line;</span>
+<span class="fc" id="L492">            this.reader.mark(1000000);</span>
+            do {
+<span class="fc" id="L494">                c = this.next();</span>
+<span class="fc bfc" id="L495" title="All 2 branches covered.">                if (c == 0) {</span>
+                    // in some readers, reset() may throw an exception if
+                    // the remaining portion of the input is greater than
+                    // the mark size (1,000,000 above).
+<span class="fc" id="L499">                    this.reader.reset();</span>
+<span class="fc" id="L500">                    this.index = startIndex;</span>
+<span class="fc" id="L501">                    this.character = startCharacter;</span>
+<span class="fc" id="L502">                    this.line = startLine;</span>
+<span class="fc" id="L503">                    return 0;</span>
+                }
+<span class="fc bfc" id="L505" title="All 2 branches covered.">            } while (c != to);</span>
+<span class="fc" id="L506">            this.reader.mark(1);</span>
+<span class="fc" id="L507">        } catch (IOException exception) {</span>
+<span class="fc" id="L508">            throw new JSONException(exception);</span>
+<span class="fc" id="L509">        }</span>
+<span class="fc" id="L510">        this.back();</span>
+<span class="fc" id="L511">        return c;</span>
+    }
+
+    /**
+     * Make a JSONException to signal a syntax error.
+     *
+     * @param message The error message.
+     * @return  A JSONException object, suitable for throwing
+     */
+    public JSONException syntaxError(String message) {
+<span class="fc" id="L521">        return new JSONException(message + this.toString());</span>
+    }
+
+    /**
+     * Make a JSONException to signal a syntax error.
+     *
+     * @param message The error message.
+     * @param causedBy The throwable that caused the error.
+     * @return  A JSONException object, suitable for throwing
+     */
+    public JSONException syntaxError(String message, Throwable causedBy) {
+<span class="fc" id="L532">        return new JSONException(message + this.toString(), causedBy);</span>
+    }
+
+    /**
+     * Make a printable string of this JSONTokener.
+     *
+     * @return &quot; at {index} [character {character} line {line}]&quot;
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L542">        return &quot; at &quot; + this.index + &quot; [character &quot; + this.character + &quot; line &quot; +</span>
+                this.line + &quot;]&quot;;
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

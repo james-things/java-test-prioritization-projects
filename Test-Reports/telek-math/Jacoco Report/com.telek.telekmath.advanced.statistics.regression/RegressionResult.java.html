@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegressionResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.advanced.statistics.regression</a> &gt; <span class="el_source">RegressionResult.java</span></div><h1>RegressionResult.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.advanced.statistics.regression;
+
+
+import com.telek.telekmath.core.numbers.TRange;
+import com.telek.telekmath.core.functions.other.TPolynomial;
+
+import java.util.Objects;
+
+
+/**
+ * A container class with one constructor and many fields for Regression calculations.
+ */
+public class RegressionResult {
+
+    /** Number of points in this regression analysis */
+    public final double n;
+
+    /** True if the line has a positive slope (b1 &gt; 0) */
+    public final boolean hasPositiveDirection;
+
+    /** True if there's a correlation between the x and y values */
+    public final boolean areTheyCorrelated;
+
+    /** Sum of all X values */
+    public final double sumX;
+
+    /** Sum of all Y values */
+    public final double sumY;
+
+    /** Sum of all X*Y values */
+    public final double sumXY;
+
+    /** Sum of all X values squared (X^2) */
+    public final double sumX2;
+
+    /** Sum of all Y values squared (Y^2) */
+    public final double sumY2;
+
+    /** Sum of all error values squared */
+    public final double sumE2;
+
+    /** The estimator line of exact Y, also written as &quot;y hat&quot; (y^) */
+    public final TPolynomial line;
+
+    /** Standard error of the estimator (y hat) */
+    public final double S; // S
+
+    /** Variance of the estimator (y hat) */
+    public final double S2; // S^2
+
+    /** Sum of Regression Squares */
+    public final double SRS;
+
+    /** Sum of Total Squares */
+    public final double STS;
+
+    /** Sum of Error Squares */
+    public final double SES;
+
+    /** The correlation coefficient */
+    public final double r;
+
+    /** The determination coefficient */
+    public final double R2;
+
+    /** Standard error of the correlation coefficient (r) */
+    public final double SR; // S_r
+
+    /** Confidence inteval of the correlation coefficient (r) */
+    public final TRange confIntOfCorrelationCoef;
+
+
+
+    public RegressionResult(double n, double sumX, double sumY, double sumX2, double sumY2, double sumXY,
+                            TPolynomial line, double sumE2, double S2, double standardErrorOfTheEstimator, double STS,
+                            double SRS, double SES, double R2, double r, double SR,
+                            boolean hasPositiveDirection, TRange confIntOfCorrelationCoef, boolean areTheyCorrelated)
+<span class="fc" id="L78">    {</span>
+<span class="fc" id="L79">        this.n = n;</span>
+<span class="fc" id="L80">        this.sumX = sumX;</span>
+<span class="fc" id="L81">        this.sumY = sumY;</span>
+<span class="fc" id="L82">        this.sumX2 = sumX2;</span>
+<span class="fc" id="L83">        this.sumY2 = sumY2;</span>
+<span class="fc" id="L84">        this.sumXY = sumXY;</span>
+<span class="fc" id="L85">        this.line = line;</span>
+<span class="fc" id="L86">        this.sumE2 = sumE2;</span>
+<span class="fc" id="L87">        this.S2 = S2;</span>
+<span class="fc" id="L88">        this.S = standardErrorOfTheEstimator;</span>
+<span class="fc" id="L89">        this.STS = STS;</span>
+<span class="fc" id="L90">        this.SRS = SRS;</span>
+<span class="fc" id="L91">        this.SES = SES;</span>
+<span class="fc" id="L92">        this.R2 = R2;</span>
+<span class="fc" id="L93">        this.r = r;</span>
+<span class="fc" id="L94">        this.SR = SR;</span>
+<span class="fc" id="L95">        this.hasPositiveDirection = hasPositiveDirection;</span>
+<span class="fc" id="L96">        this.confIntOfCorrelationCoef = confIntOfCorrelationCoef;</span>
+<span class="fc" id="L97">        this.areTheyCorrelated = areTheyCorrelated;</span>
+<span class="fc" id="L98">    }</span>
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L103">        return &quot;RegressionResult{&quot; +</span>
+                &quot;n=&quot; + n +
+                &quot;, hasPositiveDirection=&quot; + hasPositiveDirection +
+                &quot;, areTheyCorrelated=&quot; + areTheyCorrelated +
+                &quot;, sumX=&quot; + sumX +
+                &quot;, sumY=&quot; + sumY +
+                &quot;, sumXY=&quot; + sumXY +
+                &quot;, sumX2=&quot; + sumX2 +
+                &quot;, sumY2=&quot; + sumY2 +
+                &quot;, sumE2=&quot; + sumE2 +
+                &quot;, line=&quot; + line +
+                &quot;, S=&quot; + S +
+                &quot;, S2=&quot; + S2 +
+                &quot;, SRS=&quot; + SRS +
+                &quot;, STS=&quot; + STS +
+                &quot;, SES=&quot; + SES +
+                &quot;, r=&quot; + r +
+                &quot;, R2=&quot; + R2 +
+                &quot;, SR=&quot; + SR +
+                &quot;, confIntOfCorrelationCoef=&quot; + confIntOfCorrelationCoef +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L129" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L130">        RegressionResult that = (RegressionResult) o;</span>
+<span class="pc bpc" id="L131" title="3 of 6 branches missed.">        return Double.compare(that.n, n) == 0 &amp;&amp;</span>
+                hasPositiveDirection == that.hasPositiveDirection &amp;&amp;
+                areTheyCorrelated == that.areTheyCorrelated &amp;&amp;
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                Double.compare(that.sumX, sumX) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">                Double.compare(that.sumY, sumY) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">                Double.compare(that.sumXY, sumXY) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">                Double.compare(that.sumX2, sumX2) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">                Double.compare(that.sumY2, sumY2) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">                Double.compare(that.sumE2, sumE2) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">                Double.compare(that.S, S) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                Double.compare(that.S2, S2) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                Double.compare(that.SRS, SRS) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">                Double.compare(that.STS, STS) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">                Double.compare(that.SES, SES) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">                Double.compare(that.r, r) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">                Double.compare(that.R2, R2) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">                Double.compare(that.SR, SR) == 0 &amp;&amp;</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">                Objects.equals(line, that.line) &amp;&amp;</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">                Objects.equals(confIntOfCorrelationCoef, that.confIntOfCorrelationCoef);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L154">        return Objects.hash(n, hasPositiveDirection, areTheyCorrelated,</span>
+<span class="nc" id="L155">                sumX, sumY, sumXY, sumX2, sumY2, sumE2, line, S, S2,</span>
+<span class="nc" id="L156">                SRS, STS, SES, r, R2, SR, confIntOfCorrelationCoef</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>THeavisideFunc.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">telek-math</a> &gt; <a href="index.source.html" class="el_package">com.telek.telekmath.core.functions.amnfuncs</a> &gt; <span class="el_source">THeavisideFunc.java</span></div><h1>THeavisideFunc.java</h1><pre class="source lang-java linenums">package com.telek.telekmath.core.functions.amnfuncs;
+
+import com.telek.telekmath.core.functions.TFunction;
+import com.telek.telekmath.core.numbers.TRange;
+
+
+/**
+ * Defines  A * u(mx+n). &lt;br&gt;
+ * Also known as the &quot;unit step function&quot;. &lt;br&gt;
+ */
+public class THeavisideFunc extends AbstractAMNFunction {
+
+    /*  CONSTRUCTORS  */
+<span class="fc" id="L14">    public THeavisideFunc(TRange range, double A, double m, double n) {super(FuncType.HEAVISIDE, range, A, m, n);}</span>
+<span class="fc" id="L15">    public THeavisideFunc(TRange range, double A, double m) {super(FuncType.HEAVISIDE, range, A, m);}</span>
+<span class="fc" id="L16">    public THeavisideFunc(TRange range, double A) {super(FuncType.HEAVISIDE, range, A);}</span>
+<span class="fc" id="L17">    public THeavisideFunc(TRange range) {super(FuncType.HEAVISIDE, range);}</span>
+<span class="fc" id="L18">    public THeavisideFunc(double A, double m, double n) {super(FuncType.HEAVISIDE, A, m, n);}</span>
+<span class="fc" id="L19">    public THeavisideFunc(double A, double m) {super(FuncType.HEAVISIDE, A, m);}</span>
+<span class="fc" id="L20">    public THeavisideFunc(double m) {super(FuncType.HEAVISIDE, m);}</span>
+<span class="fc" id="L21">    public THeavisideFunc(){super(FuncType.HEAVISIDE);}</span>
+
+
+
+    /*  METHODS  */
+
+    @Override
+    public double value(double x) {
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if( !this.range.isInRange(x) ) return 0;</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        double hStepResult = (m * x + n &gt; 0) ? 1d : 0d; // u(mx+n)</span>
+<span class="fc" id="L31">        return A * hStepResult; // A * u(mx+n)</span>
+    }
+
+
+    @Override
+    public TFunction derivative() {
+<span class="fc" id="L37">        return new TFunction(</span>
+            new TDiracDeltaFunc(this.range, A * m, m, n)
+        );
+    }
+
+
+
+    //    @Override
+//    public String toString() {
+//        String hStepSide = (n != 0) ? String.format(&quot;u(x+%f)&quot;, n) : &quot;u(x)&quot;;
+//        if(A == 1) return hStepSide;
+//        else if(A == -1) return &quot;-&quot; + hStepSide;
+//        else return String.format(&quot;%f * %s&quot;, A, hStepSide);
+//    }
+
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

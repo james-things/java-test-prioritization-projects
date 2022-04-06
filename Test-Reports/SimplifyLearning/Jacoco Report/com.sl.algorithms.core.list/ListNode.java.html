@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">algorithms</a> &gt; <a href="index.source.html" class="el_package">com.sl.algorithms.core.list</a> &gt; <span class="el_source">ListNode.java</span></div><h1>ListNode.java</h1><pre class="source lang-java linenums">package com.sl.algorithms.core.list;
+
+import static com.sl.algorithms.core.interfaces.base.Constants.DATA_TYPE_NOT_SUPPORTED_YET;
+import static com.sl.algorithms.core.interfaces.base.Constants.DELIMITER_COMMA;
+import static com.sl.algorithms.core.list.CycleDetection.getCyclicStringValue;
+import static com.sl.algorithms.core.list.CycleDetection.getNodeFromCycle;
+
+import com.sl.algorithms.core.utils.Pair;
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * Basic representation of a singly LinkedList node.&lt;br&gt;
+ *
+ * @param &lt;T&gt; : {@link Comparable}
+ */
+public class ListNode&lt;T extends Comparable&gt;
+    implements Comparable&lt;ListNode&lt;T&gt;&gt;, Serializable {
+
+  /**
+   * Direct public access for this project only (as it's not a service/app).&lt;br&gt;
+   */
+  public T data;
+  public ListNode&lt;T&gt; next;
+
+<span class="fc" id="L26">  public ListNode(final T _data) {</span>
+<span class="fc" id="L27">    data = _data;</span>
+<span class="fc" id="L28">    next = null;</span>
+<span class="fc" id="L29">  }</span>
+
+  private ListNode() {
+    /*
+     * For internal use only.&lt;br&gt;
+     */
+  }
+
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; dummyNode() {
+<span class="fc" id="L38">    return new ListNode&lt;&gt;();</span>
+  }
+
+  /**
+   * @param objects input array
+   * @param &lt;T&gt; {@link Comparable}
+   * @return head of the list
+   */
+  public static &lt;T extends Comparable&gt; ListNode&lt;T&gt; createLinkedList(T[] objects) {
+<span class="fc bfc" id="L47" title="All 4 branches covered.">    if (objects == null || objects.length == 0) {</span>
+<span class="fc" id="L48">      return null;</span>
+    }
+<span class="fc" id="L50">    ListNode&lt;T&gt; dummyNode = ListNode.dummyNode();</span>
+<span class="fc" id="L51">    ListNode&lt;T&gt; head = new ListNode&lt;&gt;(objects[0]);</span>
+<span class="fc" id="L52">    dummyNode.next = head;</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    for (int i = 1; i &lt; objects.length; i++) {</span>
+<span class="fc" id="L54">      head.next = new ListNode&lt;&gt;(objects[i]);</span>
+<span class="fc" id="L55">      head = head.next;</span>
+    }
+<span class="fc" id="L57">    return dummyNode.next;</span>
+  }
+
+  /**
+   * Deep Equality Assertion.&lt;br&gt;
+   */
+  @Override
+  public boolean equals(Object o) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">    if (this == o) {</span>
+<span class="fc" id="L66">      return true;</span>
+    }
+<span class="fc bfc" id="L68" title="All 4 branches covered.">    if (o == null || getClass() != o.getClass()) {</span>
+<span class="fc" id="L69">      return false;</span>
+    }
+<span class="fc" id="L71">    ListNode&lt;?&gt; node = (ListNode&lt;?&gt;) o;</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    return Objects.equals(data, node.data) &amp;&amp;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        Objects.equals(next, node.next); // this implies a recursive call</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="fc" id="L78">    return Objects.hash(data, next); // this implies a recursive call</span>
+  }
+
+  /**
+   * Deep Copy.&lt;br&gt;
+   */
+  @Override
+  public ListNode&lt;T&gt; clone() {
+<span class="fc" id="L86">    ListNode&lt;T&gt; deepCopy = new ListNode&lt;&gt;(data);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">    if (next == null) {</span>
+<span class="fc" id="L88">      return deepCopy;</span>
+    }
+<span class="fc" id="L90">    deepCopy.next = next.clone();</span>
+<span class="fc" id="L91">    return deepCopy;</span>
+  }
+
+  /**
+   * Compare only the current node i.e. head/root level comparison only.&lt;br&gt; For deep equality
+   * check, use {@link #equals(Object)}.&lt;br&gt;
+   */
+  @Override
+  public int compareTo(ListNode&lt;T&gt; o) {
+<span class="pc bpc" id="L100" title="3 of 4 branches missed.">    if (data == null &amp;&amp; o.data == null) {</span>
+<span class="nc" id="L101">      return 0;</span>
+    }
+<span class="pc bpc" id="L103" title="1 of 4 branches missed.">    if (data instanceof Integer &amp;&amp; o.data instanceof Integer) {</span>
+<span class="fc" id="L104">      return ((Integer) data).compareTo((Integer) o.data);</span>
+    }
+<span class="pc bpc" id="L106" title="1 of 4 branches missed.">    if (data instanceof String &amp;&amp; o.data instanceof String) {</span>
+<span class="fc" id="L107">      return ((String) data).compareTo((String) o.data);</span>
+    }
+<span class="fc" id="L109">    throw new IllegalArgumentException(DATA_TYPE_NOT_SUPPORTED_YET);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L114">    String strValue = &quot;&quot;;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    if (isCyclic()) {</span>
+<span class="fc" id="L116">      strValue = getCyclicStringValue(this);</span>
+    } else {
+<span class="fc" id="L118">      strValue = getStringValue();</span>
+    }
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">    if (strValue == null) {</span>
+<span class="nc" id="L121">      strValue = &quot;&quot;;</span>
+    }
+<span class="fc" id="L123">    return &quot;[&quot;.concat(strValue).concat(&quot;]&quot;);</span>
+  }
+
+  private String getStringValue() {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">    if (next == null) {</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">      return data == null ? &quot;&quot; : data.toString();</span>
+    }
+<span class="fc" id="L130">    StringBuilder listStr = new StringBuilder();</span>
+<span class="fc" id="L131">    ListNode&lt;T&gt; curr = this;</span>
+    do {
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">      listStr.append(curr.data == null ? &quot;&quot; : curr.data.toString());</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">      if (curr.next != null) {</span>
+<span class="fc" id="L135">        listStr.append(DELIMITER_COMMA);</span>
+      }
+<span class="fc" id="L137">      curr = curr.next;</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">    } while (curr != null);</span>
+<span class="fc" id="L139">    return listStr.toString();</span>
+  }
+
+  /**
+   * @return Length of the list.
+   */
+  public int size() {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">    if (next == null) {</span>
+<span class="fc" id="L147">      return 1;</span>
+    }
+<span class="fc" id="L149">    return (1 + next.size());</span>
+  }
+
+  // tail.next = some-node i.e. list is cycle but may not be circular
+  public boolean isCyclic() {
+<span class="fc bfc" id="L154" title="All 2 branches covered.">    return (getNodeFromCycle(this) != null);</span>
+  }
+
+  // tail.next = head i.e. list is cyclic and is circular
+  public boolean isCircular() {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">    return (getNodeFromCycle(this) == this);</span>
+  }
+
+  /**
+   * &lt;u&gt;Scope&lt;/u&gt;: regular or circular list; for cyclic list, use #getEndPointsForCyclicList.
+   *
+   * @return tail node of the list
+   */
+  public ListNode&lt;T&gt; tail() {
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">    if (next == null) {</span>
+<span class="nc" id="L169">      return null;</span>
+    }
+<span class="fc" id="L171">    ListNode&lt;T&gt; curr = this;</span>
+<span class="fc" id="L172">    ListNode&lt;T&gt; terminal = null;</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">    if (isCircular()) {</span>
+<span class="fc" id="L174">      terminal = this;</span>
+    }
+<span class="fc bfc" id="L176" title="All 2 branches covered.">    while (curr.next != terminal) {</span>
+<span class="fc" id="L177">      curr = curr.next;</span>
+    }
+<span class="fc" id="L179">    return curr;</span>
+  }
+
+  public boolean isDummyNode() {
+<span class="pc bpc" id="L183" title="3 of 4 branches missed.">    return (data == null &amp;&amp; next == null);</span>
+  }
+
+  /**
+   * Floyd is great !
+   *
+   * @return node at the mid of the list
+   */
+  public ListNode&lt;T&gt; midPoint() {
+<span class="fc bfc" id="L192" title="All 4 branches covered.">    if (next == null || next.next == null) {</span>
+<span class="fc" id="L193">      return this; // null, {1}, {1,2}</span>
+    }
+<span class="fc bfc" id="L195" title="All 2 branches covered.">    if (next.next.next == null) {</span>
+<span class="fc" id="L196">      return next; // {1,2,3}</span>
+    }
+<span class="fc" id="L198">    ListNode&lt;T&gt; slow = this, fast = next;</span>
+<span class="fc bfc" id="L199" title="All 4 branches covered.">    while (fast != null &amp;&amp; fast.next != null) {</span>
+<span class="fc" id="L200">      slow = slow.next;</span>
+<span class="fc" id="L201">      fast = fast.next.next;</span>
+    }
+<span class="fc" id="L203">    return slow;</span>
+  }
+}
+
+/**
+ * &lt;a href=&quot;https://en.wikipedia.org/wiki/Cycle_detection#Floyd's_Tortoise_and_Hare&quot;&gt;Floyd's
+ * Algorithm&lt;/a&gt;
+ *
+ * @param &lt;T&gt; : {@link Comparable}
+ */
+<span class="fc" id="L213">class CycleDetection&lt;T extends Comparable&gt; {</span>
+
+  /**
+   * &lt;br&gt;For a cyclic list, find a node inside the cycle.&lt;br&gt; If null, implies the list is not
+   * cyclic.&lt;br&gt; &lt;br&gt;&lt;u&gt;Note&lt;/u&gt;: For a cyclic list (unlike circular list), the node returned may
+   * not be the start/end of the cycle.&lt;br&gt; To find the start &amp; end of the cycle, please use {@link
+   * #getCycleEndPoints(ListNode)}.&lt;br&gt;
+   */
+  static &lt;T extends Comparable&gt; ListNode&lt;T&gt; getNodeFromCycle(ListNode&lt;T&gt; head) {
+<span class="pc bpc" id="L222" title="1 of 4 branches missed.">    if (head == null || head.next == null) {</span>
+<span class="fc" id="L223">      return null;</span>
+    }
+<span class="fc" id="L225">    ListNode&lt;T&gt; slow = head, fast = head;</span>
+<span class="fc bfc" id="L226" title="All 4 branches covered.">    while (fast != null &amp;&amp; fast.next != null) {</span>
+<span class="fc" id="L227">      slow = slow.next;</span>
+<span class="fc" id="L228">      fast = fast.next.next;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">      if (slow == fast) {</span>
+<span class="fc" id="L230">        return slow;</span>
+      }
+    }
+<span class="fc" id="L233">    return null;</span>
+  }
+
+  /**
+   * &lt;br&gt;Find start &amp; end of the cycle in a Cyclic list. &lt;br&gt;Depends on {@link
+   * #getNodeFromCycle(ListNode)}.&lt;br&gt;
+   */
+  static &lt;T extends Comparable&gt; Pair&lt;ListNode&lt;T&gt;, ListNode&lt;T&gt;&gt; getCycleEndPoints(
+      ListNode&lt;T&gt; head) {
+<span class="fc" id="L242">    ListNode&lt;T&gt; cyclePoint = getNodeFromCycle(head);</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">    if (cyclePoint == null) {</span>
+<span class="fc" id="L244">      return null; // non-cyclic list</span>
+    }
+<span class="fc bfc" id="L246" title="All 2 branches covered.">    if (cyclePoint == head) {</span>
+<span class="fc" id="L247">      return new Pair&lt;&gt;(cyclePoint, head.tail()); // circular list</span>
+    }
+<span class="fc" id="L249">    ListNode&lt;T&gt; curr = head, prev = cyclePoint;</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">    while (curr != cyclePoint) {</span>
+<span class="fc" id="L251">      curr = curr.next;</span>
+<span class="fc" id="L252">      cyclePoint = cyclePoint.next;</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">      if (curr != cyclePoint) {</span>
+<span class="fc" id="L254">        prev = cyclePoint;</span>
+      }
+    }
+<span class="fc" id="L257">    return new Pair&lt;&gt;(cyclePoint, prev);</span>
+  }
+
+  /**
+   * &lt;br&gt;Helper function for {@link ListNode#toString()}.
+   */
+  static &lt;T extends Comparable&gt; String getCyclicStringValue(ListNode&lt;T&gt; head) {
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">    if (head.next == null) {</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">      return head.data == null ? &quot;&quot; : head.data.toString();</span>
+    }
+<span class="fc" id="L267">    StringBuilder listStr = new StringBuilder();</span>
+<span class="fc" id="L268">    ListNode&lt;T&gt; curr = head;</span>
+<span class="fc" id="L269">    Pair&lt;ListNode&lt;T&gt;, ListNode&lt;T&gt;&gt; pair = getCycleEndPoints(head);</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">    if (pair != null) {</span>
+<span class="fc" id="L271">      ListNode&lt;T&gt; tailOfCycle = pair.right;</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">      while (curr != tailOfCycle) {</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">        listStr.append(curr.data == null ? &quot;&quot; : curr.data.toString());</span>
+<span class="fc" id="L274">        listStr.append(DELIMITER_COMMA);</span>
+<span class="fc" id="L275">        curr = curr.next;</span>
+      }
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">      listStr.append(curr.data == null ? &quot;&quot; : curr.data.toString());</span>
+<span class="fc" id="L278">      return listStr.toString();</span>
+    }
+<span class="nc" id="L280">    return null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
