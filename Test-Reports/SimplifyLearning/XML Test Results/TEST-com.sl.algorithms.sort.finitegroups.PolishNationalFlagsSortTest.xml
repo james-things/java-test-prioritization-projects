@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.sort.finitegroups.PolishNationalFlagsSortTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-04-19T21:31:44" hostname="LAPTOP-0DNPIBQS" time="0.001">
+  <properties/>
+  <testcase name="testPNFSort1c" classname="com.sl.algorithms.sort.finitegroups.PolishNationalFlagsSortTest" time="0.001"/>
+  <testcase name="testPNFSort2c" classname="com.sl.algorithms.sort.finitegroups.PolishNationalFlagsSortTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.github.junrar.VolumeExtractorTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2022-04-19T20:55:42" hostname="LAPTOP-0DNPIBQS" time="0.556">
+  <properties/>
+  <testcase name="[1] volumes/new-numbers, test-documents.000.rar" classname="com.github.junrar.VolumeExtractorTest" time="0.257"/>
+  <testcase name="[2] volumes/new-part, test-documents.part1.rar" classname="com.github.junrar.VolumeExtractorTest" time="0.096"/>
+  <testcase name="[1] volumes/new-numbers, test-documents.000.rar" classname="com.github.junrar.VolumeExtractorTest" time="0.092"/>
+  <testcase name="[2] volumes/new-part, test-documents.part1.rar" classname="com.github.junrar.VolumeExtractorTest" time="0.107"/>
+  <system-out><![CDATA[16:55:42.565 [Test worker] INFO com.github.junrar.Junrar - extracting: testXML.xml
+16:55:42.571 [Test worker] INFO com.github.junrar.Junrar - extracting: testEXCEL.xls
+16:55:42.578 [Test worker] INFO com.github.junrar.Junrar - extracting: testHTML.html
+16:55:42.590 [Test worker] INFO com.github.junrar.Junrar - extracting: testOpenOffice2.odt
+16:55:42.607 [Test worker] INFO com.github.junrar.Junrar - extracting: testPDF.pdf
+16:55:42.634 [Test worker] INFO com.github.junrar.Junrar - extracting: testPPT.ppt
+16:55:42.641 [Test worker] INFO com.github.junrar.Junrar - extracting: testRTF.rtf
+16:55:42.644 [Test worker] INFO com.github.junrar.Junrar - extracting: testTXT.txt
+16:55:42.647 [Test worker] INFO com.github.junrar.Junrar - extracting: testWORD.doc
+16:55:42.801 [Test worker] INFO com.github.junrar.Junrar - extracting: testXML.xml
+16:55:42.803 [Test worker] INFO com.github.junrar.Junrar - extracting: testEXCEL.xls
+16:55:42.805 [Test worker] INFO com.github.junrar.Junrar - extracting: testHTML.html
+16:55:42.807 [Test worker] INFO com.github.junrar.Junrar - extracting: testOpenOffice2.odt
+16:55:42.811 [Test worker] INFO com.github.junrar.Junrar - extracting: testPDF.pdf
+16:55:42.824 [Test worker] INFO com.github.junrar.Junrar - extracting: testPPT.ppt
+16:55:42.828 [Test worker] INFO com.github.junrar.Junrar - extracting: testRTF.rtf
+16:55:42.830 [Test worker] INFO com.github.junrar.Junrar - extracting: testTXT.txt
+16:55:42.832 [Test worker] INFO com.github.junrar.Junrar - extracting: testWORD.doc
+16:55:42.908 [Test worker] INFO com.github.junrar.Junrar - extracting: testXML.xml
+16:55:42.910 [Test worker] INFO com.github.junrar.Junrar - extracting: testEXCEL.xls
+16:55:42.914 [Test worker] INFO com.github.junrar.Junrar - extracting: testHTML.html
+16:55:42.916 [Test worker] INFO com.github.junrar.Junrar - extracting: testOpenOffice2.odt
+16:55:42.922 [Test worker] INFO com.github.junrar.Junrar - extracting: testPDF.pdf
+16:55:42.926 [Test worker] INFO com.github.junrar.Junrar - extracting: testPPT.ppt
+16:55:42.930 [Test worker] INFO com.github.junrar.Junrar - extracting: testRTF.rtf
+16:55:42.931 [Test worker] INFO com.github.junrar.Junrar - extracting: testTXT.txt
+16:55:42.933 [Test worker] INFO com.github.junrar.Junrar - extracting: testWORD.doc
+16:55:42.999 [Test worker] INFO com.github.junrar.Junrar - extracting: testXML.xml
+16:55:43.000 [Test worker] INFO com.github.junrar.Junrar - extracting: testEXCEL.xls
+16:55:43.003 [Test worker] INFO com.github.junrar.Junrar - extracting: testHTML.html
+16:55:43.007 [Test worker] INFO com.github.junrar.Junrar - extracting: testOpenOffice2.odt
+16:55:43.011 [Test worker] INFO com.github.junrar.Junrar - extracting: testPDF.pdf
+16:55:43.014 [Test worker] INFO com.github.junrar.Junrar - extracting: testPPT.ppt
+16:55:43.017 [Test worker] INFO com.github.junrar.Junrar - extracting: testRTF.rtf
+16:55:43.019 [Test worker] INFO com.github.junrar.Junrar - extracting: testTXT.txt
+16:55:43.021 [Test worker] INFO com.github.junrar.Junrar - extracting: testWORD.doc
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

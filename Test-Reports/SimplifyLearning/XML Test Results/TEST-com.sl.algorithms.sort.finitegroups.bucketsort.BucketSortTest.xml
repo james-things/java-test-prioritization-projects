@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.sl.algorithms.sort.finitegroups.bucketsort.BucketSortTest" tests="2" skipped="1" failures="0" errors="0" timestamp="2022-04-19T21:31:44" hostname="LAPTOP-0DNPIBQS" time="0.002">
+  <properties/>
+  <testcase name="testFPBucketSort" classname="com.sl.algorithms.sort.finitegroups.bucketsort.BucketSortTest" time="0.0"/>
+  <testcase name="testFPBucketSortNegativeNumbers" classname="com.sl.algorithms.sort.finitegroups.bucketsort.BucketSortTest" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

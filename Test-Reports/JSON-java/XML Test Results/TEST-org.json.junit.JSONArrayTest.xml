@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.json.junit.JSONArrayTest" tests="37" skipped="0" failures="0" errors="0" timestamp="2022-03-31T00:27:49" hostname="LAPTOP-0DNPIBQS" time="0.146">
+  <properties/>
+  <testcase name="verifyConstructor" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="verifySimilar" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="objectArrayVsIsArray" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="issue654StackOverflowInputWellFormed" classname="org.json.junit.JSONArrayTest" time="0.108"/>
+  <testcase name="emptStr" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="optQueryWithNoResult" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="nullException" classname="org.json.junit.JSONArrayTest" time="0.002"/>
+  <testcase name="length" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="failedGetArrayValues" classname="org.json.junit.JSONArrayTest" time="0.003"/>
+  <testcase name="remove" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="toList" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="verifyPutAll" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="verifyPutMap" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="testObjectConstructor" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="optQueryWithSyntaxError" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="testJSONArrayPutAll" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="verifyPutCollection" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="jsonArrayClearMethodTest" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="testJSONArrayInt" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="opt" classname="org.json.junit.JSONArrayTest" time="0.006"/>
+  <testcase name="put" classname="org.json.junit.JSONArrayTest" time="0.004"/>
+  <testcase name="join" classname="org.json.junit.JSONArrayTest" time="0.002"/>
+  <testcase name="write" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="getArrayValues" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="write3Param" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="iteratorTest" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="unclosedArray2" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="unclosedArray3" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="optStringConversion" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="notSimilar" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="queryWithNoResult" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="jsonArrayToStringIndent" classname="org.json.junit.JSONArrayTest" time="0.001"/>
+  <testcase name="badObject" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="testJSONArrayConstructor" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="putIndex" classname="org.json.junit.JSONArrayTest" time="0.002"/>
+  <testcase name="toJSONObject" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <testcase name="unclosedArray" classname="org.json.junit.JSONArrayTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
