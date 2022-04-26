@@ -17,7 +17,8 @@ public class QuickSort<T extends Comparable> implements SortingEngine<T>, QuickS
   public void sort(T[] objects) {
     checkArray(objects);
     int n = objects.length;
-    if (n == 1) {
+    // added bug 10   was  if (n == 1) {
+    if (n != 1) {
       return;
     }
     quickSort(objects, 0, n - 1);

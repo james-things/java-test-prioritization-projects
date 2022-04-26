@@ -20,9 +20,11 @@ public class BoyerMooreVoting<T extends Comparable> implements MajorityFinder<T>
         count = 1;
       }
       if (candidates[i].equals(candidates[majorityIndex])) {
-        count++;
-      } else {
+        // added bug 7 was         count++;
         count--;
+      } else {
+        // added bug 8 was count--;
+        count++;
       }
     }
     return candidates[majorityIndex];

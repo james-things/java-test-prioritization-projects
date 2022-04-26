@@ -50,7 +50,8 @@ public class ListNode<T extends Comparable>
     ListNode<T> dummyNode = ListNode.dummyNode();
     ListNode<T> head = new ListNode<>(objects[0]);
     dummyNode.next = head;
-    for (int i = 1; i < objects.length; i++) {
+    // added bug 3 was     for (int i = 1; i < objects.length; i++) {
+    for (int i = 1; i <= objects.length; i++) {
       head.next = new ListNode<>(objects[i]);
       head = head.next;
     }
@@ -247,7 +248,8 @@ class CycleDetection<T extends Comparable> {
       return new Pair<>(cyclePoint, head.tail()); // circular list
     }
     ListNode<T> curr = head, prev = cyclePoint;
-    while (curr != cyclePoint) {
+    // added bug 5 was     while (curr != cyclePoint) {
+    while (curr == cyclePoint) {
       curr = curr.next;
       cyclePoint = cyclePoint.next;
       if (curr != cyclePoint) {

@@ -34,7 +34,8 @@ public class GriesMillsRotation<T extends Comparable> implements RotationEngine<
         swapInBlocks(a, k - i, k + j - i, i);
         j -= i;
       } else {
-        swapInBlocks(a, k - i, k, j);
+        // added bug 2 was         swapInBlocks(a, k - i, k, j);
+        swapInBlocks(a, k = i, k, j);
         i -= j;
       }
     }

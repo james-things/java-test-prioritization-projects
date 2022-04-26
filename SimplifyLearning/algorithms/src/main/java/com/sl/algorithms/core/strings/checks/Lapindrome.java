@@ -18,7 +18,8 @@ public class Lapindrome implements CharSymmetryChecker {
     int[] charSet = new int[26];
     int midIndex = str.length() / 2;
     int skipIndex = 0;
-    if (str.length() % 2 == 1) {
+    // added bug 6 was     if (str.length() % 2 == 1) {
+    if (str.length() / 2 == 1) {
       skipIndex = midIndex;
     }
     for (int i = 0; i < midIndex; i++) {

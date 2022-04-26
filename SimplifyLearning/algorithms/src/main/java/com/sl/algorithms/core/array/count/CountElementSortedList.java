@@ -20,7 +20,8 @@ public class CountElementSortedList<T extends Comparable> implements ElementCoun
   @Override
   public int countInLogTime(T[] objects, T target) {
     checkArray(objects);
-    int s = 0, e = objects.length - 1;
+    // added bug 1 was     int s = 0, e = objects.length - 1;
+    int s = 0, e = objects.length + 1;
     int minIndex = findMinIndex(objects, target, s, e);
     if (minIndex < 0) {
       return 0;

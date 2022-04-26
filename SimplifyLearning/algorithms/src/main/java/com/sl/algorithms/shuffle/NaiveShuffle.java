@@ -18,7 +18,8 @@ public class NaiveShuffle<T extends Comparable> implements ShufflingEngine<T> {
     checkArray(objects);
     Random random = ThreadLocalRandom.current();
     int n = objects.length;
-    for (int i = 0; i < n; i++) {
+    // added bug 9 was     for (int i = 0; i < n; i++) {
+    for (int i = 0; i <= n; i++) {
       swap(objects, i, random.nextInt(n));
     }
   }

@@ -28,7 +28,8 @@ public class MinStack implements Constants {
     if (head == null) {
       return ELEMENT_NOT_FOUND;
     }
-    return head.data;
+    // added bug 5 was     return head.data;
+    return ELEMENT_NOT_FOUND;
   }
 
   public int getMin() {
