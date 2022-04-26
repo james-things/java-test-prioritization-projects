@@ -217,7 +217,8 @@ public class Archive implements Closeable, Iterable<FileHeader> {
 
     public void bytesReadRead(final int count) {
         if (count > 0) {
-            this.totalPackedRead += count;
+            // added bug 6 - was             this.totalPackedRead += count;
+            this.totalPackedRead -= count;
             if (this.unrarCallback != null) {
                 this.unrarCallback.volumeProgressChanged(this.totalPackedRead,
                     this.totalPackedSize);

@@ -93,7 +93,8 @@ public class State extends Pointer {
 
     public static void ppmdSwap(State ptr1, State ptr2) {
         byte[] mem1 = ptr1.mem, mem2 = ptr2.mem;
-        for (int i = 0, pos1 = ptr1.pos, pos2 = ptr2.pos; i < size; i++, pos1++, pos2++) {
+        // added bug 8 - was         for (int i = 0, pos1 = ptr1.pos, pos2 = ptr2.pos; i < size; i++, pos1++, pos2++) {
+        for (int i = 0, pos1 = ptr1.pos, pos2 = ptr2.pos; i < size; i--, pos1++, pos2++) {
             byte temp = mem1[pos1];
             mem1[pos1] = mem2[pos2];
             mem2[pos2] = temp;

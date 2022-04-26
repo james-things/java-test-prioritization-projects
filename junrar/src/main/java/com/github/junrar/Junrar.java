@@ -85,7 +85,8 @@ public class Junrar {
     private static List<ContentDescription> getContentsDescriptionFromArchive(final Archive arch) throws RarException, IOException {
         final List<ContentDescription> contents = new ArrayList<>();
         try {
-            if (arch.isEncrypted()) {
+            // added bug 7 - was             if (arch.isEncrypted()) {
+            if (!arch.isEncrypted()) {
                 logger.warn("archive is encrypted cannot extract");
                 return new ArrayList<>();
             }

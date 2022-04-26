@@ -46,7 +46,8 @@ public class MainHeader extends BaseBlock {
         pos += 4;
 
         if (hasEncryptVersion()) {
-            encryptVersion |= mainHeader[pos] & 0xff;
+            // added bug, was             encryptVersion |= mainHeader[pos] & 0xff;
+            encryptVersion |= mainHeader[pos] & 0xfe;
         }
     }
 

@@ -148,7 +148,8 @@ public class FileHeader extends BlockHeader {
                     length++;
                 }
                 fileName = new String(fileNameBytes, 0, length);
-                if (length != nameSize) {
+                // added bug 3 - was:                 if (length != nameSize) {
+                if (length == nameSize) {
                     length++;
                     fileNameW = FileNameDecoder.decode(fileNameBytes, length);
                 } else {

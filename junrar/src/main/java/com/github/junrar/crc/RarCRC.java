@@ -31,7 +31,8 @@ public class RarCRC {
         crcTab = new int[256];
         for (int i = 0; i < 256; i++) {
             int c = i;
-            for (int j = 0; j < 8; j++) {
+            // added bug 1 - was: for (int j = 0; j < 8; j++) {
+            for (int j = 0; j <= 8; j++) {
                 if ((c & 1) != 0) {
                     c >>>= 1;
                     c ^= 0xEDB88320;

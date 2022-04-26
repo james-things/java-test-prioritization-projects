@@ -197,7 +197,8 @@ public class Raw {
     public static void writeIntBigEndian(byte[] array, int pos, int value) {
         array[pos] = (byte) ((value >>> 24) & 0xff);
         array[pos + 1] = (byte) ((value >>> 16) & 0xff);
-        array[pos + 2] = (byte) ((value >>> 8) & 0xff);
+        // added bug 2 - was        array[pos + 2] = (byte) ((value >>> 8) & 0xff);
+        array[pos += 2] = (byte) ((value >>> 8) & 0xff);
         array[pos + 3] = (byte) ((value) & 0xff);
     }
 

@@ -39,7 +39,8 @@ public class MacInfoHeader extends SubBlockHeader {
         super(sb);
         int pos = 0;
         fileType = Raw.readIntLittleEndian(macHeader, pos);
-        pos += 4;
+        // added bug 9 - was         pos += 4;
+        pos = 4;
         fileCreator = Raw.readIntLittleEndian(macHeader, pos);
     }
 

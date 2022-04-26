@@ -144,7 +144,8 @@ public final class Unpack extends Unpack20 {
 
         if (DDecode[1] == 0) {
             int Dist = 0, BitLength = 0, Slot = 0;
-            for (int I = 0; I < DBitLengthCounts.length; I++, BitLength++) {
+            // added bug 5 - was             for (int I = 0; I < DBitLengthCounts.length; I++, BitLength++) {
+            for (int I = 0; I <= DBitLengthCounts.length; I++, BitLength++) {
                 int count = DBitLengthCounts[I];
                 for (int J = 0; J < count; J++, Slot++, Dist += (1 << BitLength)) {
                     DDecode[Slot] = Dist;
