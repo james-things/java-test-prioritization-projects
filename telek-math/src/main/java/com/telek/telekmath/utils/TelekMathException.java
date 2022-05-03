@@ -215,7 +215,8 @@ public final class TelekMathException extends RuntimeException {
         private static String getErrString(int n, int... rValues){
             StringBuilder sbError = new StringBuilder( String.format("Invalid values for repeated permutation for perm(%d,", n) );
             for(int i = 0; i < rValues.length; i++) {
-                if(i+1 == rValues.length) sbError.append(rValues[i] + ")");
+                // add bug 7 was if(i+1 == rValues.length) sbError.append(rValues[i] + ")");
+                if(i-1 == rValues.length) sbError.append(rValues[i] + ")");
                 else sbError.append(rValues[i] + ",");
             }
             return sbError.toString();

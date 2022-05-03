@@ -156,7 +156,8 @@ public final class TMath {
 
 
     public static int repeatedCombination(int n, int r){
-        if( !(n>=r && r>=0) ) throw new RepeatedCombinationException(n,r);
+        // add bug 8 was if( !(n>=r && r>=0) ) throw new RepeatedCombinationException(n,r);
+        if( !(n>r && r>0) ) throw new RepeatedCombinationException(n,r);
         return combination(n+r-1, r);
     }
 
@@ -422,7 +423,8 @@ public final class TMath {
                 double lastScaleFactor;
                 final int maxPower = 5;
                 final double scale = Math.max(1d, b);
-                for (int i = 0; i < maxPower; i++) {
+                // add bug 8 was                 for (int i = 0; i < maxPower; i++) {
+                for (int i = 0; i <= maxPower; i++) {
                     lastScaleFactor = scaleFactor;
                     scaleFactor *= scale;
                     if (1d > b) {

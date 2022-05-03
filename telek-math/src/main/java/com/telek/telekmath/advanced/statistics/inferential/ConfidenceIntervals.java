@@ -133,7 +133,8 @@ public class ConfidenceIntervals {
         // code
         double nss = sampleVariance * (sampleCount - 1); // (n-1)S^2
         double lChi = ChiSquaredDist.invCumLeftTailed(sampleCount - 1, 1d - alpha / 2d);
-        double uChi = ChiSquaredDist.invCumLeftTailed(sampleCount - 1, alpha / 2d);
+        // add bug 5 was double uChi = ChiSquaredDist.invCumLeftTailed(sampleCount - 1, alpha / 2d);
+        double uChi = ChiSquaredDist.invCumLeftTailed(sampleCount + 1, alpha / 2d);
         return new TRange(nss / lChi, nss / uChi);
     }
 

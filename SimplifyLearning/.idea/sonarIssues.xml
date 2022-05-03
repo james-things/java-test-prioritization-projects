@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="issues">
+    <option name="index">
+      <map>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/core/array/count/CountElementSortedList.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/core/array/rotation/GriesMillsRotation.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/core/list/ListNode.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/core/stack/MinStack.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/core/strings/checks/Lapindrome.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/search/majorityelement/BoyerMooreVoting.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/shuffle/NaiveShuffle.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/algorithms/src/main/java/com/sl/algorithms/sort/generalpurpose/QuickSort.java">
+          <value>
+            <set />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

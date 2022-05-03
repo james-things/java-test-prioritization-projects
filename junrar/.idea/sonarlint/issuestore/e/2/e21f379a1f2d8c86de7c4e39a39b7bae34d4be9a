@@ -1,0 +1,49 @@
+
+4
+java:S57865"Remove this 'public' modifier.(ÅÄõÅ
+4
+java:S5786["Remove this 'public' modifier.(£œ¬‰
+9
+java:S57862"Remove this 'public' modifier.(©Ó¥óùÿÿÿÿ
+R
+java:S5838…";Use assertThat(actual).hasToString(expectedString) instead.(¦ºëõ
+5
+java:S5786œ"Remove this 'public' modifier.(ä…è
+:
+java:S5786£"Remove this 'public' modifier.(àš ¶øÿÿÿÿ
+:
+java:S5786ª"Remove this 'public' modifier.(¨Ã…Üúÿÿÿÿ
+5
+java:S5786±"Remove this 'public' modifier.(¨»‚ˆ
+M
+java:S5976œ"6Replace these 4 tests with a single Parameterized one.(ä…è
+W
+java:S5838Ã";Use assertThat(actual).hasToString(expectedString) instead.(¯ğÃ¿şÿÿÿÿ
+4
+java:S5786Ş"Remove this 'public' modifier.(¢¾Å
+:
+java:S5786õ"Remove this 'public' modifier.(®©ƒÀüÿÿÿÿ
+:
+java:S5786"Remove this 'public' modifier.(øĞ¬ûÿÿÿÿÿ
+5
+java:S5786 "Remove this 'public' modifier.(ŞæÒÇ
+W
+java:S5838í";Use assertThat(actual).hasToString(expectedString) instead.(şÊÓùÿÿÿÿ
+W
+java:S5838†";Use assertThat(actual).hasToString(expectedString) instead.(şÊÓùÿÿÿÿ
+:
+java:S5786µ"Remove this 'public' modifier.(ª»Óÿÿÿÿÿ
+5
+java:S5786Ê"Remove this 'public' modifier.(¦‚ºç
+5
+java:S5786Ú"Remove this 'public' modifier.(æ¦ªŸ
+4
+java:S5786ï"Remove this 'public' modifier.(›ğ§D
+5
+java:S5786ø"Remove this 'public' modifier.(ø—¤È
+W
+java:S5838Ã";Use assertThat(actual).hasToString(expectedString) instead.(àÔß²şÿÿÿÿ
+W
+java:S5838è";Use assertThat(actual).hasToString(expectedString) instead.(àÔß²şÿÿÿÿ
+:
+java:S5786„"Remove this 'public' modifier.(ˆ’—™ùÿÿÿÿ

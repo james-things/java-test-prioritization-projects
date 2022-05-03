@@ -1,0 +1,12 @@
+
+Y
+java:S16598">Declare "w" and all following declarations on a separate line.(ñ«÷‘ûÿÿÿÿ
+V	java:S125A"<This block of commented-out lines of code should be removed.(åø¶¿úÿÿÿÿ
+?
+java:S1068")Remove this unused "white" private field.(¤öÅ
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ßÀÓØ
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ßÀÓØ
+f	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ßÀÓØ
+f	java:S117("QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÉÜ¢ƒ
+f	java:S117("QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÉÜ¢ƒ
+k	java:S1175"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ò´É™ÿÿÿÿÿ

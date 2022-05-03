@@ -1,0 +1,14 @@
+
+U
+java:S1118":Add a private constructor to hide the implicit public one.(«èÚŒúÿÿÿÿ
+]	java:S125X"<This block of commented-out lines of code should be removed.(‹¸‡‘ıÿÿÿÿ8Ü‘‘¦†0
+s
+java:S2139i"XEither log this exception and handle it, or rethrow it with some contextual information.(Â¸Æ¬øÿÿÿÿ
+s
+java:S2139r"XEither log this exception and handle it, or rethrow it with some contextual information.(Â¸Æ¬øÿÿÿÿ
+s
+java:S2139{"XEither log this exception and handle it, or rethrow it with some contextual information.(Â¸Æ¬øÿÿÿÿ
+o
+java:S2139Ÿ"XEither log this exception and handle it, or rethrow it with some contextual information.(¸ÉûÌ
+x
+java:S1192j"]Define a constant instead of duplicating this literal "Error while creating archive" 3 times.(ı¨²üÿÿÿÿ

@@ -1,0 +1,172 @@
+
+q
+java:S3008P"[Rename this field "DBitLengthCounts" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ªşß”
+3
+java:S2386P"Make this member "protected".(ªşß”
+
+java:S1149"eReplace the synchronized class "Vector" by an unsynchronized one such as "ArrayList" or "LinkedList".(š˜ÜÃıÿÿÿÿ
+7	java:S131j""Add a default case to this switch.(ãØ´ú
+o
+java:S3776Š"SRefactor this method to reduce its Cognitive Complexity from 164 to the 15 allowed.(Û§é—şÿÿÿÿ
+2
+java:S3626İ"Remove this redundant jump.(ÉŠ©ƒ
+b
+java:S1659’"FDeclare "BitLength" and all following declarations on a separate line.(İ·óØùÿÿÿÿ
+Y	java:S125“"<This block of commented-out lines of code should be removed.(²Ü¼Ë8¶œˆ¦†0
+R	java:S125¶"<This block of commented-out lines of code should be removed.(˜˜õœ
+@
+java:S1659Û"$Declare "Length" on a separate line.(Ô¥“ñùÿÿÿÿ
+d	java:S100ä"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±Ä€Â
+j
+java:S3776ä"SRefactor this method to reduce its Cognitive Complexity from 102 to the 15 allowed.(±Ä€Â
+Q	java:S125í"<This block of commented-out lines of code should be removed.(èüê6
+R	java:S125ğ"<This block of commented-out lines of code should be removed.(íĞÿŠ
+W	java:S125ñ"<This block of commented-out lines of code should be removed.(ÂãÆŠûÿÿÿÿ
+R	java:S125ü"<This block of commented-out lines of code should be removed.(«õò¾
+R	java:S125€"<This block of commented-out lines of code should be removed.(Â²î¯
+W	java:S125‚"<This block of commented-out lines of code should be removed.(É•Á¥ÿÿÿÿÿ
+W	java:S125"<This block of commented-out lines of code should be removed.(ÛÖÿüÿÿÿÿ
+W	java:S125¢"<This block of commented-out lines of code should be removed.(€÷­ûÿÿÿÿ
+W	java:S125¤"<This block of commented-out lines of code should be removed.(»ÌœÛüÿÿÿÿ
+W	java:S125·"<This block of commented-out lines of code should be removed.(Õ§ñÒÿÿÿÿÿ
+W	java:S125Å"<This block of commented-out lines of code should be removed.(ß½µ„øÿÿÿÿ
+W	java:S125Î"<This block of commented-out lines of code should be removed.(·èµ™ûÿÿÿÿ
+W	java:S125Ñ"<This block of commented-out lines of code should be removed.(·ûË‚øÿÿÿÿ
+R	java:S125ä"<This block of commented-out lines of code should be removed.(‡ÍéÜ
+d	java:S100’"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÕÉ­‹
+d	java:S100Ÿ"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÆİÕÇ
+R	java:S125»"<This block of commented-out lines of code should be removed.(Ÿş©¦
+W	java:S125¾"<This block of commented-out lines of code should be removed.(ŞÖÎşÿÿÿÿ
+W	java:S125Ò"<This block of commented-out lines of code should be removed.(¼ñı‘ÿÿÿÿÿ
+R	java:S125Ø"<This block of commented-out lines of code should be removed.(ó±œÛ
+<
+java:S1659ó"%Declare "NewFile" on a separate line.(ŞÖœç
+D
+java:S1125ù"(Remove the unnecessary boolean literals.(Êˆ¬¼ûÿÿÿÿ
+i
+java:S3776€"RRefactor this method to reduce its Cognitive Complexity from 45 to the 15 allowed.(ÌùĞ
+R	java:S125•"<This block of commented-out lines of code should be removed.(ó±œÛ
+W	java:S125à"<This block of commented-out lines of code should be removed.(ß àˆÿÿÿÿÿ
+R	java:S125™"<This block of commented-out lines of code should be removed.(¿Ê”Ô
+n
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 50 to the 15 allowed.(˜‡æáúÿÿÿÿ
+I
+java:S1172"-Remove this unused method parameter "length".(˜‡æáúÿÿÿÿ
+W	java:S125¡"<This block of commented-out lines of code should be removed.(°²®úÿÿÿÿ
+R	java:S125Ã"<This block of commented-out lines of code should be removed.(Û½Ä‘
+W	java:S125Ì"<This block of commented-out lines of code should be removed.(»ÏåĞùÿÿÿÿ
+R	java:S125Ğ"<This block of commented-out lines of code should be removed.(ì¥«¥
+W	java:S125ã"<This block of commented-out lines of code should be removed.(ÔÔ¨¢ÿÿÿÿÿ
+R	java:S125ç"<This block of commented-out lines of code should be removed.(úÁø
+Q	java:S125é"<This block of commented-out lines of code should be removed.(Îó¿9
+W	java:S125ê"<This block of commented-out lines of code should be removed.(àŒ¢ıÿÿÿÿ
+W	java:S125ë"<This block of commented-out lines of code should be removed.(€ûœ÷úÿÿÿÿ
+Q	java:S125ó"<This block of commented-out lines of code should be removed.(»¾®
+R	java:S125†"<This block of commented-out lines of code should be removed.(æƒŒ‡
+W	java:S125‰"<This block of commented-out lines of code should be removed.(ä«Ø®ıÿÿÿÿ
+R	java:S125Š"<This block of commented-out lines of code should be removed.(¬ãù¹
+R	java:S125"<This block of commented-out lines of code should be removed.(‰Äº
+W	java:S125‘"<This block of commented-out lines of code should be removed.(ë¡¬¸üÿÿÿÿ
+R	java:S125•"<This block of commented-out lines of code should be removed.(€†º¸
+W	java:S125œ"<This block of commented-out lines of code should be removed.(²òÚêıÿÿÿÿ
+W	java:S125¤"<This block of commented-out lines of code should be removed.(¶‚°Œıÿÿÿÿ
+W	java:S125¦"<This block of commented-out lines of code should be removed.(Ó®»Ìıÿÿÿÿ
+Q	java:S125¬"<This block of commented-out lines of code should be removed.(°ö²m
+R	java:S125®"<This block of commented-out lines of code should be removed.(õÓ‘‚
+W	java:S125¼"<This block of commented-out lines of code should be removed.(¸˜½×øÿÿÿÿ
+i	java:S100Í"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(•–¸ÿÿÿÿÿ
+W	java:S125Ï"<This block of commented-out lines of code should be removed.(½™µ€úÿÿÿÿ
+W	java:S125Ò"<This block of commented-out lines of code should be removed.(¼ğù¥ûÿÿÿÿ
+W	java:S125Ö"<This block of commented-out lines of code should be removed.(ç‡Şàøÿÿÿÿ
+R	java:S125ß"<This block of commented-out lines of code should be removed.(Ú°à¬
+E
+java:S1121„".Extract the assignment out of this expression.(±½¶
+J
+java:S1121Õ".Extract the assignment out of this expression.(‹ÑÖ®üÿÿÿÿ
+t	java:S135­"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿ
+o	java:S135ç"YReduce the total number of break and continue statements in this loop to use at most one.(†­‰í
+n	java:S127ø"XRefactor the code in order to not assign to this loop counter from within the loop body.(­ºê™
+s	java:S127¤"XRefactor the code in order to not assign to this loop counter from within the loop body.(»öî÷ûÿÿÿÿ
+m	java:S127¦"XRefactor the code in order to not assign to this loop counter from within the loop body.(¨…ÄK
+n	java:S127º"XRefactor the code in order to not assign to this loop counter from within the loop body.(Ì‚ˆÌ
+n	java:S127Æ"XRefactor the code in order to not assign to this loop counter from within the loop body.(Ì‚ˆÌ
+n	java:S127Ò"XRefactor the code in order to not assign to this loop counter from within the loop body.(ÊÛä
+F
+java:S1066±"/Merge this if statement with the enclosing one.(£øÃÿ
+F
+java:S1066…"/Merge this if statement with the enclosing one.(£øÃÿ
+F
+java:S1066³"/Merge this if statement with the enclosing one.(£øÃÿ
+e	java:S117S"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(êİÓ
+l	java:S117Œ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(œÏ•ùÿÿÿÿ
+l	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¬Ò½¾ÿÿÿÿÿ
+l	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(•šúÿÿÿÿ
+l	java:S117’"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İ·óØùÿÿÿÿ
+l	java:S117’"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İ·óØùÿÿÿÿ
+l	java:S117’"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İ·óØùÿÿÿÿ
+g	java:S117Ä"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§‡õì
+l	java:S117Ê"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ì×¼ûùÿÿÿÿ
+l	java:S117Û"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ô¥“ñùÿÿÿÿ
+l	java:S117Û"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ô¥“ñùÿÿÿÿ
+g	java:S117ò"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(’á‰ß
+g	java:S117ş"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§ÜºÈ
+g	java:S117„"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±½¶
+g	java:S117Š"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¡•½³
+l	java:S117‹"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¶¿åÖşÿÿÿÿ
+l	java:S117–"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(™¬†™ûÿÿÿÿ
+l	java:S117Å"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(–İİÌøÿÿÿÿ
+l	java:S117Æ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Š©±ÿÿÿÿÿ
+l	java:S117Ê"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÌŠ¾ùÿÿÿÿ
+l	java:S117Ë"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Á©Ÿîşÿÿÿÿ
+l	java:S117Õ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‹ÑÖ®üÿÿÿÿ
+l	java:S117å"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(½ÓŠªùÿÿÿÿ
+g	java:S117æ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÚîÎĞ
+g	java:S117ğ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(íĞÿŠ
+l	java:S117ñ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÂãÆŠûÿÿÿÿ
+g	java:S117ù"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥ş–±
+l	java:S117ÿ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¼Â‡Öşÿÿÿÿ
+g	java:S117‡"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(“®ˆ—
+g	java:S117‰"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(½×­ 
+g	java:S117°"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(â‚
+l	java:S117±"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(©âÔ¸ûÿÿÿÿ
+l	java:S117²"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.( ¯öşÿÿÿÿ
+g	java:S117¼"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ò˜î¶
+l	java:S117É"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ğĞÉõşÿÿÿÿ
+l	java:S117ò"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¬ò†ûÿÿÿÿ
+g	java:S117ó"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ŞÖœç
+g	java:S117ó"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ŞÖœç
+l	java:S117¯"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ğâ÷Ùúÿÿÿÿ
+l	java:S117·"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(àÔ¬ªÿÿÿÿÿ
+l	java:S117¼"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±¢ÓÛüÿÿÿÿ
+l	java:S117É"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(±¢ÓÛüÿÿÿÿ
+g	java:S117ç"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¯¶™°
+g	java:S117é"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ğêµ•
+g	java:S117ı"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‹ƒÔ€
+g	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ğêµ•
+l	java:S117ƒ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(€íˆ½şÿÿÿÿ
+l	java:S117‰"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(€íˆ½şÿÿÿÿ
+g	java:S117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¶áï…
+g	java:S117•"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(§‡õì
+g	java:S117Ÿ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İ†•
+g	java:S117§"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¾ƒ÷Ò
+g	java:S117·"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Â ±¾
+l	java:S117¹"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(®«úàüÿÿÿÿ
+g	java:S117¼"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ñÎãØ
+f	java:S117Ò"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(éç‘Y
+l	java:S117ï"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(éõÃøÿÿÿÿ
+g	java:S117ú"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‹ù†
+l	java:S117ş"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(©º¡´ÿÿÿÿÿ
+g	java:S117Œ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥âÖ×
+l	java:S117¶"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(éÉÆ¤ùÿÿÿÿ
+g	java:S117º"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(àİí­
+l	java:S117Í"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(•–¸ÿÿÿÿÿ
+Z
+java:S1155Î">Use isEmpty() to check whether the collection is empty or not.(¥‘°¼øÿÿÿÿ
+r
+java:S1104P"\Make DBitLengthCounts a static final constant or non-public and provide accessors if needed.(ªşß”
+L
+java:S1444P"6Make this "public static DBitLengthCounts" field final(ªşß”
+S
+java:S2589‹"7Remove this expression which always evaluates to "true"(ÜÊ‰Äùÿÿÿÿ
+N
+java:S2589ı"7Remove this expression which always evaluates to "true"(Ÿ™Œ

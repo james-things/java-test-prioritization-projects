@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.telek.tests.dists.ZDistTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2022-03-31T14:11:58" hostname="LAPTOP-0DNPIBQS" time="0.629">
+<testsuite name="com.telek.tests.dists.ZDistTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2022-05-03T21:03:38" hostname="LAPTOP-0DNPIBQS" time="0.201">
   <properties/>
-  <testcase name="cumulativeProbabilityTest" classname="com.telek.tests.dists.ZDistTest" time="0.325"/>
-  <testcase name="invCumRightTailedTest" classname="com.telek.tests.dists.ZDistTest" time="0.001"/>
-  <testcase name="cumulativeProbabilityBetweenTest" classname="com.telek.tests.dists.ZDistTest" time="0.002"/>
-  <testcase name="invCumLeftTailedTest" classname="com.telek.tests.dists.ZDistTest" time="0.005"/>
+  <testcase name="cumulativeProbabilityTest" classname="com.telek.tests.dists.ZDistTest" time="0.102"/>
+  <testcase name="invCumRightTailedTest" classname="com.telek.tests.dists.ZDistTest" time="0.0"/>
+  <testcase name="cumulativeProbabilityBetweenTest" classname="com.telek.tests.dists.ZDistTest" time="0.001"/>
+  <testcase name="invCumLeftTailedTest" classname="com.telek.tests.dists.ZDistTest" time="0.002"/>
   <testcase name="cumulativeProbabilityBetweenTest2" classname="com.telek.tests.dists.ZDistTest" time="0.001"/>
-  <testcase name="densityTest" classname="com.telek.tests.dists.ZDistTest" time="0.286"/>
+  <testcase name="densityTest" classname="com.telek.tests.dists.ZDistTest" time="0.094"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

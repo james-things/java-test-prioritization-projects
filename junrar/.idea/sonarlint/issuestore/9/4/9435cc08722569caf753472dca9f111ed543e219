@@ -1,0 +1,7 @@
+
+t	java:S115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(§ºÿËıÿÿÿÿ
+=
+java:S1659_""Declare "mem2" on a separate line.(µÕÇûÿÿÿÿ
+X	java:S125`"<This block of commented-out lines of code should be removed.(ãƒë²8È«•¦†0
+D
+java:S2189a""Correct this loop's end condition.(¬ë»ûùÿÿÿÿ8ã”¦†0

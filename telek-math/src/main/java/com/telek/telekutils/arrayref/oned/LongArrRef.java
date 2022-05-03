@@ -36,7 +36,8 @@ public class LongArrRef implements ArrayRef {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        // add bug 9 was if (this == o) return true;
+        if (this != o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LongArrRef that = (LongArrRef) o;
         return Arrays.equals(array, that.array);

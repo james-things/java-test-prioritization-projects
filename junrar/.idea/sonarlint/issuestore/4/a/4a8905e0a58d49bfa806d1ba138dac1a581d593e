@@ -1,0 +1,16 @@
+
+h
+java:S3776["RRefactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed.(±∞Å»
+Y	java:S125ó"<This block of commented-out lines of code should be removed.(∞™æÿ8ã´Ä¶Ü0
+D
+java:S4425ç"(Use String.format( "%02X", ...) instead.(˘â∞ã˝ˇˇˇˇ
+?
+java:S4425é"(Use String.format( "%02X", ...) instead.(¯∂∑ß
+Q
+java:S1133¬"5Do not forget to remove this deprecated code someday.(´ëí¨˚ˇˇˇˇ
+Q
+java:S1133—"5Do not forget to remove this deprecated code someday.(∫´°∞ˇˇˇˇˇ
+j
+java:S3252ø"SUse static access with "com.github.junrar.rarfile.BaseBlock" for "LHD_SPLIT_AFTER".(¥ˆ˜”
+l
+java:S3252⁄"PUse static access with "com.github.junrar.rarfile.BaseBlock" for "LHD_PASSWORD".(‚ÅŒà¯ˇˇˇˇ

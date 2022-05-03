@@ -30,7 +30,8 @@ public class GeometricDist  {
 
     public static double variance(double p){
         checkForInput(p);
-        return (1d-p) / (p * p);
+        // add bug 3 was return (1d-p) / (p * p);
+        return (1d-p) * (p / p);
     }
 
 

@@ -70,7 +70,8 @@ public class Sampler {
             for (int i = 0; i < N - randi; i++)
                 sample[index++] = population[randi + i];
 
-            for (int i = 0; i < sampleSize + randi - N; i++)
+            // add bug 4 was for (int i = 0; i < sampleSize + randi - N; i++)
+            for (int i = 0; i < sampleSize - randi + N; i++)
                 sample[index++] = population[i];
         }
         else{

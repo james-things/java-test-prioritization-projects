@@ -1,0 +1,28 @@
+
+t
+java:S2139Ç"XEither log this exception and handle it, or rethrow it with some contextual information.(äåïŸÿÿÿÿÿ
+Y	java:S125Ü"<This block of commented-out lines of code should be removed.(„ıÀ‹8å‹¦†0
+u
+java:S3776©"RRefactor this method to reduce its Cognitive Complexity from 58 to the 15 allowed.(õƒÒùÿÿÿÿ8ÿöŠ¦†0
+Y	java:S125Ì"<This block of commented-out lines of code should be removed.(êÕƒ8ÿöŠ¦†0
+^	java:S125è"<This block of commented-out lines of code should be removed.(À‚ˆ¬şÿÿÿÿ8ÿöŠ¦†0
+o
+java:S3252³"QUse static access with "com.github.junrar.rarfile.BaseBlock" for "BaseBlockSize".(É‹¶Ø8÷Š¦†0
+o
+java:S3252Å"QUse static access with "com.github.junrar.rarfile.BaseBlock" for "BaseBlockSize".(É‹¶Ø8÷Š¦†0
+P
+java:S1135æ"2Complete the task associated to this TODO comment.(Œ„8÷Š¦†0
+^	java:S125"<This block of commented-out lines of code should be removed.(Á´¹ûüÿÿÿÿ8÷Š¦†0
+^
+java:S1193¬"@Replace the usage of the "instanceof" operator by a catch block.(¢ë©ñ8÷Š¦†0
+K	java:S108’")Either remove or fill this block of code.(ÇøÃÂüÿÿÿÿ8÷Š¦†0
+E	java:S108–")Either remove or fill this block of code.(éúá)8÷Š¦†0
+Y	java:S125¹"<This block of commented-out lines of code should be removed.(¢²ÖÊ8÷Š¦†0
+Y	java:S125Â"<This block of commented-out lines of code should be removed.(ÿÇé«8÷Š¦†0
+l
+java:S2272“"NAdd a "NoSuchElementException" for iteration beyond the end of the collection.(¸ëâ8®÷Š¦†0
+{	java:S135³"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿ8®÷Š¦†0
+f
+java:S2095‹"OUse try-with-resources or close this "PipedOutputStream" in a "finally" clause.(ĞÁç
+q
+java:S2095Š"NUse try-with-resources or close this "PipedInputStream" in a "finally" clause.(‘µ¢ªüÿÿÿÿ8¤úŠ¦†0

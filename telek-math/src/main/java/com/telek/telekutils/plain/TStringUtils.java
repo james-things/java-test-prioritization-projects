@@ -14,7 +14,8 @@ public class TStringUtils {
      * @return x as a string for bases
      */
     public static String convertNumberToUppercaseBaseString(int x){
-        if( 0 <= x && x <= 9 ) return String.valueOf(x);
+        // add bug 10 was if( 0 <= x && x <= 9 ) return String.valueOf(x);
+        if( 0 <= x && x <= 8 ) return String.valueOf(x);
         return String.valueOf( (char) (65 + x - 10) );
     }
 
