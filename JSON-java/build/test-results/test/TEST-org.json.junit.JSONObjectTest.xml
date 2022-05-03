@@ -1,103 +1,687 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.json.junit.JSONObjectTest" tests="95" skipped="0" failures="0" errors="0" timestamp="2022-03-31T00:27:49" hostname="LAPTOP-0DNPIBQS" time="1.278">
+<testsuite name="org.json.junit.JSONObjectTest" tests="95" skipped="0" failures="10" errors="0" timestamp="2022-05-03T20:59:48" hostname="LAPTOP-0DNPIBQS" time="0.654">
   <properties/>
-  <testcase name="jsonValidNumberValuesNeitherLongNorIEEE754Compatible" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonValidNumberValuesNeitherLongNorIEEE754Compatible" classname="org.json.junit.JSONObjectTest" time="0.011"/>
   <testcase name="testPutNullCollection" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="verifyConstructor" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectByResourceBundle" classname="org.json.junit.JSONObjectTest" time="0.03"/>
-  <testcase name="verifySimilar" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="emptyJsonObjectNamesToJsonAray" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectByResourceBundle" classname="org.json.junit.JSONObjectTest" time="0.012"/>
+  <testcase name="verifySimilar" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="emptyJsonObjectNamesToJsonAray" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="testPutNullDouble" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="testLongFromString" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="issue654StackOverflowInputWellFormed" classname="org.json.junit.JSONObjectTest" time="0.012"/>
-  <testcase name="jsonObjectOptNoKey" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="optQueryWithNoResult" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="issue654StackOverflowInputWellFormed" classname="org.json.junit.JSONObjectTest" time="0.016"/>
+  <testcase name="jsonObjectOptNoKey" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="optQueryWithNoResult" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="wrapObject" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testExceptionalBean" classname="org.json.junit.JSONObjectTest" time="0.019"/>
+  <testcase name="testExceptionalBean" classname="org.json.junit.JSONObjectTest" time="0.005"/>
   <testcase name="testPutNullObject" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="jsonObjectputNull" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="issue654IncorrectNestingNoKey1" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="issue654IncorrectNestingNoKey2" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="equals" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="verifyNumberOutput" classname="org.json.junit.JSONObjectTest" time="0.012"/>
-  <testcase name="jsonObjectAccumulate" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="issue654IncorrectNestingNoKey1" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="issue654IncorrectNestingNoKey2" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="equals" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="verifyNumberOutput" classname="org.json.junit.JSONObjectTest" time="0.013"/>
+  <testcase name="jsonObjectAccumulate" classname="org.json.junit.JSONObjectTest" time="0.005"/>
   <testcase name="invalidEscapeSequence" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="stringToValue" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectIncrement" classname="org.json.junit.JSONObjectTest" time="0.002"/>
-  <testcase name="jsonObjectNonAndWrongValues" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectIncrement" classname="org.json.junit.JSONObjectTest" time="0.005"/>
+  <testcase name="jsonObjectNonAndWrongValues" classname="org.json.junit.JSONObjectTest" time="0.001">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 258 [character 259 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 258 [character 259 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.jsonObjectNonAndWrongValues(JSONObjectTest.java:1080)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
   <testcase name="toJSONArray" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="unquotedText" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="jsonObjectAppend" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testPutNullBoolean" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectByMapWithNullValue" classname="org.json.junit.JSONObjectTest" time="0.002"/>
-  <testcase name="testLongRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.005"/>
+  <testcase name="testPutNullBoolean" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectByMapWithNullValue" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="testLongRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.004"/>
   <testcase name="verifyPutMap" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectPut" classname="org.json.junit.JSONObjectTest" time="0.003"/>
-  <testcase name="optQueryWithSyntaxError" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="jsonObjectPut" classname="org.json.junit.JSONObjectTest" time="0.001">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 48 [character 49 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 48 [character 49 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.jsonObjectPut(JSONObjectTest.java:1757)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
+  <testcase name="optQueryWithSyntaxError" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="jsonObjectByNullMap" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectDoubleToString" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testJSONWriterException" classname="org.json.junit.JSONObjectTest" time="0.026"/>
-  <testcase name="bigNumberOperations" classname="org.json.junit.JSONObjectTest" time="0.429"/>
-  <testcase name="jsonObjectByNullBean" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectDoubleToString" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="testJSONWriterException" classname="org.json.junit.JSONObjectTest" time="0.003"/>
+  <testcase name="bigNumberOperations" classname="org.json.junit.JSONObjectTest" time="0.256"/>
+  <testcase name="jsonObjectByNullBean" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="jsonObjectNumberToString" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="jsonInvalidNumberValues" classname="org.json.junit.JSONObjectTest" time="0.003"/>
   <testcase name="verifyPutCollection" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="testRecursiveEquals" classname="org.json.junit.JSONObjectTest" time="0.003"/>
-  <testcase name="jsonObjectValues" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="issue654StackOverflowInput" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectParseControlCharacters" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="testRecursiveEquals" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="jsonObjectValues" classname="org.json.junit.JSONObjectTest" time="0.001">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 374 [character 375 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 374 [character 375 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.jsonObjectValues(JSONObjectTest.java:855)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
+  <testcase name="issue654StackOverflowInput" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectParseControlCharacters" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="testNotRecursiveEquals" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testSingletonEnumBean" classname="org.json.junit.JSONObjectTest" time="0.003"/>
-  <testcase name="jsonObjectToStringSuppressWarningOnCastToCollection" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectClearMethodTest" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectPutOnceNull" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectOptCoercion" classname="org.json.junit.JSONObjectTest" time="0.002"/>
-  <testcase name="jsonObjectNamesToJsonAray" classname="org.json.junit.JSONObjectTest" time="0.062"/>
-  <testcase name="toMap" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="write" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="testSingletonEnumBean" classname="org.json.junit.JSONObjectTest" time="0.005"/>
+  <testcase name="jsonObjectToStringSuppressWarningOnCastToCollection" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="jsonObjectClearMethodTest" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="jsonObjectPutOnceNull" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectOptCoercion" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectNamesToJsonAray" classname="org.json.junit.JSONObjectTest" time="0.022"/>
+  <testcase name="toMap" classname="org.json.junit.JSONObjectTest" time="0.001">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 12 [character 13 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 12 [character 13 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.toMap(JSONObjectTest.java:2990)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
+  <testcase name="write" classname="org.json.junit.JSONObjectTest" time="0.0">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 28 [character 29 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 28 [character 29 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.write(JSONObjectTest.java:2655)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
   <testcase name="testPutNullFloat" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectParsingErrors" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testSimpleRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testGenericBean" classname="org.json.junit.JSONObjectTest" time="0.014"/>
-  <testcase name="write3Param" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectParsingErrors" classname="org.json.junit.JSONObjectTest" time="0.002">
+    <failure message="org.junit.ComparisonFailure: Expecting an expection message expected:&lt;[Duplicate key &quot;attr01&quot; at 124 [character 17 line 8]]&gt; but was:&lt;[Expected a ',' or ']' at 77 [character 5 line 6]]&gt;" type="org.junit.ComparisonFailure">org.junit.ComparisonFailure: Expecting an expection message expected:&lt;[Duplicate key &quot;attr01&quot; at 124 [character 17 line 8]]&gt; but was:&lt;[Expected a ',' or ']' at 77 [character 5 line 6]]&gt;
+	at org.junit.Assert.assertEquals(Assert.java:117)
+	at org.json.junit.JSONObjectTest.jsonObjectParsingErrors(JSONObjectTest.java:2355)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
+  <testcase name="testSimpleRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.004"/>
+  <testcase name="testGenericBean" classname="org.json.junit.JSONObjectTest" time="0.004"/>
+  <testcase name="write3Param" classname="org.json.junit.JSONObjectTest" time="0.0">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 28 [character 29 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 28 [character 29 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.write3Param(JSONObjectTest.java:2785)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
   <testcase name="jsonObjectOptBigDecimal" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectToStringSuppressWarningOnCastToMap" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectNullOperations" classname="org.json.junit.JSONObjectTest" time="0.004"/>
-  <testcase name="unexpectedDoubleToIntConversion" classname="org.json.junit.JSONObjectTest" time="0.004"/>
-  <testcase name="testLongSelfRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectByBean1" classname="org.json.junit.JSONObjectTest" time="0.042"/>
-  <testcase name="jsonObjectByBean2" classname="org.json.junit.JSONObjectTest" time="0.011"/>
-  <testcase name="jsonObjectByBean3" classname="org.json.junit.JSONObjectTest" time="0.005"/>
-  <testcase name="jsonObjectByNames" classname="org.json.junit.JSONObjectTest" time="0.003"/>
-  <testcase name="jsonObjectOptBigInteger" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testLongRepeatObjectNotRecursive" classname="org.json.junit.JSONObjectTest" time="0.007"/>
-  <testcase name="queryWithNoResult" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectToString" classname="org.json.junit.JSONObjectTest" time="0.002"/>
-  <testcase name="testWierdListBean" classname="org.json.junit.JSONObjectTest" time="0.005"/>
-  <testcase name="jsonObjectOptStringConversion" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectToStringSuppressWarningOnCastToMap" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectNullOperations" classname="org.json.junit.JSONObjectTest" time="0.005"/>
+  <testcase name="unexpectedDoubleToIntConversion" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="testLongSelfRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="jsonObjectByBean1" classname="org.json.junit.JSONObjectTest" time="0.017"/>
+  <testcase name="jsonObjectByBean2" classname="org.json.junit.JSONObjectTest" time="0.007"/>
+  <testcase name="jsonObjectByBean3" classname="org.json.junit.JSONObjectTest" time="0.003"/>
+  <testcase name="jsonObjectByNames" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectOptBigInteger" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="testLongRepeatObjectNotRecursive" classname="org.json.junit.JSONObjectTest" time="0.003"/>
+  <testcase name="queryWithNoResult" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="jsonObjectToString" classname="org.json.junit.JSONObjectTest" time="0.0">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 48 [character 49 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 48 [character 49 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.jsonObjectToString(JSONObjectTest.java:1802)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
+  <testcase name="testWierdListBean" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="jsonObjectOptStringConversion" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="testSelfRecursiveObject" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectByObjectAndNames" classname="org.json.junit.JSONObjectTest" time="0.005"/>
-  <testcase name="testSingletonBean" classname="org.json.junit.JSONObjectTest" time="0.007"/>
-  <testcase name="jsonObjectToStringIndent" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="testRepeatObjectRecursive" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="jsonObjectByObjectAndNames" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="testSingletonBean" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="jsonObjectToStringIndent" classname="org.json.junit.JSONObjectTest" time="0.001">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 12 [character 13 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 12 [character 13 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONTokener.nextValue(JSONTokener.java:445)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:262)
+	at org.json.JSONObject.&lt;init&gt;(JSONObject.java:421)
+	at org.json.junit.JSONObjectTest.jsonObjectToStringIndent(JSONObjectTest.java:1881)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
+  <testcase name="testRepeatObjectRecursive" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="jsonObjectOptDefault" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="testGenericIntBean" classname="org.json.junit.JSONObjectTest" time="0.004"/>
-  <testcase name="stringToValueNumbersTest" classname="org.json.junit.JSONObjectTest" time="0.002"/>
+  <testcase name="testGenericIntBean" classname="org.json.junit.JSONObjectTest" time="0.003"/>
+  <testcase name="stringToValueNumbersTest" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="emptyJsonObject" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="testRepeatObjectNotRecursive" classname="org.json.junit.JSONObjectTest" time="0.004"/>
+  <testcase name="testRepeatObjectNotRecursive" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="testPutNullLong" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="valueToString" classname="org.json.junit.JSONObjectTest" time="0.006"/>
+  <testcase name="valueToString" classname="org.json.junit.JSONObjectTest" time="0.002">
+    <failure message="org.json.JSONException: Expected a ',' or ']' at 4 [character 5 line 1]" type="org.json.JSONException">org.json.JSONException: Expected a ',' or ']' at 4 [character 5 line 1]
+	at org.json.JSONTokener.syntaxError(JSONTokener.java:521)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:136)
+	at org.json.JSONArray.&lt;init&gt;(JSONArray.java:163)
+	at org.json.junit.JSONObjectTest.valueToString(JSONObjectTest.java:1962)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+	at com.sun.proxy.$Proxy2.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:118)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:412)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
+	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:56)
+	at java.base/java.lang.Thread.run(Thread.java:832)
+</failure>
+  </testcase>
   <testcase name="valueToStringConfirmException" classname="org.json.junit.JSONObjectTest" time="0.001"/>
   <testcase name="testIssue548ObjectWithEmptyJsonArray" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectByMapWithUnsupportedValues" classname="org.json.junit.JSONObjectTest" time="0.001"/>
+  <testcase name="jsonObjectByMapWithUnsupportedValues" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="testPutNullInt" classname="org.json.junit.JSONObjectTest" time="0.0"/>
   <testcase name="testPutNullMap" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="jsonObjectByMap" classname="org.json.junit.JSONObjectTest" time="0.001"/>
-  <testcase name="jsonObjectNames" classname="org.json.junit.JSONObjectTest" time="0.004"/>
+  <testcase name="jsonObjectByMap" classname="org.json.junit.JSONObjectTest" time="0.0"/>
+  <testcase name="jsonObjectNames" classname="org.json.junit.JSONObjectTest" time="0.003"/>
   <testcase name="jsonObjectQuote" classname="org.json.junit.JSONObjectTest" time="0.0"/>
-  <testcase name="timeNumberParsing" classname="org.json.junit.JSONObjectTest" time="0.367"/>
-  <system-out><![CDATA[new BigDecimal(testData[]) : 268 ms
-NUMBER_PATTERN.matcher(testData[]).matches() : 96 ms
+  <testcase name="timeNumberParsing" classname="org.json.junit.JSONObjectTest" time="0.19"/>
+  <system-out><![CDATA[new BigDecimal(testData[]) : 140 ms
+NUMBER_PATTERN.matcher(testData[]).matches() : 49 ms
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

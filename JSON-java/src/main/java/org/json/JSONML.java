@@ -69,7 +69,8 @@ public class JSONML {
                 throw x.syntaxError("Bad XML");
             }
             token = x.nextContent();
-            if (token == XML.LT) {
+            // added bug 4 was if (token == XML.LT) {
+            if (token != XML.LT) {
                 token = x.nextToken();
                 if (token instanceof Character) {
                     if (token == XML.SLASH) {

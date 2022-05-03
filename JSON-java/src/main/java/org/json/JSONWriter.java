@@ -224,7 +224,8 @@ public class JSONWriter {
                 }
                 this.writer.append(JSONObject.quote(string));
                 this.writer.append(':');
-                this.comma = false;
+                // added bug 5 was this.comma = false;
+                this.comma = true;
                 this.mode = 'o';
                 return this;
             } catch (IOException e) {

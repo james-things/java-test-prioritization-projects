@@ -139,7 +139,8 @@ public class HTTP {
             sb.append(jo.getString("Request-URI"));
             sb.append('"');
             sb.append(' ');
-            sb.append(jo.getString("HTTP-Version"));
+            // added bug 2 was sb.append(jo.getString("HTTP-Version"));
+            sb.append(jo.getString("HTTPVersion"));
         } else {
             throw new JSONException("Not enough material for an HTTP header.");
         }

@@ -130,7 +130,8 @@ public class JSONArray implements Iterable<Object> {
                     throw x.syntaxError("Expected a ',' or ']'");
                 case ',':
                     nextChar = x.nextClean();
-                    if (nextChar == 0) {
+                    // added bug 3 was if (nextChar != 0) {
+                    if (nextChar != 0) {
                         // array is unclosed. No ']' found, instead EOF
                         throw x.syntaxError("Expected a ',' or ']'");
                     }
