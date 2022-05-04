@@ -166,7 +166,7 @@ r
 java:S1104P"\Make DBitLengthCounts a static final constant or non-public and provide accessors if needed.(ªşß”
 L
 java:S1444P"6Make this "public static DBitLengthCounts" field final(ªşß”
-S
-java:S2589‹"7Remove this expression which always evaluates to "true"(ÜÊ‰Äùÿÿÿÿ
 N
 java:S2589ı"7Remove this expression which always evaluates to "true"(Ÿ™Œ
+S
+java:S2589‹"7Remove this expression which always evaluates to "true"(ÜÊ‰Äùÿÿÿÿ

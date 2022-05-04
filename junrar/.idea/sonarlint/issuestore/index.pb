@@ -23,14 +23,8 @@ _
 /src/main/java/com/github/junrar/crc/RarCRC.java,4\a\4a8e3c0d909332225763963349e928467bd42104
 g
 7src/main/java/com/github/junrar/rarfile/RARVersion.java,1\c\1cfb9d355ae891d1c735306aa60c02780402e94f
-m
-=src/main/java/com/github/junrar/unsigned/UnsignedInteger.java,5\8\587b57c97a27b44e567b217b7e40c3ac431b9e1a
-\
-,src/main/java/com/github/junrar/Archive.java,3\2\327f91791c780fefbf0cb9022d5eca64ded0f659
 b
 2src/main/java/com/github/junrar/unpack/Unpack.java,a\4\a4264d6075a18599d78f0a33c0ba93e78d2eb1b3
-e
-5src/main/java/com/github/junrar/unpack/ppm/State.java,9\4\9435cc08722569caf753472dca9f111ed543e219
 [
 +src/main/java/com/github/junrar/Junrar.java,3\1\3127bc273f68cf04ffb28b9e2fc59cc46cf4718b
 i
@@ -41,5 +35,11 @@ l
 <src/main/java/com/github/junrar/unpack/decode/BitDecode.java,6\b\6b2029cc7be3a2781a791debcb15de3b57cfeffe
 j
 :src/main/java/com/github/junrar/rarfile/MacInfoHeader.java,4\1\41f232e00357fd49fa4a6a0822aa35b75de10891
+e
+5src/main/java/com/github/junrar/unpack/ppm/State.java,9\4\9435cc08722569caf753472dca9f111ed543e219
+m
+=src/main/java/com/github/junrar/unsigned/UnsignedInteger.java,5\8\587b57c97a27b44e567b217b7e40c3ac431b9e1a
+\
+,src/main/java/com/github/junrar/Archive.java,3\2\327f91791c780fefbf0cb9022d5eca64ded0f659
 g
 7src/main/java/com/github/junrar/rarfile/MainHeader.java,1\9\19abd785bb3fee9ea623419b5a4e9b8d4d2c04df
