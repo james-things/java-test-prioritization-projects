@@ -22,7 +22,7 @@ Y	java:S125Â"<This block of commented-out lines of code should be removed.(ÿÇ
 l
 java:S2272“"NAdd a "NoSuchElementException" for iteration beyond the end of the collection.(¸ëâ8®÷Š¦†0
 {	java:S135³"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿ8®÷Š¦†0
-f
-java:S2095‹"OUse try-with-resources or close this "PipedOutputStream" in a "finally" clause.(ĞÁç
 q
 java:S2095Š"NUse try-with-resources or close this "PipedInputStream" in a "finally" clause.(‘µ¢ªüÿÿÿÿ8¤úŠ¦†0
+f
+java:S2095‹"OUse try-with-resources or close this "PipedOutputStream" in a "finally" clause.(ĞÁç

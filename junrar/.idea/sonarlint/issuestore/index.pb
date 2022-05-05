@@ -7,8 +7,6 @@ f
 	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
 ;
 gradlew.bat,2\a\2a45a911a8f1836b0b6c5b758962572012d8f8c3
-q
-Asrc/test/java/com/github/junrar/architecture/CodingRulesTest.java,8\4\84dbb3f7c4b7e39bd0530b4cf47ee3dac95d7b89
 `
 0src/test/java/com/github/junrar/ArchiveTest.java,e\2\e21f379a1f2d8c86de7c4e39a39b7bae34d4be9a
 a
@@ -43,3 +41,5 @@ m
 ,src/main/java/com/github/junrar/Archive.java,3\2\327f91791c780fefbf0cb9022d5eca64ded0f659
 g
 7src/main/java/com/github/junrar/rarfile/MainHeader.java,1\9\19abd785bb3fee9ea623419b5a4e9b8d4d2c04df
+q
+Asrc/test/java/com/github/junrar/architecture/CodingRulesTest.java,8\4\84dbb3f7c4b7e39bd0530b4cf47ee3dac95d7b89
