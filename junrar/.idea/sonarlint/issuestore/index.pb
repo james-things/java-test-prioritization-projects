@@ -33,13 +33,13 @@ l
 <src/main/java/com/github/junrar/unpack/decode/BitDecode.java,6\b\6b2029cc7be3a2781a791debcb15de3b57cfeffe
 j
 :src/main/java/com/github/junrar/rarfile/MacInfoHeader.java,4\1\41f232e00357fd49fa4a6a0822aa35b75de10891
+g
+7src/main/java/com/github/junrar/rarfile/MainHeader.java,1\9\19abd785bb3fee9ea623419b5a4e9b8d4d2c04df
 e
 5src/main/java/com/github/junrar/unpack/ppm/State.java,9\4\9435cc08722569caf753472dca9f111ed543e219
 m
 =src/main/java/com/github/junrar/unsigned/UnsignedInteger.java,5\8\587b57c97a27b44e567b217b7e40c3ac431b9e1a
 \
 ,src/main/java/com/github/junrar/Archive.java,3\2\327f91791c780fefbf0cb9022d5eca64ded0f659
-g
-7src/main/java/com/github/junrar/rarfile/MainHeader.java,1\9\19abd785bb3fee9ea623419b5a4e9b8d4d2c04df
 q
 Asrc/test/java/com/github/junrar/architecture/CodingRulesTest.java,8\4\84dbb3f7c4b7e39bd0530b4cf47ee3dac95d7b89

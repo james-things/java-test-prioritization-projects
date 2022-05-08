@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.sl.algorithms.search.nge.NGERegularArrayTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-04-19T21:31:43" hostname="LAPTOP-0DNPIBQS" time="0.001">
-  <properties/>
-  <testcase name="testFindDaysToWarmthBruteForce" classname="com.sl.algorithms.search.nge.NGERegularArrayTest" time="0.001"/>
-  <testcase name="testFindDaysToWarmth" classname="com.sl.algorithms.search.nge.NGERegularArrayTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

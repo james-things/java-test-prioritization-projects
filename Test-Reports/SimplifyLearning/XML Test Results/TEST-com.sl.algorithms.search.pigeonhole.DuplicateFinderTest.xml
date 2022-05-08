@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.sl.algorithms.search.pigeonhole.DuplicateFinderTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-04-19T21:31:43" hostname="LAPTOP-0DNPIBQS" time="0.014">
-  <properties/>
-  <testcase name="testNaiveDuplicateFinder" classname="com.sl.algorithms.search.pigeonhole.DuplicateFinderTest" time="0.013"/>
-  <testcase name="testEfficientDuplicateFinder" classname="com.sl.algorithms.search.pigeonhole.DuplicateFinderTest" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
