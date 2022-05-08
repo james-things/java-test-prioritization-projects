@@ -79,7 +79,7 @@ public class TFunction extends AbstractFunction {
             AbstractFunction[] funcArr = this.innerProducts.get(j);
 
             double productResult = 1d;
-            // add bug 6 was for (int i = 0; i < funcArr.length; i++) {
+            // added bug 6 was for (int i = 0; i < funcArr.length; i++) {
             for (int i = 0; i <= funcArr.length; i++) {
                 productResult *= funcArr[i].value(x);
             }

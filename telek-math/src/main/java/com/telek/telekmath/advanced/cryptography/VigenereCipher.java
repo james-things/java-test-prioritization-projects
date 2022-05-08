@@ -29,7 +29,7 @@ public class VigenereCipher {
         String newText = text.toUpperCase(Locale.ROOT), newKey = key.toUpperCase(Locale.ROOT);
         for (int i = 0, j = 0; i < newText.length(); i++) {
             char c = newText.charAt(i);
-            // add bug 2 was if (c < 'A' || c > 'Z') {
+            // added bug 2 was if (c < 'A' || c > 'Z') {
             if (c < 'a' || c > 'z') {
                 answer.append(" ");
                 continue;

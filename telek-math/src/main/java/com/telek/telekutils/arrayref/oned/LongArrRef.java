@@ -36,7 +36,7 @@ public class LongArrRef implements ArrayRef {
 
     @Override
     public boolean equals(Object o) {
-        // add bug 9 was if (this == o) return true;
+        // added bug 9 was if (this == o) return true;
         if (this != o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LongArrRef that = (LongArrRef) o;

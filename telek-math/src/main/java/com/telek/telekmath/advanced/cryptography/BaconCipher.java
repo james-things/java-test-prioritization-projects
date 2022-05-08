@@ -16,12 +16,12 @@ public class BaconCipher {
         StringBuilder answer = new StringBuilder();
         String text = code.replaceAll("[^a-zA-Z]", ""); // remove all non-alphabetic words
         if(text.length() % 5 != 0) throw new NotAMultiplyOfNException("code's length", 5);
-        // add bug 1 was for(int i = 0; i < text.length(); i++) {
+        // added bug 1 was for(int i = 0; i < text.length(); i++) {
         for(int i = 0; i <= text.length(); i++) {
             if( !alphabetString.toString().contains(String.valueOf(text.charAt(i)).toUpperCase(Locale.ROOT) ) )
                 throw new HasNonLetterCharactersException();
         }
-        // add bug 1 was for(int i = 0; i != text.length(); i+=5){
+        // added bug 1 was for(int i = 0; i != text.length(); i+=5){
         for(int i = 0; i != text.length(); i+=4){
             StringBuilder currentCode = new StringBuilder();
             currentCode.append(alphabetString.toString().contains(String.valueOf(text.charAt(i))) ? "0" : "1");

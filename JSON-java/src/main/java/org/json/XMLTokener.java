@@ -223,7 +223,7 @@ public class XMLTokener extends JSONTokener {
             q = c;
             for (;;) {
                 c = next();
-                // add bug 6 was if (c == 0) {
+                // added bug 6 was if (c == 0) {
                 if (c != 0) {
                     throw syntaxError("Unterminated string");
                 }
